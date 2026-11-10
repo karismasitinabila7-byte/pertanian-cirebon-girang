@@ -1,0 +1,339 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { LogOut, Menu, User, ChevronDown, Bell, AlertTriangle, Droplets, Wheat, ShieldAlert, ExternalLink, Bot, Sparkles, Mail, Loader2, Check } from 'lucide-react'
+
+export function Header({
+  user,
+  onMenuClick,
+}: {
+  user: { username: string; role: string; fullName?: string; email?: string } | null
+  onMenuClick: () => void
+}) {
+  const router = useRouter()
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [warnings, setWarnings] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailSentSuccess, setEmailSentSuccess] = useState(false)
+
+  useEffect(() => {
+    if (!user?.username) return
+
+    // Cache warnings for 60s in session to avoid firing API request on every page switch
+    try {
+      const cached = sessionStorage.getItem('sipadi_warnings_cache')
+      const cacheTime = sessionStorage.getItem('sipadi_warnings_time')
+      const now = Date.now()
+
+      if (cached && cacheTime && now - Number(cacheTime) < 60000) {
+        const data = JSON.parse(cached)
+        setWarnings(data)
+        setUnreadCount(data.filter((w: any) => w.severity === 'URGENT' || w.severity === 'WARNING').length)
+        return
+      }
+    } catch (e) {}
+
+    fetch('/api/warnings')
+      .then(res => res.json())
+      .then(json => {
+        if (json.data) {
+          setWarnings(json.data)
+          setUnreadCount(json.data.filter((w: any) => w.severity === 'URGENT' || w.severity === 'WARNING').length)
+          try {
+            sessionStorage.setItem('sipadi_warnings_cache', JSON.stringify(json.data))
+            sessionStorage.setItem('sipadi_warnings_time', String(Date.now()))
+          } catch (e) {}
+        }
+      })
+      .catch(() => {})
+  }, [user?.username])
+
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem('userName')
+      localStorage.removeItem('userEmail')
+      localStorage.removeItem('userRole')
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch (e) {
+      // ignore
+    }
+    router.push('/login')
+    router.refresh()
+  }
+
+  const roleLabel = user?.role === 'ADMIN'
+    ? 'Administrator'
+    : user?.role === 'PERANGKAT_DESA'
+    ? 'Perangkat Desa'
+    : 'Petani'
+
+  const avatarSrc = user?.role === 'ADMIN'
+    ? '/avatars/admin.jpg'
+    : user?.role === 'PERANGKAT_DESA'
+    ? '/avatars/perangkat.jpg'
+    : '/avatars/petani.jpg'
+
+  const profileHref = user?.role === 'ADMIN'
+    ? '/admin/profil'
+    : user?.role === 'PERANGKAT_DESA'
+    ? '/desa/profil'
+    : '/petani/profil'
+
+  return (
+    <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-10 sticky top-0 shadow-2xs">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuClick}
+          className="text-gray-500 hover:text-gray-700 md:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100"
+        >
+          <span className="sr-only">Buka menu</span>
+          <Menu className="h-6 w-6" />
+        </button>
+        <span className="hidden sm:inline-block text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+          Desa Cirebon Girang &middot; {roleLabel}
+        </span>
+      </div>
+
+      <div className="flex items-center space-x-2.5 sm:space-x-3">
+        {/* Tombol Akses AI Assistant di Navigasi Header Atas (Admin & Petani saja) */}
+        {Boolean(user) && (
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-ai-chat'))
+            }}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-xs hover:shadow transition-all group border border-blue-500/30 cursor-pointer"
+            title={
+              user?.role === 'ADMIN'
+                ? 'Buka Asisten Pintar Administrator Pertanian'
+                : 'Buka AI Assistant Pertanian Padi'
+            }
+          >
+            <div className="relative flex items-center justify-center">
+              <Bot className="h-4 w-4 text-blue-100 group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-300"></span>
+              </span>
+            </div>
+            <span className="text-xs font-semibold tracking-wide hidden sm:inline-block">
+              {user?.role === 'ADMIN' ? 'AI Assistant' : 'AI Assistant'}
+            </span>
+            <Sparkles className="h-3 w-3 text-amber-300 hidden md:inline-block animate-pulse" />
+          </button>
+        )}
+
+        {/* Notification Bell (Early Warning System) */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setShowNotifications(!showNotifications)
+              setShowDropdown(false)
+            }}
+            className="p-2 text-gray-500 hover:text-emerald-700 hover:bg-gray-100 rounded-xl relative transition"
+            title="Peringatan Dini Pertanian"
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50">
+              <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-emerald-700" />
+                  <span className="text-xs font-bold text-gray-900">Peringatan Dini Pertanian</span>
+                </div>
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                  {warnings.length} Notifikasi
+                </span>
+              </div>
+
+              <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                {warnings.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-gray-500">
+                    Tidak ada peringatan tenggat waktu aktif.
+                  </div>
+                ) : (
+                  warnings.slice(0, 5).map((w: any) => (
+                    <div key={w.id} className="p-3 hover:bg-gray-50 transition">
+                      <div className="flex items-start gap-2.5">
+                        <div className="mt-0.5 flex-shrink-0">
+                          {w.type === 'PEMUPUKAN' ? (
+                            <Droplets className="h-4 w-4 text-amber-600" />
+                          ) : w.type === 'PANEN' ? (
+                            <Wheat className="h-4 w-4 text-emerald-600" />
+                          ) : (
+                            <ShieldAlert className="h-4 w-4 text-rose-600" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-gray-900 leading-tight">
+                            {w.title}
+                          </p>
+                          <p className="text-[11px] text-gray-600 mt-0.5 line-clamp-2">
+                            {w.message}
+                          </p>
+                          <div className="mt-1 flex items-center justify-between">
+                            <span className="text-[10px] font-semibold text-emerald-700">
+                              {w.lahanNama || 'Sawah Desa'}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`https://api.whatsapp.com/send?phone=6285797864834&text=${encodeURIComponent(
+                                  `📢 *PERINGATAN DINI PERTANIAN (EARLY WARNING SYSTEM)*\n*Pemerintah Desa Cirebon Girang*\n━━━━━━━━━━━━━━━━━━━━━━━\n⚠️ *Topik:* ${w.title}\n🌾 *Lahan:* ${w.lahanNama || 'Hamparan Sawah Desa'}\n👤 *Petani:* ${w.petaniNama || 'Bapak Sukardi'}\n\n📋 *Pesan:* ${w.message}\n━━━━━━━━━━━━━━━━━━━━━━━\n_SI PADI Desa Cirebon Girang_`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] font-bold text-[#25D366] hover:underline flex items-center gap-0.5"
+                                title="Kirim ke WhatsApp (6285797864834)"
+                              >
+                                <span>Kirim WA</span>
+                              </a>
+                              <Link
+                                href={w.actionUrl}
+                                onClick={() => setShowNotifications(false)}
+                                className="text-[10px] font-bold text-emerald-800 hover:underline flex items-center gap-0.5"
+                              >
+                                <span>{w.actionLabel}</span>
+                                <ExternalLink size={10} />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer: Kirim Rekapitulasi ke Email */}
+              <div className="p-2.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                <button
+                  onClick={async () => {
+                    try {
+                      setIsSendingEmail(true)
+                      const res = await fetch('/api/notifications/send-email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          action: 'SEND_ALL_WARNINGS',
+                          to: 'karismasitinabila7@gmail.com',
+                        }),
+                      })
+                      const data = await res.json()
+                      if (data.success) {
+                        setEmailSentSuccess(true)
+                        setTimeout(() => setEmailSentSuccess(false), 4000)
+                      }
+                    } catch (e) {
+                      console.error('Error sending email:', e)
+                    } finally {
+                      setIsSendingEmail(false)
+                    }
+                  }}
+                  disabled={isSendingEmail || warnings.length === 0}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-emerald-700 hover:bg-emerald-800 text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
+                  title="Kirimkan rangkuman seluruh peringatan aktif ke karismasitinabila7@gmail.com"
+                >
+                  {isSendingEmail ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin" />
+                      <span>Mengirim ke karismasitinabila7@gmail.com...</span>
+                    </>
+                  ) : emailSentSuccess ? (
+                    <>
+                      <Check size={12} className="text-emerald-200" />
+                      <span>Terkirim ke karismasitinabila7@gmail.com!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mail size={12} />
+                      <span>Kirim ke karismasitinabila7@gmail.com</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User Dropdown */}
+        {user && (
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowDropdown(!showDropdown)
+                setShowNotifications(false)
+              }}
+              className="flex items-center space-x-2.5 p-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl focus:outline-none border border-transparent hover:border-gray-200 transition"
+            >
+              <img
+                src={avatarSrc}
+                alt={user.username}
+                className="w-8 h-8 rounded-full object-cover border border-emerald-500 shadow-2xs"
+              />
+              <div className="hidden sm:block text-left">
+                <span className="block font-semibold text-xs text-gray-900 leading-tight">
+                  {user.fullName || user.username}
+                </span>
+                <span className="block text-[10px] text-gray-500 font-medium leading-none mt-0.5">
+                  {roleLabel}
+                </span>
+              </div>
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            </button>
+
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 z-50">
+                <div className="px-4 py-2.5 border-b border-gray-100 flex items-center gap-2.5">
+                  <img
+                    src={avatarSrc}
+                    alt={user.fullName || user.username}
+                    className="w-9 h-9 rounded-full object-cover border border-emerald-400"
+                  />
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-gray-900 truncate">
+                      {user.fullName || user.username}
+                    </p>
+                    <p className="text-[11px] font-semibold text-emerald-700">
+                      {roleLabel}
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href={profileHref}
+                  prefetch={true}
+                  onClick={() => setShowDropdown(false)}
+                  className="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 flex items-center transition"
+                >
+                  <User className="h-3.5 w-3.5 mr-2 text-gray-400" />
+                  Profil & Data Lahan
+                </Link>
+
+                <div className="border-t border-gray-100 my-1"></div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center transition"
+                >
+                  <LogOut className="h-3.5 w-3.5 mr-2" />
+                  Keluar dari Sistem
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </header>
+  )
+}

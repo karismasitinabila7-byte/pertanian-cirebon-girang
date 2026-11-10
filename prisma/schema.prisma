@@ -1,0 +1,259 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// 1. USER & AUTHENTICATION
+// Roles: ADMIN, PERANGKAT_DESA, PETANI
+// -------------------------------------------------------------
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  email        String?   @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  role         String    @default("PETANI") // ADMIN | PERANGKAT_DESA | PETANI
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  petani       Petani?
+  informasi    InformasiPertanian[]
+  aiSessions   AiChatSession[]
+  auditLogs    AuditLog[]
+  broadcasts   BroadcastNotification[]
+
+  @@map("users")
+}
+
+// -------------------------------------------------------------
+// 2. KELOMPOK TANI
+// -------------------------------------------------------------
+model KelompokTani {
+  id          String    @id @default(cuid())
+  nama        String    // e.g. "Kelompok Tani Sri Rejeki"
+  ketua       String    // Nama Ketua Kelompok Tani
+  wilayah     String    // Dusun / Blok di Desa Cirebon Girang (e.g. "Dusun Karang Anyar")
+  deskripsi   String?   @db.Text
+  nomorKontak String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  anggota     Petani[]
+
+  @@map("kelompok_tani")
+}
+
+// -------------------------------------------------------------
+// 3. DATA PETANI
+// -------------------------------------------------------------
+model Petani {
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  kelompokTaniId String?
+  nik            String?       @unique
+  namaLengkap    String
+  nomorTelepon   String
+  alamat         String        @db.Text
+  jenisKelamin   String        @default("LAKI_LAKI") // LAKI_LAKI | PEREMPUAN
+  tanggalLahir   DateTime?
+  fotoProfil     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kelompokTani   KelompokTani? @relation(fields: [kelompokTaniId], references: [id], onDelete: SetNull)
+  lahan          Lahan[]
+  receivedBroadcasts BroadcastNotification[]
+
+  @@map("petani")
+}
+
+// -------------------------------------------------------------
+// 4. DATA LAHAN
+// -------------------------------------------------------------
+model Lahan {
+  id           String        @id @default(cuid())
+  petaniId     String
+  namaLahan    String        // e.g. "Petak Sawah Blok Kulon A"
+  luasLahan    Float         // Jumlah luas lahan
+  satuanLuas   String        @default("m²") // "m²", "Ha", "Bata"
+  lokasi       String        // Deskripsi lokasi/blok
+  status       String        @default("AKTIF") // AKTIF | TIDAK_AKTIF
+  latitude     Float?
+  longitude    Float?
+  catatan      String?       @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  petani       Petani        @relation(fields: [petaniId], references: [id], onDelete: Cascade)
+  musimTanam   MusimTanam[]
+
+  @@map("lahan")
+}
+
+// -------------------------------------------------------------
+// 5. MUSIM TANAM
+// -------------------------------------------------------------
+model MusimTanam {
+  id            String               @id @default(cuid())
+  lahanId       String
+  namaMusim     String               // e.g. "Musim Rendeng MT1 2026/2027"
+  varietasPadi  String               // e.g. "Inpari 32", "Ciherang"
+  tanggalMulai  DateTime
+  tanggalTanam  DateTime
+  estimasiPanen DateTime
+  status        String               @default("PERENCANAAN") // PERENCANAAN | BERJALAN | SELESAI | GAGAL
+  catatan       String?              @db.Text
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  lahan         Lahan                @relation(fields: [lahanId], references: [id], onDelete: Cascade)
+  aktivitas     AktivitasBudidaya[]
+  panen         Panen?
+
+  @@map("musim_tanam")
+}
+
+// -------------------------------------------------------------
+// 6. AKTIVITAS BUDIDAYA
+// -------------------------------------------------------------
+model AktivitasBudidaya {
+  id             String      @id @default(cuid())
+  musimTanamId   String
+  jenisAktivitas String      // "Persiapan Lahan" | "Penanaman" | "Pemupukan" | "Pengairan" | "Penyemprotan" | "Pengendalian Hama" | "Panen" | "Lainnya"
+  tanggal        DateTime
+  deskripsi      String      @db.Text
+  foto           String?
+  biaya          Float?
+  bahan          String?     @db.Text // e.g. "Urea 50kg, NPK Phonska 100kg"
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  musimTanam     MusimTanam  @relation(fields: [musimTanamId], references: [id], onDelete: Cascade)
+
+  @@map("aktivitas_budidaya")
+}
+
+// -------------------------------------------------------------
+// 7. DATA PANEN
+// -------------------------------------------------------------
+model Panen {
+  id             String      @id @default(cuid())
+  musimTanamId   String      @unique
+  tanggalPanen   DateTime
+  jumlahProduksi Float       // Angka produksi
+  satuan         String      @default("kg") // "kg", "kuintal", "ton"
+  kualitas       String?     // e.g. "Kualitas Gabah Super Kering Giling"
+  catatan        String?     @db.Text
+  dokumentasi    String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  musimTanam     MusimTanam  @relation(fields: [musimTanamId], references: [id], onDelete: Cascade)
+
+  @@map("panen")
+}
+
+// -------------------------------------------------------------
+// 8. INFORMASI PERTANIAN
+// -------------------------------------------------------------
+model InformasiPertanian {
+  id               String    @id @default(cuid())
+  judul            String
+  isi              String    @db.Text
+  kategori         String    // "Budidaya Padi" | "Pupuk" | "Hama & Penyakit" | "Cuaca" | "Bantuan Pertanian" | "Pengumuman" | "Kegiatan Desa"
+  gambar           String?
+  status           String    @default("DRAFT") // DRAFT | PUBLISHED
+  tanggalPublikasi DateTime?
+  penulisId        String
+  namaPenulis      String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  penulis          User      @relation(fields: [penulisId], references: [id], onDelete: Cascade)
+
+  @@map("informasi_pertanian")
+}
+
+// -------------------------------------------------------------
+// 9. AI ASSISTANT PERTANIAN
+// -------------------------------------------------------------
+model AiChatSession {
+  id        String          @id @default(cuid())
+  userId    String
+  topik     String          @default("Konsultasi Budidaya Padi")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AiChatMessage[]
+
+  @@map("ai_chat_sessions")
+}
+
+model AiChatMessage {
+  id        String        @id @default(cuid())
+  sessionId String
+  role      String        // "user" | "assistant" | "system"
+  content   String        @db.Text
+  createdAt DateTime      @default(now())
+
+  session   AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("ai_chat_messages")
+}
+
+// -------------------------------------------------------------
+// 10. AUDIT LOG
+// -------------------------------------------------------------
+model AuditLog {
+  id        String    @id @default(cuid())
+  userId    String?
+  action    String    // CREATE | UPDATE | DELETE | LOGIN | LOGOUT
+  entity    String    // "User" | "Petani" | "KelompokTani" | "Lahan" | dll.
+  entityId  String?
+  details   String?   @db.Text
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+// -------------------------------------------------------------
+// 11. NOTIFIKASI MANUAL & BROADCAST DESA
+// -------------------------------------------------------------
+model BroadcastNotification {
+  id               String    @id @default(cuid())
+  senderId         String?
+  senderName       String?
+  targetRole       String    @default("ALL") // "ALL" | "PETANI" | "PERANGKAT_DESA" | "SPESIFIK"
+  targetPetaniId   String?
+  targetPetaniName String?
+  title            String
+  message          String    @db.Text
+  category         String    @default("UMUM") // "PEMUPUKAN" | "PANEN" | "HAMA_CUACA" | "PENGUMUMAN" | "BANTUAN" | "IRIGASI" | "UMUM"
+  severity         String    @default("INFO") // "URGENT" | "WARNING" | "INFO"
+  recipientEmail   String?
+  recipientPhone   String?
+  sentViaEmail     Boolean   @default(false)
+  sentViaWa        Boolean   @default(false)
+  actionUrl        String?
+  actionLabel      String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  sender           User?     @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  targetPetani     Petani?   @relation(fields: [targetPetaniId], references: [id], onDelete: SetNull)
+
+  @@map("broadcast_notifications")
+}

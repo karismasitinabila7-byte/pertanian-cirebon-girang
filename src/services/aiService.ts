@@ -1846,7 +1846,7 @@ export async function processAiChat(params: ProcessAiChatParams): Promise<Proces
   const { messages, userContext } = params
   let apiKey = params.apiKey || process.env.AI_API_KEY || process.env.GEMINI_API_KEY
   let provider = (params.provider || process.env.AI_PROVIDER || 'gemini').toLowerCase()
-  let geminiModel = provider === 'gemini' && params.model ? params.model : (process.env.AI_GEMINI_MODEL || 'gemini-2.0-flash')
+  let geminiModel = provider === 'gemini' && params.model ? params.model : (process.env.AI_GEMINI_MODEL || 'gemini-3.0-flash')
   let openAiModel = provider === 'openai' && params.model ? params.model : (process.env.AI_OPENAI_MODEL || 'gpt-4o-mini')
 
   try {
@@ -1906,53 +1906,73 @@ export async function processAiChat(params: ProcessAiChatParams): Promise<Proces
   const systemPrompt = buildSystemPrompt(userContext)
 
   if (provider === 'gemini') {
-    const model = geminiModel
+    const retiredModels = new Set(['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'])
+    const preferredModel = retiredModels.has(geminiModel) ? 'gemini-3.0-flash' : geminiModel
+    const candidateModels = Array.from(
+      new Set([preferredModel, 'gemini-3.0-flash', 'gemini-2.5-flash', 'gemini-flash-latest'].filter(Boolean))
+    )
+
     try {
       const contents = messages.map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }],
       }))
 
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000)
+      let lastErrMsg = ''
+      for (const model of candidateModels) {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 15000)
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents,
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 700,
-          },
-        }),
-        signal: controller.signal,
-      })
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents,
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 700,
+            },
+          }),
+          signal: controller.signal,
+        })
 
-      clearTimeout(timeoutId)
+        clearTimeout(timeoutId)
 
-      if (!response.ok) {
-        let errMsg = `HTTP ${response.status}`
-        try {
-          const errData = await response.json()
-          if (errData?.error?.message) errMsg = `${errData.error.message} (HTTP ${response.status})`
-        } catch {}
-        console.warn(`Gemini API error (${errMsg}), beralih ke super knowledge engine lokal.`)
-        return {
-          content: getSmartLocalResponse(lastUserMessage, userContext, conversationContext),
-          provider: 'local-fallback',
-          apiError: errMsg,
+        if (!response.ok) {
+          let errMsg = `HTTP ${response.status}`
+          try {
+            const errData = await response.json()
+            if (errData?.error?.message) errMsg = `${errData.error.message} (HTTP ${response.status})`
+          } catch {}
+          lastErrMsg = errMsg
+          // Jika model 404 / tidak tersedia, coba model Gemini kandidat berikutnya
+          if (response.status === 404) {
+            continue
+          }
+          console.warn(`Gemini API error (${errMsg}), beralih ke super knowledge engine lokal.`)
+          return {
+            content: getSmartLocalResponse(lastUserMessage, userContext, conversationContext),
+            provider: 'local-fallback',
+            apiError: errMsg,
+          }
         }
+
+        const data = await response.json()
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+        if (text && text.trim()) {
+          return { content: text.trim(), provider: `gemini (${model})` }
+        }
+        lastErrMsg = 'Respon Gemini kosong'
       }
 
-      const data = await response.json()
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
-      if (text && text.trim()) {
-        return { content: text.trim(), provider: `gemini (${model})` }
+      console.warn(`Semua model Gemini gagal (${lastErrMsg}), beralih ke super knowledge engine lokal.`)
+      return {
+        content: getSmartLocalResponse(lastUserMessage, userContext, conversationContext),
+        provider: 'local-fallback',
+        apiError: lastErrMsg || 'Model Gemini tidak tersedia',
       }
-      throw new Error('Respon Gemini kosong')
     } catch (err: any) {
       console.warn('Gagal memanggil Gemini API:', err.message)
       return {

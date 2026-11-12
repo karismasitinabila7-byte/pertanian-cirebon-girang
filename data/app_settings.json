@@ -1,7 +1,7 @@
 {
   "aiProvider": "gemini",
   "aiApiKey": "",
-  "aiGeminiModel": "gemini-2.0-flash",
+  "aiGeminiModel": "gemini-3.0-flash",
   "aiOpenAiModel": "gpt-4o-mini",
   "aiPersona": "ramah_sunda",
   "aiEnablePetaniConsultation": true,

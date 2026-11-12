@@ -47,7 +47,7 @@ const SYSTEM_SETTING_KEY = 'app_settings'
 export const DEFAULT_SETTINGS: AppSettings = {
   aiProvider: (process.env.AI_PROVIDER as any) || 'gemini',
   aiApiKey: process.env.AI_API_KEY || process.env.GEMINI_API_KEY || '',
-  aiGeminiModel: process.env.AI_GEMINI_MODEL || 'gemini-2.0-flash',
+  aiGeminiModel: process.env.AI_GEMINI_MODEL || 'gemini-3.0-flash',
   aiOpenAiModel: process.env.AI_OPENAI_MODEL || 'gpt-4o-mini',
   aiPersona: 'ramah_sunda',
   aiEnablePetaniConsultation: true,
@@ -127,6 +127,9 @@ export async function getAppSettingsAsync(): Promise<AppSettings> {
     if (record?.value) {
       const parsed = JSON.parse(record.value)
       const merged: AppSettings = { ...fileFallback, ...parsed }
+      if (!merged.aiGeminiModel || ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'].includes(merged.aiGeminiModel)) {
+        merged.aiGeminiModel = 'gemini-3.0-flash'
+      }
       // Jika env server memiliki API key sementara DB kosong, gunakan env
       if (!merged.aiApiKey && (process.env.AI_API_KEY || process.env.GEMINI_API_KEY)) {
         merged.aiApiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || ''

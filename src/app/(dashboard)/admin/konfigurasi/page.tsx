@@ -40,7 +40,7 @@ export default function AdminKonfigurasiPage() {
   // AI Settings
   const [aiProvider, setAiProvider] = useState<'gemini' | 'openai'>('gemini')
   const [aiApiKey, setAiApiKey] = useState('')
-  const [aiGeminiModel, setAiGeminiModel] = useState('gemini-2.0-flash')
+  const [aiGeminiModel, setAiGeminiModel] = useState('gemini-3.0-flash')
   const [aiOpenAiModel, setAiOpenAiModel] = useState('gpt-4o-mini')
   const [aiPersona, setAiPersona] = useState<'ramah_sunda' | 'agronomi_formal' | 'penyuluh_ringkas'>('ramah_sunda')
   const [aiEnablePetaniConsultation, setAiEnablePetaniConsultation] = useState(true)
@@ -117,7 +117,11 @@ export default function AdminKonfigurasiPage() {
           const d = res.data
           setAiProvider(d.aiProvider || 'gemini')
           setAiApiKey(d.aiApiKey || '')
-          setAiGeminiModel(d.aiGeminiModel || 'gemini-2.0-flash')
+          setAiGeminiModel(
+            !d.aiGeminiModel || ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'].includes(d.aiGeminiModel)
+              ? 'gemini-3.0-flash'
+              : d.aiGeminiModel
+          )
           setAiOpenAiModel(d.aiOpenAiModel || 'gpt-4o-mini')
           setAiPersona(d.aiPersona || 'ramah_sunda')
           setAiEnablePetaniConsultation(d.aiEnablePetaniConsultation ?? true)
@@ -543,10 +547,9 @@ export default function AdminKonfigurasiPage() {
                     onChange={(e) => setAiGeminiModel(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
                   >
-                    <option value="gemini-2.0-flash">gemini-2.0-flash (Sangat Cepat & Direkomendasikan)</option>
-                    <option value="gemini-2.5-flash">gemini-2.5-flash (Generasi Terbaru)</option>
-                    <option value="gemini-1.5-flash">gemini-1.5-flash (Ringan & Cepat)</option>
-                    <option value="gemini-1.5-pro">gemini-1.5-pro (Analisis Mendalam)</option>
+                    <option value="gemini-3.0-flash">gemini-3.0-flash (Terbaru &amp; Direkomendasikan)</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash (Cepat &amp; Stabil)</option>
+                    <option value="gemini-2.5-pro">gemini-2.5-pro (Analisis Mendalam)</option>
                   </select>
                 ) : (
                   <select
@@ -768,7 +771,7 @@ export default function AdminKonfigurasiPage() {
                     <div className="flex items-center gap-1.5">
                       {!aiTestResult.isFallback ? (
                         <span className="text-[10px] bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full font-bold">
-                          Cloud Gemini Live ({aiTestResult.model || 'gemini-2.0-flash'})
+                          Cloud Gemini Live ({aiTestResult.model || 'gemini-3.0-flash'})
                         </span>
                       ) : aiTestResult.apiError ? (
                         <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">

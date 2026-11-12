@@ -56,10 +56,13 @@ export async function POST(req: NextRequest) {
 
     const latencyMs = Date.now() - startTime
 
+    const activeModelMatch = result.provider?.match(/\(([^)]+)\)/)
+    const activeModel = activeModelMatch?.[1] || testModel
+
     return NextResponse.json({
       success: true,
       provider: result.provider || testProvider,
-      model: testModel,
+      model: activeModel,
       latencyMs,
       responseSample: result.content,
       isFallback: result.provider?.includes('local') || result.provider?.includes('guard'),

@@ -1947,8 +1947,8 @@ export async function processAiChat(params: ProcessAiChatParams): Promise<Proces
             if (errData?.error?.message) errMsg = `${errData.error.message} (HTTP ${response.status})`
           } catch {}
           lastErrMsg = errMsg
-          // Jika model 404 / tidak tersedia, coba model Gemini kandidat berikutnya
-          if (response.status === 404) {
+          // Jika model belum tersedia (404) atau server sedang sibuk/limit (429/5xx), coba model Gemini kandidat berikutnya
+          if (response.status === 404 || response.status === 429 || response.status >= 500) {
             continue
           }
           console.warn(`Gemini API error (${errMsg}), beralih ke super knowledge engine lokal.`)

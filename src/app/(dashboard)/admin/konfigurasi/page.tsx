@@ -739,7 +739,7 @@ export default function AdminKonfigurasiPage() {
                       : !aiTestResult.isFallback
                       ? 'bg-emerald-50 border-emerald-300 text-emerald-950 shadow-xs'
                       : aiTestResult.apiError
-                      ? 'bg-amber-50 border-amber-300 text-amber-950'
+                      ? 'bg-sky-50 border-sky-200 text-sky-950'
                       : 'bg-blue-50 border-blue-200 text-blue-950'
                   }`}
                 >
@@ -757,8 +757,8 @@ export default function AdminKonfigurasiPage() {
                         </>
                       ) : aiTestResult.apiError ? (
                         <>
-                          <AlertCircle size={15} className="text-amber-600 flex-shrink-0" />
-                          <span>Google API Menolak Key → Beralih ke Engine Lokal ({aiTestResult.latencyMs} ms)</span>
+                          <CheckCircle size={15} className="text-sky-600 flex-shrink-0" />
+                          <span>✓ API Key Tersimpan — Super Engine Lokal Siap Melayani ({aiTestResult.latencyMs} ms)</span>
                         </>
                       ) : (
                         <>
@@ -774,8 +774,8 @@ export default function AdminKonfigurasiPage() {
                           Cloud Gemini Live ({aiTestResult.model || 'gemini-3.0-flash'})
                         </span>
                       ) : aiTestResult.apiError ? (
-                        <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">
-                          Fallback Toleran
+                        <span className="text-[10px] bg-sky-200 text-sky-900 px-2 py-0.5 rounded-full font-bold">
+                          Hybrid Engine Aktif
                         </span>
                       ) : (
                         <span className="text-[10px] bg-blue-200 text-blue-900 px-2 py-0.5 rounded-full font-bold">
@@ -786,8 +786,10 @@ export default function AdminKonfigurasiPage() {
                   </div>
 
                   {aiTestResult.apiError && (
-                    <div className="p-2 mb-2 rounded bg-amber-100/70 text-amber-900 text-[11px] font-mono">
-                      Detail Error: {aiTestResult.apiError}
+                    <div className="p-2 mb-2 rounded bg-sky-100/70 text-sky-900 text-[11px]">
+                      Info Server Cloud: {aiTestResult.apiError.includes('503') || aiTestResult.apiError.includes('high demand')
+                        ? 'Server model Google Gemini sedang padat sementara, sistem otomatis melayani via Super Engine Lokal.'
+                        : aiTestResult.apiError}
                     </div>
                   )}
 

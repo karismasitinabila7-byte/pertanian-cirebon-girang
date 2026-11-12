@@ -268,3 +268,23 @@ model SystemSetting {
 
   @@map("system_settings")
 }
+
+// -------------------------------------------------------------
+// 13. VERIFIKASI OTP PENDAFTARAN PETANI BARU
+// -------------------------------------------------------------
+model OtpVerification {
+  id          String    @id @default(cuid())
+  email       String
+  phone       String
+  otpCode     String
+  purpose     String    @default("REGISTER_PETANI")
+  payloadJson String    @db.Text
+  attempts    Int       @default(0)
+  verifiedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([email, purpose])
+  @@index([phone, purpose])
+  @@map("otp_verifications")
+}

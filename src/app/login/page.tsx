@@ -335,6 +335,29 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <div
+          style={{
+            marginTop: '20px',
+            paddingTop: '16px',
+            borderTop: '1px solid #e2e8f0',
+            textAlign: 'center',
+            fontSize: '13px',
+            color: '#64748b',
+          }}
+        >
+          Belum punya akun petani?{' '}
+          <Link
+            href="/register"
+            style={{
+              color: '#059669',
+              fontWeight: 700,
+              textDecoration: 'none',
+            }}
+          >
+            Daftar Sekarang (Verifikasi OTP)
+          </Link>
+        </div>
       </div>
     </div>
   )

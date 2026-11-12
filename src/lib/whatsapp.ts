@@ -43,6 +43,23 @@ export function formatWhatsAppPhone(phone?: string | null, fallback = '628579786
 }
 
 export function buildWhatsAppMessage(payload: WhatsAppNotificationPayload): string {
+  if (payload.type === 'OTP') {
+    return [
+      `🔐 *KODE OTP VERIFIKASI SI PADI*`,
+      `*Desa Cirebon Girang, Kec. Talun*`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      payload.petaniNama ? `👤 *Calon Petani:* ${payload.petaniNama}` : '',
+      ``,
+      `${payload.message}`,
+      ``,
+      `⚠️ _Demi keamanan, JANGAN bagikan kode OTP ini kepada siapa pun termasuk pihak desa/admin._`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━━`,
+      `_Dikirim otomatis oleh Sistem Informasi Pertanian Padi (SI PADI)._`,
+    ]
+      .filter(Boolean)
+      .join('\n')
+  }
+
   const urgencyLabel =
     payload.severity === 'URGENT'
       ? '🔴 TENGGAT MENDESAK'

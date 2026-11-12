@@ -489,9 +489,9 @@ export function generatePoktanStatsResponse(userContext?: PetaniContext): string
   const list = s?.daftarPoktan || []
   if (list.length > 0) {
     const lines = list.map(
-      p => `• **${p.nama}** — Ketua: ${p.ketua} | Wilayah: ${p.wilayah} | Anggota: ${p.jumlahPetani} orang (${(p.anggotaNames || []).join(', ') || 'belum ada'})`
+      p => `• **${p.nama}** — Ketua: ${p.ketua} | Wilayah: ${p.wilayah} | Anggota: ${p.jumlahPetani} orang (${(p.anggotaNames || []).join(', ') || 'belum ada'})${p.totalLuasHa !== undefined ? ` | Total Luas: ${p.totalLuasHa.toFixed(2)} Ha` : ''}`
     )
-    return `Ada **${totalPoktan} Kelompok Tani**:\n${lines.join('\n')}`
+    return `**Ada ${totalPoktan} Kelompok Tani:**\n${lines.join('\n')}`
   }
   return `Ada **${totalPoktan} Kelompok Tani**: Sri Rejeki, Sumber Subur, dan Tani Makmur.`
 }
@@ -520,15 +520,40 @@ export function generatePoktanAnggotaResponse(userContext?: PetaniContext, speci
 
 export function generatePoktanAnggotaWithLahanAndAlamatResponse(userContext?: PetaniContext, specificPoktan?: string): string {
   const petaniList = userContext?.statsDesa?.daftarPetani || []
+  const lahanList = userContext?.statsDesa?.daftarLahan || []
   const filtered = specificPoktan
     ? petaniList.filter(p => p.poktan?.toLowerCase().includes(specificPoktan.toLowerCase()))
     : petaniList
 
   if (filtered.length > 0) {
-    const lines = filtered.map(
-      p => `• **${p.nama}** (${p.poktan}): **${p.totalLahan} petak** (${p.totalLuasHa.toFixed(2)} Ha / ${p.totalLuasM2.toLocaleString('id-ID')} m²) | Alamat: ${p.alamat}`
-    )
-    return `**Data Petani, Luas Lahan & Alamat:**\n${lines.join('\n')}`
+    const lines = filtered.map(p => {
+      const petakDetail = lahanList
+        .filter(l => l.petani.toLowerCase() === p.nama.toLowerCase())
+        .map(l => `${l.nama} (${l.luasHa.toFixed(2)} Ha / ${l.luasM2.toLocaleString('id-ID')} m²)`)
+        .join(', ')
+      return `• **${p.nama}** (${p.poktan}): **${p.totalLuasHa.toFixed(2)} Ha** (${p.totalLuasM2.toLocaleString('id-ID')} m²) dari **${p.totalLahan} petak**${petakDetail ? ` — *${petakDetail}*` : ''} | Alamat: ${p.alamat}`
+    })
+    return `**Rincian Petani, Luas Lahan & Alamat:**\n${lines.join('\n')}`
+  }
+
+  return generateFarmerStatsResponse(userContext)
+}
+
+export function generatePetaniWithLahanBreakdownResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const petaniList = s?.daftarPetani || []
+  const lahanList = s?.daftarLahan || []
+
+  if (petaniList.length > 0) {
+    const sorted = [...petaniList].sort((a, b) => b.totalLuasM2 - a.totalLuasM2)
+    const lines = sorted.map(p => {
+      const petakDetail = lahanList
+        .filter(l => l.petani.toLowerCase() === p.nama.toLowerCase())
+        .map(l => `${l.nama} (${l.luasHa.toFixed(2)} Ha / ${l.luasM2.toLocaleString('id-ID')} m²)`)
+        .join(', ')
+      return `• **${p.nama}** (${p.poktan}): **${p.totalLuasHa.toFixed(2)} Ha** (${p.totalLuasM2.toLocaleString('id-ID')} m²) dari **${p.totalLahan} petak**${petakDetail ? ` — *${petakDetail}*` : ''}`
+    })
+    return `**Rincian Luas Lahan Masing-Masing Petani (Total Desa: ${(s?.totalLuasHa ?? 6.0).toFixed(2)} Ha / ${(s?.totalLuasM2 ?? 60000).toLocaleString('id-ID')} m²):**\n${lines.join('\n')}`
   }
 
   return generateFarmerStatsResponse(userContext)
@@ -1062,7 +1087,86 @@ export function handleMasterDataAndAdminQueries(
     return generateBlokLahanDetailResponse('pahing', userContext)
   }
 
-  // 0G. TOTAL LUAS LAHAN
+  // 0F-SUPERLATIF: LAHAN TERLUAS, TERKECIL, PANEN TERBANYAK, RATA-RATA (cek sebelum total luas/panen!)
+  const wantsTerluas =
+    q.includes('siapa lahan yang paling luas') ||
+    q.includes('siapa yang punya lahan paling luas') ||
+    q.includes('lahan siapa yang paling luas') ||
+    q.includes('lahan mana yang paling luas') ||
+    q.includes('lahan terluas') ||
+    q.includes('lahan paling luas') ||
+    q.includes('petani lahan terluas') ||
+    q.includes('siapa pemilik lahan terluas') ||
+    (
+      (q.includes('lahan') || q.includes('petak') || q.includes('sawah') || q.includes('siapa') || q.includes('mana')) &&
+      (q.includes('paling luas') || q.includes('terluas') || q.includes('terbesar') || q.includes('paling besar')) &&
+      !q.includes('total luas') && !q.includes('berapa luas')
+    )
+  const wantsTerkecil =
+    (q.includes('lahan') || q.includes('petak') || q.includes('sawah') || q.includes('siapa') || q.includes('mana')) &&
+    (q.includes('paling kecil') || q.includes('terkecil') || q.includes('paling sempit') || q.includes('tersempit'))
+
+  if (wantsTerluas && wantsTerkecil) {
+    return `${generateLahanTerluasResponse(userContext)}\n${generateLahanTerkecilResponse(userContext)}`
+  }
+  if (wantsTerluas) {
+    return generateLahanTerluasResponse(userContext)
+  }
+  if (wantsTerkecil) {
+    return generateLahanTerkecilResponse(userContext)
+  }
+
+  if (q.includes('rata-rata') && (q.includes('luas') || q.includes('lahan') || q.includes('petak'))) {
+    const s = userContext?.statsDesa
+    const totalHa = s?.totalLuasHa ?? 6.0
+    const totalLahan = s?.totalLahan || 4
+    const totalPetani = s?.totalPetani || 3
+    return `Rata-rata luas lahan adalah **${(totalHa / totalLahan).toFixed(2)} Ha** per petak sawah (${totalLahan} petak), atau **${(totalHa / totalPetani).toFixed(2)} Ha** per petani (${totalPetani} petani).`
+  }
+
+  // 0F-BREAKDOWN: PERTANYAAN PER-ITEM ("masing-masing", "tiap", "setiap", "per petani/petak", "sebutkan ... dan ...")
+  const isBreakdownQuery =
+    q.includes('masing-masing') ||
+    q.includes('masing masing') ||
+    /\btiap\b/i.test(q) ||
+    /\bsetiap\b/i.test(q) ||
+    /\bper\s+(petani|orang|petak|lahan|sawah|kelompok|poktan|musim|user)\b/i.test(q) ||
+    /\b(sebutkan|rincian|detail|daftar)\b/i.test(q)
+
+  if (isBreakdownQuery) {
+    if (q.includes('petani') && (q.includes('alamat') || q.includes('beserta'))) {
+      return generatePoktanAnggotaWithLahanAndAlamatResponse(userContext)
+    }
+    if (q.includes('petani') && (q.includes('lahan') || q.includes('sawah') || q.includes('luas') || q.includes('petak') || q.includes('garapan') || q.includes('masing'))) {
+      return generatePetaniWithLahanBreakdownResponse(userContext)
+    }
+    if (q.includes('petani') && !q.includes('kelompok') && !q.includes('poktan') && !q.includes('panen')) {
+      return generatePetaniWithLahanBreakdownResponse(userContext)
+    }
+    if (q.includes('kelompok tani') || q.includes('poktan')) {
+      return generatePoktanStatsResponse(userContext)
+    }
+    if (q.includes('panen')) {
+      return generatePanenDetailResponse(userContext)
+    }
+    if (q.includes('musim')) {
+      return generateMusimDetailResponse(userContext)
+    }
+    if (q.includes('aktivitas') || q.includes('kegiatan')) {
+      return generateAktivitasStatsResponse(userContext)
+    }
+    if (q.includes('user') || q.includes('pengguna') || q.includes('akun')) {
+      return generateUserStatsResponse(userContext)
+    }
+    if (q.includes('blok')) {
+      return generateZonasiBlokStatsResponse(userContext)
+    }
+    if (q.includes('lahan') || q.includes('sawah') || q.includes('petak')) {
+      return generateLahanDetailResponse(userContext)
+    }
+  }
+
+  // 0G. TOTAL LUAS LAHAN (hanya jika bukan pertanyaan per-petani/masing-masing!)
   if (
     q.includes('total luas') ||
     q.includes('luas keseluruhan') ||
@@ -1169,35 +1273,6 @@ export function handleMasterDataAndAdminQueries(
     /aktivitas.*(ada berapa|berapa|jumlah|tercatat|terbaru)/i.test(q)
   ) {
     return generateAktivitasStatsResponse(userContext)
-  }
-
-  // SUPERLATIF: LAHAN TERLUAS & TERKECIL (dukungan pertanyaan gabungan!)
-  const wantsTerluas =
-    q.includes('siapa lahan yang paling luas') ||
-    q.includes('siapa yang punya lahan paling luas') ||
-    q.includes('lahan siapa yang paling luas') ||
-    q.includes('lahan mana yang paling luas') ||
-    q.includes('lahan terluas') ||
-    q.includes('lahan paling luas') ||
-    q.includes('petani lahan terluas') ||
-    q.includes('siapa pemilik lahan terluas') ||
-    (
-      (q.includes('lahan') || q.includes('petak') || q.includes('sawah') || q.includes('siapa') || q.includes('mana')) &&
-      (q.includes('paling luas') || q.includes('terluas') || q.includes('terbesar') || q.includes('paling besar')) &&
-      !q.includes('total luas') && !q.includes('berapa luas')
-    )
-  const wantsTerkecil =
-    (q.includes('lahan') || q.includes('petak') || q.includes('sawah') || q.includes('siapa') || q.includes('mana')) &&
-    (q.includes('paling kecil') || q.includes('terkecil') || q.includes('paling sempit') || q.includes('tersempit'))
-
-  if (wantsTerluas && wantsTerkecil) {
-    return `${generateLahanTerluasResponse(userContext)}\n${generateLahanTerkecilResponse(userContext)}`
-  }
-  if (wantsTerluas) {
-    return generateLahanTerluasResponse(userContext)
-  }
-  if (wantsTerkecil) {
-    return generateLahanTerkecilResponse(userContext)
   }
 
   // SEMUA MENU DASHBOARD

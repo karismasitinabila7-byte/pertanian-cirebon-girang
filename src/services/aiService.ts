@@ -183,6 +183,7 @@ export interface ProcessAiChatParams {
   apiKey?: string
   provider?: string
   model?: string
+  skipLocalPriority?: boolean
 }
 
 export interface ProcessAiChatResult {
@@ -1697,7 +1698,7 @@ export function generatePasswordAndAccountResponse(userQuery: string, userContex
 // SUPER KNOWLEDGE BASE & DYNAMIC LOCAL RESPONSE ENGINE
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function getSmartLocalResponse(userQuery: string, userContext?: PetaniContext, conversationContext?: string): string {
+export function getMatchedLocalResponse(userQuery: string, userContext?: PetaniContext, conversationContext?: string): string | null {
   const norm = normalizeIndonesianQuery(userQuery)
   const query = norm.toLowerCase().trim()
   const rawQuery = userQuery.toLowerCase().trim()
@@ -1826,7 +1827,15 @@ export function getSmartLocalResponse(userQuery: string, userContext?: PetaniCon
     return `**Penyimpanan Gabah:** Keringkan hingga kadar air 14%, simpan karung di atas palet kayu setinggi 15–20 cm, berjarak 30 cm dari dinding.`
   }
 
-  return generateOverviewStatsResponse(userContext) + '\n\nSilakan tanyakan detail spesifik seputar data dashboard, pengguna, petani, kelompok tani, lahan, musim tanam, panen, peringatan dini, atau konsultasi budidaya padi!'
+  return null
+}
+
+export function getSmartLocalResponse(userQuery: string, userContext?: PetaniContext, conversationContext?: string): string {
+  return (
+    getMatchedLocalResponse(userQuery, userContext, conversationContext) ||
+    generateOverviewStatsResponse(userContext) +
+      '\n\nSilakan tanyakan detail spesifik seputar data dashboard, pengguna, petani, kelompok tani, lahan, musim tanam, panen, peringatan dini, atau konsultasi budidaya padi!'
+  )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1872,7 +1881,19 @@ export async function processAiChat(params: ProcessAiChatParams): Promise<Proces
     }
   }
 
-  // 2. Jika tidak ada API Key eksternal -> Gunakan Super Local Engine yang terhubung 100% ke data real-time
+  // 2. Pertahankan kecerdasan lokal SI PADI sebagai prioritas utama
+  //    agar menempelkan API Key tidak mengubah jawaban data dashboard, menu, dan pengetahuan inti yang sudah akurat.
+  if (!params.skipLocalPriority) {
+    const matchedLocal = getMatchedLocalResponse(lastUserMessage, userContext, conversationContext)
+    if (matchedLocal) {
+      return {
+        content: matchedLocal,
+        provider: apiKey && apiKey.trim() !== '' ? 'local-knowledge-engine (hybrid)' : 'local-knowledge-engine',
+      }
+    }
+  }
+
+  // 3. Jika belum tercakup di engine lokal & API Key belum tersedia -> Gunakan fallback overview lokal
   if (!apiKey || apiKey.trim() === '') {
     const localAnswer = getSmartLocalResponse(lastUserMessage, userContext, conversationContext)
     return {
@@ -1881,7 +1902,7 @@ export async function processAiChat(params: ProcessAiChatParams): Promise<Proces
     }
   }
 
-  // 3. Jika API Key tersedia -> Langsung kirim ke Gemini / OpenAI dengan System Prompt berisi seluruh data live database!
+  // 4. Jika belum tercakup di aturan lokal & API Key tersedia -> Kirim ke Gemini / OpenAI dengan System Prompt berisi seluruh data live database!
   const systemPrompt = buildSystemPrompt(userContext)
 
   if (provider === 'gemini') {

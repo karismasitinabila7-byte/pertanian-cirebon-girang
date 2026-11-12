@@ -544,6 +544,7 @@ export default function AdminKonfigurasiPage() {
                     className="w-full p-2.5 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
                   >
                     <option value="gemini-2.0-flash">gemini-2.0-flash (Sangat Cepat & Direkomendasikan)</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash (Generasi Terbaru)</option>
                     <option value="gemini-1.5-flash">gemini-1.5-flash (Ringan & Cepat)</option>
                     <option value="gemini-1.5-pro">gemini-1.5-pro (Analisis Mendalam)</option>
                   </select>

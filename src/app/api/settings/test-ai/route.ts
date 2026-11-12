@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       apiKey: testApiKey,
       provider: testProvider,
       model: testModel,
+      skipLocalPriority: true,
     })
 
     const latencyMs = Date.now() - startTime

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { getAppSettings } from '@/lib/settings'
+import { getAppSettingsAsync } from '@/lib/settings'
 
 export interface EmailNotificationPayload {
   to?: string
@@ -24,8 +24,8 @@ export const DEFAULT_NOTIFICATION_EMAIL =
  * Membuat transporter Nodemailer dengan konfigurasi dinamis (dari app_settings.json atau .env).
  * Jika kredensial belum diisi, menggunakan fallback jsonTransport aman.
  */
-function createTransporter() {
-  const settings = getAppSettings()
+async function createTransporter() {
+  const settings = await getAppSettingsAsync()
   const host = settings.smtpHost || process.env.SMTP_HOST || 'smtp.gmail.com'
   const port = Number(settings.smtpPort || process.env.SMTP_PORT || 587)
   const user = (settings.smtpUser || process.env.SMTP_USER || '').trim()
@@ -272,7 +272,7 @@ export function generateNotificationEmailHtml(payload: EmailNotificationPayload)
  * Mengirimkan notifikasi email dengan nama pengirim "SI PADI"
  */
 export async function sendEmailNotification(payload: EmailNotificationPayload) {
-  const settings = getAppSettings()
+  const settings = await getAppSettingsAsync()
   const recipient = payload.to || settings.notificationTargetEmail || DEFAULT_NOTIFICATION_EMAIL
   const subject = payload.subject || `[SI PADI] ${payload.title}`
   const htmlContent = generateNotificationEmailHtml({ ...payload, to: recipient })
@@ -283,7 +283,7 @@ export async function sendEmailNotification(payload: EmailNotificationPayload) {
   const fromHeader = `"${fromName}" <${fromEmail}>`
 
   try {
-    const { transporter, isConfigured } = createTransporter()
+    const { transporter, isConfigured } = await createTransporter()
     const info = await transporter.sendMail({
       from: fromHeader,
       to: recipient,

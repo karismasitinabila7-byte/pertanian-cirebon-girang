@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import prisma from '@/lib/prisma'
-import { getAppSettings, saveAppSettings } from '@/lib/settings'
+import { getAppSettingsAsync, saveAppSettingsAsync } from '@/lib/settings'
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const settings = getAppSettings()
+    const settings = await getAppSettingsAsync()
     return NextResponse.json({
       success: true,
       data: {
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const updated = saveAppSettings(body)
+    const updated = await saveAppSettingsAsync(body)
 
     // Catat ke AuditLog
     await prisma.auditLog.create({

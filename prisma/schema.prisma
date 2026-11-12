@@ -257,3 +257,14 @@ model BroadcastNotification {
 
   @@map("broadcast_notifications")
 }
+
+// -------------------------------------------------------------
+// 12. KONFIGURASI SISTEM (PERSISTENT DB SETTINGS UNTUK VERCEL)
+// -------------------------------------------------------------
+model SystemSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}

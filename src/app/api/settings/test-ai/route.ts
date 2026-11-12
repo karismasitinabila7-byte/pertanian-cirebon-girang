@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import prisma from '@/lib/prisma'
 import { processAiChat } from '@/services/aiService'
-import { getAppSettings } from '@/lib/settings'
+import { getAppSettingsAsync } from '@/lib/settings'
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       // no body provided or invalid JSON
     }
 
-    const settings = getAppSettings()
+    const settings = await getAppSettingsAsync()
     const testApiKey = (reqBody?.apiKey !== undefined ? reqBody.apiKey : settings.aiApiKey) || process.env.AI_API_KEY
     const testProvider = (reqBody?.provider || settings.aiProvider || process.env.AI_PROVIDER || 'gemini').toLowerCase()
     const testModel = reqBody?.model || (testProvider === 'gemini' ? settings.aiGeminiModel : settings.aiOpenAiModel)

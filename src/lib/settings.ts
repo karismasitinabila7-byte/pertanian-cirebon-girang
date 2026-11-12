@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import prisma from '@/lib/prisma'
 
 export interface AppSettings {
   // ── 1. PENGATURAN KECERDASAN BUATAN (AI ASSISTANT) ──
@@ -38,6 +39,7 @@ export interface AppSettings {
 }
 
 const SETTINGS_FILE_PATH = path.join(process.cwd(), 'data', 'app_settings.json')
+const SYSTEM_SETTING_KEY = 'app_settings'
 
 export const DEFAULT_SETTINGS: AppSettings = {
   aiProvider: (process.env.AI_PROVIDER as any) || 'gemini',
@@ -72,8 +74,22 @@ export const DEFAULT_SETTINGS: AppSettings = {
   adminContactPhone: '0812-3456-7890',
 }
 
+function syncSettingsToProcessEnv(updated: AppSettings) {
+  if (updated.aiProvider) process.env.AI_PROVIDER = updated.aiProvider
+  if (updated.aiApiKey) process.env.AI_API_KEY = updated.aiApiKey
+  if (updated.aiGeminiModel) process.env.AI_GEMINI_MODEL = updated.aiGeminiModel
+  if (updated.aiOpenAiModel) process.env.AI_OPENAI_MODEL = updated.aiOpenAiModel
+  if (updated.notificationTargetEmail) process.env.NOTIFICATION_TARGET_EMAIL = updated.notificationTargetEmail
+  if (updated.smtpHost) process.env.SMTP_HOST = updated.smtpHost
+  if (updated.smtpPort) process.env.SMTP_PORT = String(updated.smtpPort)
+  if (updated.smtpUser) process.env.SMTP_USER = updated.smtpUser
+  if (updated.smtpPass) process.env.SMTP_PASS = updated.smtpPass
+  if (updated.smtpFromName) process.env.SMTP_FROM_NAME = updated.smtpFromName
+  if (updated.smtpFromEmail) process.env.SMTP_FROM_EMAIL = updated.smtpFromEmail
+}
+
 /**
- * Membaca pengaturan aktif aplikasi. Jika ada file app_settings.json, gunakan file tersebut.
+ * Membaca pengaturan aktif aplikasi secara sinkron (fallback file JSON / env).
  */
 export function getAppSettings(): AppSettings {
   try {
@@ -89,7 +105,34 @@ export function getAppSettings(): AppSettings {
 }
 
 /**
- * Menyimpan pembaruan pengaturan aplikasi dan menyinkronkan runtime process.env
+ * Membaca pengaturan aktif aplikasi dari Database (TiDB/MySQL) dengan fallback file JSON / env.
+ * Penting untuk environment serverless seperti Vercel agar konfigurasi persisten.
+ */
+export async function getAppSettingsAsync(): Promise<AppSettings> {
+  const fileFallback = getAppSettings()
+  try {
+    const record = await prisma.systemSetting.findUnique({
+      where: { key: SYSTEM_SETTING_KEY },
+    })
+    if (record?.value) {
+      const parsed = JSON.parse(record.value)
+      const merged: AppSettings = { ...fileFallback, ...parsed }
+      // Jika env server memiliki API key sementara DB kosong, gunakan env
+      if (!merged.aiApiKey && (process.env.AI_API_KEY || process.env.GEMINI_API_KEY)) {
+        merged.aiApiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY || ''
+      }
+      if (!merged.smtpUser && process.env.SMTP_USER) merged.smtpUser = process.env.SMTP_USER
+      if (!merged.smtpPass && process.env.SMTP_PASS) merged.smtpPass = process.env.SMTP_PASS
+      return merged
+    }
+  } catch (err) {
+    console.warn('Reading settings from DB failed, using file/env defaults:', (err as any)?.message)
+  }
+  return fileFallback
+}
+
+/**
+ * Menyimpan pembaruan pengaturan aplikasi secara sinkron dan menyinkronkan runtime process.env
  */
 export function saveAppSettings(newSettings: Partial<AppSettings>): AppSettings {
   const current = getAppSettings()
@@ -104,22 +147,44 @@ export function saveAppSettings(newSettings: Partial<AppSettings>): AppSettings 
       fs.mkdirSync(dir, { recursive: true })
     }
     fs.writeFileSync(SETTINGS_FILE_PATH, JSON.stringify(updated, null, 2), 'utf-8')
-
-    // Sinkronkan ke process.env secara real-time
-    if (updated.aiProvider) process.env.AI_PROVIDER = updated.aiProvider
-    if (updated.aiApiKey) process.env.AI_API_KEY = updated.aiApiKey
-    if (updated.aiGeminiModel) process.env.AI_GEMINI_MODEL = updated.aiGeminiModel
-    if (updated.aiOpenAiModel) process.env.AI_OPENAI_MODEL = updated.aiOpenAiModel
-    if (updated.notificationTargetEmail) process.env.NOTIFICATION_TARGET_EMAIL = updated.notificationTargetEmail
-    if (updated.smtpHost) process.env.SMTP_HOST = updated.smtpHost
-    if (updated.smtpPort) process.env.SMTP_PORT = String(updated.smtpPort)
-    if (updated.smtpUser) process.env.SMTP_USER = updated.smtpUser
-    if (updated.smtpPass) process.env.SMTP_PASS = updated.smtpPass
-    if (updated.smtpFromName) process.env.SMTP_FROM_NAME = updated.smtpFromName
-    if (updated.smtpFromEmail) process.env.SMTP_FROM_EMAIL = updated.smtpFromEmail
   } catch (err) {
-    console.error('Error saving app_settings.json:', err)
+    console.warn('Could not write app_settings.json (expected on read-only serverless FS):', (err as any)?.message)
   }
 
+  syncSettingsToProcessEnv(updated)
+  return updated
+}
+
+/**
+ * Menyimpan pembaruan pengaturan aplikasi secara permanen ke Database (TiDB/MySQL) + file lokal jika writable.
+ */
+export async function saveAppSettingsAsync(newSettings: Partial<AppSettings>): Promise<AppSettings> {
+  const current = await getAppSettingsAsync()
+  const updated: AppSettings = {
+    ...current,
+    ...newSettings,
+  }
+
+  try {
+    await prisma.systemSetting.upsert({
+      where: { key: SYSTEM_SETTING_KEY },
+      update: { value: JSON.stringify(updated) },
+      create: { key: SYSTEM_SETTING_KEY, value: JSON.stringify(updated) },
+    })
+  } catch (err) {
+    console.error('Error saving settings to DB:', err)
+  }
+
+  try {
+    const dir = path.dirname(SETTINGS_FILE_PATH)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
+    fs.writeFileSync(SETTINGS_FILE_PATH, JSON.stringify(updated, null, 2), 'utf-8')
+  } catch {
+    // Abaikan error read-only filesystem di Vercel
+  }
+
+  syncSettingsToProcessEnv(updated)
   return updated
 }

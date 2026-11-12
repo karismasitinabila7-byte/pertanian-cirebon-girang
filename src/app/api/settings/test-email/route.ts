@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import prisma from '@/lib/prisma'
 import { sendEmailNotification, buildGmailComposeUrl } from '@/lib/email'
-import { getAppSettings } from '@/lib/settings'
+import { getAppSettingsAsync } from '@/lib/settings'
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const settings = getAppSettings()
+    const settings = await getAppSettingsAsync()
     const body = await req.json().catch(() => ({}))
     const recipient = body.recipient || settings.notificationTargetEmail || 'karismasitinabila7@gmail.com'
 

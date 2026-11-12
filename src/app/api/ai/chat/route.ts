@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import prisma from '@/lib/prisma'
+import { getAppSettingsAsync } from '@/lib/settings'
 import { processAiChat, AiMessage, PetaniContext, StatsDesaContext } from '@/services/aiService'
 
 // Chat AI disetel tanpa batas limit pesan (Unlimited) untuk kemudahan petani & presentasi
+
+function convertLuasToM2(luas: number, satuan: string): number {
+  if (satuan === 'Ha') return luas * 10000
+  if (satuan === 'Bata') return luas * 14
+  return luas
+}
+
+function convertPanenToKg(jumlah: number, satuan: string): number {
+  if (satuan === 'ton') return jumlah * 1000
+  if (satuan === 'kuintal') return jumlah * 100
+  return jumlah
+}
 
 /**
  * Mengambil rekapitulasi data lengkap dan mendalam dari seluruh tabel database utama via Prisma
@@ -17,7 +30,13 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       lahanData,
       musimData,
       panenData,
+      aktivitasCount,
+      aktivitasBiayaAgg,
       aktivitasData,
+      informasiData,
+      broadcastData,
+      auditLogData,
+      appSettings,
     ] = await Promise.all([
       prisma.user.findMany({
         select: {
@@ -28,6 +47,7 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
           phone: true,
           email: true,
           isActive: true,
+          lastLoginAt: true,
           createdAt: true,
         },
         orderBy: { createdAt: 'asc' },
@@ -52,7 +72,12 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       prisma.kelompokTani.findMany({
         include: {
           _count: { select: { anggota: true } },
-          anggota: { select: { namaLengkap: true } },
+          anggota: {
+            select: {
+              namaLengkap: true,
+              lahan: { select: { luasLahan: true, satuanLuas: true } },
+            },
+          },
         },
         orderBy: { nama: 'asc' },
       }),
@@ -66,6 +91,7 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       prisma.musimTanam.findMany({
         include: {
           lahan: { include: { petani: true } },
+          aktivitas: { select: { jenisAktivitas: true } },
           panen: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -80,6 +106,8 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
         },
         orderBy: { tanggalPanen: 'desc' },
       }),
+      prisma.aktivitasBudidaya.count(),
+      prisma.aktivitasBudidaya.aggregate({ _sum: { biaya: true } }).catch(() => ({ _sum: { biaya: 0 } })),
       prisma.aktivitasBudidaya.findMany({
         include: {
           musimTanam: {
@@ -89,8 +117,25 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
           },
         },
         orderBy: { tanggal: 'desc' },
-        take: 15,
+        take: 25,
       }),
+      prisma.informasiPertanian.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      }).catch(() => []),
+      prisma.broadcastNotification.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }).catch(() => []),
+      prisma.auditLog.findMany({
+        include: {
+          user: { select: { fullName: true, role: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      }).catch(() => []),
+      getAppSettingsAsync(),
     ])
 
     // 1. Data Akun Pengguna
@@ -106,6 +151,8 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       role: u.role,
       phone: u.phone || '-',
       email: u.email || '-',
+      isActive: u.isActive,
+      lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString().slice(0, 10) : undefined,
     }))
 
     // 2. Data Petani
@@ -113,34 +160,43 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
     const daftarPetani = petaniData.map(p => {
       let farmerM2 = 0
       for (const l of p.lahan) {
-        if (l.satuanLuas === 'Ha') farmerM2 += l.luasLahan * 10000
-        else if (l.satuanLuas === 'Bata') farmerM2 += l.luasLahan * 14
-        else farmerM2 += l.luasLahan
+        farmerM2 += convertLuasToM2(l.luasLahan, l.satuanLuas)
       }
       return {
         nama: p.namaLengkap,
         nik: p.nik || '-',
         telepon: p.nomorTelepon,
         alamat: p.alamat,
+        jenisKelamin: p.jenisKelamin,
         poktan: p.kelompokTani?.nama || 'Belum Terdaftar Poktan',
         totalLahan: p.lahan.length,
         totalLuasM2: Math.round(farmerM2),
         totalLuasHa: Number((farmerM2 / 10000).toFixed(2)),
         username: p.user?.username,
+        lahanNames: p.lahan.map(l => l.namaLahan),
       }
     })
 
     // 3. Data Kelompok Tani (Poktan)
     const totalPoktan = poktanData.length
-    const daftarPoktan = poktanData.map(p => ({
-      nama: p.nama,
-      ketua: p.ketua,
-      wilayah: p.wilayah,
-      kontak: p.nomorKontak || '-',
-      deskripsi: p.deskripsi || '-',
-      jumlahPetani: p._count.anggota,
-      anggotaNames: p.anggota.map(a => a.namaLengkap),
-    }))
+    const daftarPoktan = poktanData.map(p => {
+      let poktanM2 = 0
+      for (const a of p.anggota) {
+        for (const l of a.lahan) {
+          poktanM2 += convertLuasToM2(l.luasLahan, l.satuanLuas)
+        }
+      }
+      return {
+        nama: p.nama,
+        ketua: p.ketua,
+        wilayah: p.wilayah,
+        kontak: p.nomorKontak || '-',
+        deskripsi: p.deskripsi || '-',
+        jumlahPetani: p._count.anggota,
+        anggotaNames: p.anggota.map(a => a.namaLengkap),
+        totalLuasHa: Number((poktanM2 / 10000).toFixed(2)),
+      }
+    })
 
     // 4. Data Lahan Pertanian Sawah
     const totalLahan = lahanData.length
@@ -148,11 +204,7 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
     const lahanTidakAktif = lahanData.filter(l => l.status !== 'AKTIF').length
     let totalLuasM2 = 0
     const daftarLahan = lahanData.map(l => {
-      let m2 = 0
-      if (l.satuanLuas === 'Ha') m2 = l.luasLahan * 10000
-      else if (l.satuanLuas === 'Bata') m2 = l.luasLahan * 14
-      else m2 = l.luasLahan
-
+      const m2 = convertLuasToM2(l.luasLahan, l.satuanLuas)
       totalLuasM2 += m2
       return {
         nama: l.namaLahan,
@@ -163,33 +215,110 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
         lokasi: l.lokasi,
         status: l.status,
         petani: l.petani?.namaLengkap || 'Belum ditentukan',
+        latitude: l.latitude ?? undefined,
+        longitude: l.longitude ?? undefined,
+        catatan: l.catatan || undefined,
       }
     })
     const totalLuasHa = Number((totalLuasM2 / 10000).toFixed(2))
 
-    // 5. Data Musim Tanam
+    // 5. Data Musim Tanam + Hitung HST & Early Warnings
+    const today = new Date()
     const totalMusim = musimData.length
     const musimBerjalan = musimData.filter(m => m.status === 'BERJALAN').length
     const musimPerencanaan = musimData.filter(m => m.status === 'PERENCANAAN').length
     const musimSelesai = musimData.filter(m => m.status === 'SELESAI').length
     const musimGagal = musimData.filter(m => m.status === 'GAGAL').length
-    const daftarMusim = musimData.slice(0, 15).map(m => ({
-      namaMusim: m.namaMusim,
-      varietas: m.varietasPadi,
-      status: m.status,
-      lahanNama: m.lahan?.namaLahan || '-',
-      petaniNama: m.lahan?.petani?.namaLengkap || '-',
-      tanggalTanam: m.tanggalTanam ? m.tanggalTanam.toISOString().slice(0, 10) : undefined,
-      estimasiPanen: m.estimasiPanen ? m.estimasiPanen.toISOString().slice(0, 10) : undefined,
-    }))
+    const daftarMusim = musimData.map(m => {
+      const tTanam = new Date(m.tanggalTanam)
+      const tPanen = new Date(m.estimasiPanen)
+      const hst = Math.floor((today.getTime() - tTanam.getTime()) / (1000 * 60 * 60 * 24))
+      const sisaHariPanen = Math.ceil((tPanen.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      return {
+        namaMusim: m.namaMusim,
+        varietas: m.varietasPadi,
+        status: m.status,
+        lahanNama: m.lahan?.namaLahan || '-',
+        petaniNama: m.lahan?.petani?.namaLengkap || '-',
+        tanggalTanam: m.tanggalTanam ? tTanam.toISOString().slice(0, 10) : undefined,
+        estimasiPanen: m.estimasiPanen ? tPanen.toISOString().slice(0, 10) : undefined,
+        hst,
+        sisaHariPanen,
+        catatan: m.catatan || undefined,
+      }
+    })
 
-    // 6. Data Panen
+    // Hitung Peringatan Dini (konsisten dengan /api/warnings)
+    const earlyWarnings: Array<{
+      title: string
+      severity: 'URGENT' | 'WARNING' | 'INFO'
+      type: string
+      lahanNama?: string
+      petaniNama?: string
+      message: string
+    }> = []
+
+    for (const m of musimData.filter(item => item.status === 'BERJALAN')) {
+      const tTanam = new Date(m.tanggalTanam)
+      const tPanen = new Date(m.estimasiPanen)
+      const hst = Math.floor((today.getTime() - tTanam.getTime()) / (1000 * 60 * 60 * 24))
+      const sisaHariPanen = Math.ceil((tPanen.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      const lahanNama = m.lahan?.namaLahan || 'Lahan Sawah'
+      const petaniNama = m.lahan?.petani?.namaLengkap || 'Petani'
+
+      if (hst >= 5 && hst <= 18) {
+        earlyWarnings.push({
+          title: `Jadwal Pemupukan Pertama (${hst} HST)`,
+          severity: 'WARNING',
+          type: 'PEMUPUKAN',
+          lahanNama,
+          petaniNama,
+          message: `Tanaman varietas ${m.varietasPadi} di ${lahanNama} berusia ${hst} HST, waktunya pemupukan dasar/susulan I.`,
+        })
+      }
+
+      if (sisaHariPanen <= 0) {
+        earlyWarnings.push({
+          title: `Siap Panen / Lewat Estimasi (${Math.abs(sisaHariPanen)} hari)`,
+          severity: 'URGENT',
+          type: 'PANEN',
+          lahanNama,
+          petaniNama,
+          message: `Musim "${m.namaMusim}" di ${lahanNama} (${petaniNama}) telah memasuki masa panen.`,
+        })
+      } else if (sisaHariPanen <= 14) {
+        earlyWarnings.push({
+          title: `Panen Mendekati Waktu (${sisaHariPanen} Hari Lagi)`,
+          severity: 'URGENT',
+          type: 'PANEN',
+          lahanNama,
+          petaniNama,
+          message: `Estimasi panen "${m.namaMusim}" di ${lahanNama} tersisa ${sisaHariPanen} hari (${tPanen.toISOString().slice(0, 10)}).`,
+        })
+      } else if (sisaHariPanen <= 30) {
+        earlyWarnings.push({
+          title: `Persiapan Panen (${sisaHariPanen} Hari Lagi)`,
+          severity: 'INFO',
+          type: 'PANEN',
+          lahanNama,
+          petaniNama,
+          message: `Musim "${m.namaMusim}" di ${lahanNama} diprediksi panen dalam ${sisaHariPanen} hari.`,
+        })
+      }
+    }
+
+    earlyWarnings.push({
+      title: 'Peringatan Dini Cuaca & Hama Wereng Padi',
+      severity: 'WARNING',
+      type: 'HAMA_CUACA',
+      message: 'Waspadai gejala wereng batang coklat (WBC) dan sundep saat kelembapan tinggi; lakukan pengeringan berkala macak-macak.',
+    })
+
+    // 6. Data Panen (hitung total dari SELURUH data panen)
     const totalPanenSesi = panenData.length
     let totalPanenKg = 0
-    const daftarPanen = panenData.slice(0, 15).map(p => {
-      let kg = p.jumlahProduksi
-      if (p.satuan === 'ton') kg = p.jumlahProduksi * 1000
-      else if (p.satuan === 'kuintal') kg = p.jumlahProduksi * 100
+    const daftarPanen = panenData.map(p => {
+      const kg = convertPanenToKg(p.jumlahProduksi, p.satuan)
       totalPanenKg += kg
       return {
         tanggalPanen: p.tanggalPanen.toISOString().slice(0, 10),
@@ -205,7 +334,8 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
     const totalPanenTon = Number((totalPanenKg / 1000).toFixed(2))
 
     // 7. Aktivitas Budidaya Terkini
-    const totalAktivitas = aktivitasData.length
+    const totalAktivitas = aktivitasCount
+    const totalBiayaAktivitas = Math.round(aktivitasBiayaAgg._sum.biaya || 0)
     const aktivitasTerbaru = aktivitasData.map(a => ({
       tanggal: a.tanggal.toISOString().slice(0, 10),
       jenis: a.jenisAktivitas,
@@ -215,6 +345,36 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       petani: a.musimTanam?.lahan?.petani?.namaLengkap || '-',
       bahan: a.bahan || '-',
       biaya: a.biaya || 0,
+    }))
+
+    // 8. Informasi & Edukasi Pertanian
+    const daftarInformasi = informasiData.map(i => ({
+      judul: i.judul,
+      kategori: i.kategori,
+      namaPenulis: i.namaPenulis,
+      isiRingkas: i.isi.slice(0, 200),
+      tanggalPublikasi: (i.tanggalPublikasi || i.createdAt).toISOString().slice(0, 10),
+    }))
+
+    // 9. Broadcast Notifications
+    const daftarBroadcast = broadcastData.map((b: any) => ({
+      title: b.title,
+      message: b.message,
+      category: b.category,
+      severity: b.severity,
+      targetRole: b.targetRole,
+      sentViaEmail: !!b.sentViaEmail,
+      sentViaWa: !!b.sentViaWa,
+      createdAt: new Date(b.createdAt).toISOString().slice(0, 10),
+    }))
+
+    // 10. Audit Logs
+    const daftarAuditLog = auditLogData.map((a: any) => ({
+      action: a.action,
+      entity: a.entity,
+      details: a.details || '-',
+      userName: a.user?.fullName || 'Sistem',
+      createdAt: new Date(a.createdAt).toISOString().slice(0, 16).replace('T', ' '),
     }))
 
     return {
@@ -229,7 +389,7 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       lahanAktif,
       lahanTidakAktif,
       totalLuasHa,
-      totalLuasM2,
+      totalLuasM2: Math.round(totalLuasM2),
       daftarLahan,
       totalMusim,
       musimBerjalan,
@@ -242,26 +402,43 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
       totalPanenKg: Math.round(totalPanenKg),
       daftarPanen,
       totalAktivitas,
+      totalBiayaAktivitas,
       aktivitasTerbaru,
+      daftarInformasi,
+      daftarBroadcast,
+      daftarAuditLog,
+      earlyWarnings,
+      appSettings: {
+        appName: appSettings.appName,
+        villageName: appSettings.villageName,
+        districtName: appSettings.districtName,
+        regencyName: appSettings.regencyName,
+        adminContactName: appSettings.adminContactName,
+        adminContactPhone: appSettings.adminContactPhone,
+        notificationTargetEmail: appSettings.notificationTargetEmail,
+        defaultWhatsAppNumber: appSettings.defaultWhatsAppNumber,
+        aiProvider: appSettings.aiProvider,
+        smtpHost: appSettings.smtpHost,
+      },
     }
   } catch (error) {
     console.error('Error in getFullDatabaseContext:', error)
-    // Fallback default snapshot jika koneksi error
+    // Fallback default snapshot sesuai seed terbaru jika koneksi error
     return {
-      totalUsers: 6,
-      usersByRole: { admin: 1, perangkatDesa: 1, petani: 4 },
-      totalPetani: 4,
+      totalUsers: 5,
+      usersByRole: { admin: 1, perangkatDesa: 1, petani: 3 },
+      totalPetani: 3,
       totalPoktan: 3,
       daftarPoktan: [],
-      totalLahan: 8,
-      lahanAktif: 8,
+      totalLahan: 4,
+      lahanAktif: 4,
       lahanTidakAktif: 0,
-      totalLuasHa: 9.85,
-      totalLuasM2: 98500,
+      totalLuasHa: 6.0,
+      totalLuasM2: 60000,
       daftarLahan: [],
-      totalMusim: 9,
-      musimBerjalan: 6,
-      musimPerencanaan: 1,
+      totalMusim: 5,
+      musimBerjalan: 3,
+      musimPerencanaan: 0,
       musimSelesai: 2,
       musimGagal: 0,
       daftarMusim: [],
@@ -294,7 +471,6 @@ export async function GET(req: NextRequest) {
     const sessionId = searchParams.get('sessionId')
     const statsRequested = searchParams.get('stats') === 'true'
 
-    // Endpoint opsional: Mengambil ringkasan statistik live database untuk UI
     if (statsRequested) {
       const dbStats = await getFullDatabaseContext()
       return NextResponse.json({
@@ -312,7 +488,6 @@ export async function GET(req: NextRequest) {
     }
 
     if (sessionId) {
-      // Get messages for a specific session
       const chatSession = await prisma.aiChatSession.findFirst({
         where: {
           id: sessionId,
@@ -332,7 +507,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ data: chatSession })
     }
 
-    // List all sessions
     const chatSessions = await prisma.aiChatSession.findMany({
       where: { userId: session.userId },
       include: {
@@ -357,7 +531,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { message, sessionId, role: requestedRole, userName: requestedUserName } = body
+    const { message, sessionId, role: requestedRole } = body
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return NextResponse.json({ error: 'Pesan tidak boleh kosong' }, { status: 400 })
@@ -369,7 +543,6 @@ export async function POST(req: NextRequest) {
 
     let session = await getSession()
 
-    // Resolusi user cerdas jika sesi cookie belum disetel atau demo dashboard
     if (!session) {
       const referer = req.headers.get('referer') || ''
       const targetRole =
@@ -399,7 +572,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Ambil detail data profil user terdaftar langsung dari database utama
     const dbUser = await prisma.user.findUnique({
       where: { id: session.userId },
       include: {
@@ -427,7 +599,6 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Get or create chat session
     let chatSession
     if (sessionId) {
       chatSession = await prisma.aiChatSession.findFirst({
@@ -435,7 +606,7 @@ export async function POST(req: NextRequest) {
         include: {
           messages: {
             orderBy: { createdAt: 'asc' },
-            take: 20, // last 20 messages for context
+            take: 20,
           },
         },
       })
@@ -451,7 +622,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Save user message
     await prisma.aiChatMessage.create({
       data: {
         sessionId: chatSession.id,
@@ -460,7 +630,6 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Kebijakan: Pembuatan laporan resmi eksklusif untuk role ADMIN dan PERANGKAT_DESA
     const isReportQuery = /laporan resmi|buatkan laporan|buat laporan|draft laporan/i.test(message)
     if (isReportQuery && session.role === 'PETANI') {
       const refusalText = `Maaf, pembuatan laporan resmi pertanian desa hanya dapat diakses oleh Administrator dan Perangkat Desa. Sebagai Petani, Anda dapat menanyakan panduan perawatan padi, jadwal musim tanam, atau data sawah Anda.`
@@ -488,7 +657,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Build conversation history for AI
     const conversationHistory: AiMessage[] = [
       ...(chatSession.messages || []).map(m => ({
         role: m.role as 'user' | 'assistant' | 'system',
@@ -497,7 +665,6 @@ export async function POST(req: NextRequest) {
       { role: 'user' as const, content: message.trim() },
     ]
 
-    // Bangun userContext yang akurat sesuai user yang sedang login di dashboard masing-masing
     const activeRole = dbUser?.role || session.role || 'PETANI'
     const fullName =
       dbUser?.petani?.namaLengkap ||
@@ -552,16 +719,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 1. Ambil data database lengkap untuk Administrator & Perangkat Desa atau pertanyaan terkait data desa
     userContext.statsDesa = await getFullDatabaseContext()
 
-    // Call AI service
     const aiResponse = await processAiChat({
       messages: conversationHistory,
       userContext,
     })
 
-    // Save AI response to DB
     const savedAiMessage = await prisma.aiChatMessage.create({
       data: {
         sessionId: chatSession.id,
@@ -570,7 +734,6 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Update session updatedAt
     await prisma.aiChatSession.update({
       where: { id: chatSession.id },
       data: { updatedAt: new Date() },
@@ -591,8 +754,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error in AI chat:', error)
-
-    // User-friendly error messages
     const message = error.message || 'Terjadi kesalahan pada layanan AI'
     const isApiError =
       message.includes('Layanan AI') ||

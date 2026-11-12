@@ -16,6 +16,9 @@ export interface AppSettings {
   // ── 2. PENGATURAN NOTIFIKASI EMAIL & WHATSAPP ──
   notificationTargetEmail: string
   defaultWhatsAppNumber: string
+  waGatewayProvider: 'fonnte' | 'wablas' | 'webhook'
+  waApiToken: string
+  waApiUrl: string
   smtpHost: string
   smtpPort: number
   smtpSecure: boolean
@@ -52,7 +55,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   aiEnableLocalFallback: true,
 
   notificationTargetEmail: process.env.NOTIFICATION_TARGET_EMAIL || 'karismasitinabila7@gmail.com',
-  defaultWhatsAppNumber: '6285797864834',
+  defaultWhatsAppNumber: process.env.DEFAULT_WA_NUMBER || '6285797864834',
+  waGatewayProvider: (process.env.WA_GATEWAY_PROVIDER as any) || 'fonnte',
+  waApiToken: process.env.WA_API_TOKEN || process.env.FONNTE_TOKEN || '',
+  waApiUrl: process.env.WA_API_URL || 'https://api.fonnte.com/send',
   smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
   smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
   smtpSecure: process.env.SMTP_SECURE === 'true',
@@ -80,6 +86,10 @@ function syncSettingsToProcessEnv(updated: AppSettings) {
   if (updated.aiGeminiModel) process.env.AI_GEMINI_MODEL = updated.aiGeminiModel
   if (updated.aiOpenAiModel) process.env.AI_OPENAI_MODEL = updated.aiOpenAiModel
   if (updated.notificationTargetEmail) process.env.NOTIFICATION_TARGET_EMAIL = updated.notificationTargetEmail
+  if (updated.defaultWhatsAppNumber) process.env.DEFAULT_WA_NUMBER = updated.defaultWhatsAppNumber
+  if (updated.waGatewayProvider) process.env.WA_GATEWAY_PROVIDER = updated.waGatewayProvider
+  if (updated.waApiToken) process.env.WA_API_TOKEN = updated.waApiToken
+  if (updated.waApiUrl) process.env.WA_API_URL = updated.waApiUrl
   if (updated.smtpHost) process.env.SMTP_HOST = updated.smtpHost
   if (updated.smtpPort) process.env.SMTP_PORT = String(updated.smtpPort)
   if (updated.smtpUser) process.env.SMTP_USER = updated.smtpUser
@@ -123,6 +133,9 @@ export async function getAppSettingsAsync(): Promise<AppSettings> {
       }
       if (!merged.smtpUser && process.env.SMTP_USER) merged.smtpUser = process.env.SMTP_USER
       if (!merged.smtpPass && process.env.SMTP_PASS) merged.smtpPass = process.env.SMTP_PASS
+      if (!merged.waApiToken && (process.env.WA_API_TOKEN || process.env.FONNTE_TOKEN)) {
+        merged.waApiToken = process.env.WA_API_TOKEN || process.env.FONNTE_TOKEN || ''
+      }
       return merged
     }
   } catch (err) {

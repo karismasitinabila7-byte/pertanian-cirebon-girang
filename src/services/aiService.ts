@@ -143,6 +143,8 @@ export interface StatsDesaContext {
     adminContactPhone: string
     notificationTargetEmail: string
     defaultWhatsAppNumber: string
+    waGatewayProvider?: string
+    waConfigured?: boolean
     aiProvider: string
     smtpHost: string
   }
@@ -247,7 +249,7 @@ Pengguna Saat Ini: ${userContext?.namaLengkap || namaUser} (Role: ${role})
 - Wilayah: ${s.appSettings?.villageName || 'Desa Cirebon Girang'}, ${s.appSettings?.districtName || 'Kecamatan Talun'}, ${s.appSettings?.regencyName || 'Kabupaten Cirebon'}
 - Kepala Desa / Kuwu / Perangkat Desa Pengawas: ${kadesName} (@${kades?.username || 'perangkat_desa'}, Role: PERANGKAT_DESA, Email: ${kadesEmail}, HP: ${kadesPhone}). Di dalam sistem SI PADI, ${kadesName} bertugas sebagai Perangkat Desa (Seksi Pelayanan & Pembinaan Pertanian) sekaligus Kuwu / Kepala Desa penandatangan laporan resmi desa.
 - Administrator Sistem: ${adminName} (@${admin?.username || 'admin'}, Role: ADMIN, Email: ${adminEmail}, HP: ${adminPhone}).
-- Notifikasi Email & WA: Email target ${s.appSettings?.notificationTargetEmail || 'karismasitinabila7@gmail.com'} (SMTP Nodemailer), WhatsApp Direct URL Click-to-Chat nomor default ${s.appSettings?.defaultWhatsAppNumber || '6285797864834'} (TIDAK menggunakan Fonnte/gateway berbayar).
+- Notifikasi Email & WA: Email target ${s.appSettings?.notificationTargetEmail || 'karismasitinabila7@gmail.com'} (SMTP Nodemailer), WhatsApp Gateway otomatis (${(s.appSettings?.waGatewayProvider || 'fonnte').toUpperCase()} / Wablas / Webhook - Status token: ${s.appSettings?.waConfigured ? 'AKTIF Otomatis' : 'Belum diisi, tersedia fallback Click-to-Chat'}, nomor default ${s.appSettings?.defaultWhatsAppNumber || '6285797864834'}).
 - Arsitektur Teknis Web: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Prisma ORM, Database MySQL (TiDB Cloud Serverless), Hosting Vercel, Peta GIS Leaflet, Auth JWT (jose) + bcryptjs.
 
 2. DATA AKUN PENGGUNA (${s.totalUsers ?? 0} Akun):
@@ -454,10 +456,10 @@ export function handleActionButtonAndFeatureResponse(q: string): string | null {
     return `**Pola Rotasi Tanam di Desa Cirebon Girang:**\n1. **MT1 (Musim Rendeng - Nov–Maret):** Padi sawah varietas unggul (Inpari 32 HDB / Ciherang).\n2. **MT2 (Musim Gadu - April–Juli):** Padi hemat air (Inpari 42 GSR / Mekongga).\n3. **MT3 (Palawija/Bera - Ags–Okt):** Jagung, kedelai, atau pemberaan lahan untuk memutus siklus hama wereng & tikus.`
   }
   if (qL.includes('fonnte') || qL.includes('notifikasi wa') || qL.includes('kirim wa') || qL.includes('whatsapp gateway')) {
-    return 'Notifikasi WhatsApp pada SI PADI **tidak memakai pihak ketiga berbayar seperti Fonnte**, melainkan menggunakan **WhatsApp Direct URL / Click-to-Chat resmi (`api.whatsapp.com/send`)** yang otomatis mengisi pesan peringatan dini dan nomor tujuan (default `6285797864834`), sedangkan **Email** dikirim via protokol **SMTP Nodemailer**.'
+    return 'Notifikasi WhatsApp pada SI PADI dikirim **secara otomatis oleh server (Server-to-WhatsApp)** melalui integrasi **WhatsApp Gateway API** yang mendukung **Fonnte** (direkomendasikan), **Wablas**, atau **Custom Webhook** (dikonfigurasi di menu *Konfigurasi Sistem → Notifikasi & Email*). Apabila token gateway belum diisi, sistem menyediakan fallback tautan `api.whatsapp.com/send`. Sedangkan **Email** dikirim otomatis via protokol **SMTP Nodemailer**.'
   }
   if (qL.includes('database apa') || qL.includes('pakai database') || qL.includes('teknologi web') || qL.includes('hosting') || qL.includes('framework')) {
-    return '**Arsitektur & Teknologi Platform SI PADI:**\n• **Frontend & Backend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS.\n• **Database & ORM:** **MySQL** (di-host di **TiDB Cloud Serverless**) diakses melalui **Prisma ORM** (12 tabel relasional).\n• **Hosting & Domain:** Di-deploy di cloud **Vercel** (`pertanian-cirebon-girang.vercel.app`) aktif 24/7.\n• **Integrasi:** Peta GIS Leaflet, AI Engine (Gemini / OpenAI + Local Engine), Email SMTP Nodemailer, WhatsApp Click-to-Chat, dan Widget Cuaca Open-Meteo.'
+    return '**Arsitektur & Teknologi Platform SI PADI:**\n• **Frontend & Backend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS.\n• **Database & ORM:** **MySQL** (di-host di **TiDB Cloud Serverless**) diakses melalui **Prisma ORM** (12 tabel relasional).\n• **Hosting & Domain:** Di-deploy di cloud **Vercel** (`pertanian-cirebon-girang.vercel.app`) aktif 24/7.\n• **Integrasi:** Peta GIS Leaflet, AI Engine (Gemini / OpenAI + Local Engine), Email SMTP Nodemailer, WhatsApp Gateway Otomatis (Fonnte/Wablas/Webhook), dan Widget Cuaca Open-Meteo.'
   }
   return null
 }
@@ -711,7 +713,8 @@ export function generateAdminResponse(userContext?: PetaniContext): string {
 
 export function generateKonfigurasiStatsResponse(userContext?: PetaniContext): string {
   const cfg = userContext?.statsDesa?.appSettings
-  return `Konfigurasi SI PADI saat ini aktif dengan penanggung jawab **${cfg?.adminContactName || 'Karisma Siti Nabila'}** (Email target notifikasi: \`${cfg?.notificationTargetEmail || 'karismasitinabila7@gmail.com'}\`, WA default: \`${cfg?.defaultWhatsAppNumber || '6285797864834'}\`, AI Provider: **${(cfg?.aiProvider || 'gemini').toUpperCase()}**, SMTP Host: \`${cfg?.smtpHost || 'smtp.gmail.com'}\`).`
+  const waStatus = cfg?.waConfigured ? 'Aktif Otomatis' : 'Token Belum Diisi'
+  return `Konfigurasi SI PADI saat ini aktif dengan penanggung jawab **${cfg?.adminContactName || 'Karisma Siti Nabila'}** (Email target notifikasi: \`${cfg?.notificationTargetEmail || 'karismasitinabila7@gmail.com'}\`, WA Gateway: **${(cfg?.waGatewayProvider || 'fonnte').toUpperCase()}** [${waStatus}], WA default: \`${cfg?.defaultWhatsAppNumber || '6285797864834'}\`, AI Provider: **${(cfg?.aiProvider || 'gemini').toUpperCase()}**, SMTP Host: \`${cfg?.smtpHost || 'smtp.gmail.com'}\`).`
 }
 
 export function generateMasterDataOverviewResponse(userContext?: PetaniContext): string {

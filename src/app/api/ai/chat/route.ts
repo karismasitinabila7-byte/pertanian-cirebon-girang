@@ -417,6 +417,8 @@ async function getFullDatabaseContext(): Promise<StatsDesaContext> {
         adminContactPhone: appSettings.adminContactPhone,
         notificationTargetEmail: appSettings.notificationTargetEmail,
         defaultWhatsAppNumber: appSettings.defaultWhatsAppNumber,
+        waGatewayProvider: appSettings.waGatewayProvider,
+        waConfigured: Boolean(appSettings.waApiToken),
         aiProvider: appSettings.aiProvider,
         smtpHost: appSettings.smtpHost,
       },

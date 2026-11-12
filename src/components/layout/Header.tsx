@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, Menu, User, ChevronDown, Bell, AlertTriangle, Droplets, Wheat, ShieldAlert, ExternalLink, Bot, Sparkles, Mail, Loader2, Check } from 'lucide-react'
+import { LogOut, Menu, User, ChevronDown, Bell, AlertTriangle, Droplets, Wheat, ShieldAlert, ExternalLink, Bot, Sparkles, Mail, Loader2, Check, MessageSquare } from 'lucide-react'
 
 export function Header({
   user,
@@ -19,6 +19,117 @@ export function Header({
   const [unreadCount, setUnreadCount] = useState(0)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailSentSuccess, setEmailSentSuccess] = useState(false)
+  const [sendingWaId, setSendingWaId] = useState<string | null>(null)
+  const [isSendingAllWa, setIsSendingAllWa] = useState(false)
+  const [waToast, setWaToast] = useState<{
+    id?: string
+    success: boolean
+    sentAutomatically: boolean
+    target?: string
+    message: string
+    waUrl?: string
+  } | null>(null)
+
+  const handleSendSingleWa = async (w: any) => {
+    try {
+      setSendingWaId(w.id)
+      setWaToast(null)
+      const res = await fetch('/api/notifications/send-wa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: w.petaniTelepon || w.recipientPhone,
+          title: w.title,
+          message: w.message,
+          type: w.type,
+          severity: w.severity,
+          lahanNama: w.lahanNama,
+          petaniNama: w.petaniNama,
+          hst: w.hst,
+          daysRemaining: w.daysRemaining,
+          actionUrl: w.actionUrl,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setWaToast({
+          id: w.id,
+          success: true,
+          sentAutomatically: Boolean(data.sentAutomatically),
+          target: data.target,
+          message: data.sentAutomatically
+            ? `Pesan otomatis terkirim ke WA ${data.target}`
+            : data.result?.note || 'Token Gateway WA belum dikonfigurasi.',
+          waUrl: data.waUrl,
+        })
+        if (data.sentAutomatically) {
+          setTimeout(() => setWaToast(null), 5000)
+        }
+      } else {
+        setWaToast({
+          id: w.id,
+          success: false,
+          sentAutomatically: false,
+          message: data.error || data.result?.error || 'Gagal mengirim notifikasi WA otomatis.',
+          waUrl: data.waUrl,
+        })
+      }
+    } catch (e: any) {
+      setWaToast({
+        id: w.id,
+        success: false,
+        sentAutomatically: false,
+        message: e.message || 'Gagal menghubungi server WA.',
+      })
+    } finally {
+      setSendingWaId(null)
+    }
+  }
+
+  const handleSendAllWa = async () => {
+    try {
+      setIsSendingAllWa(true)
+      setWaToast(null)
+      const res = await fetch('/api/notifications/send-wa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SEND_ALL_WARNINGS' }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setWaToast({
+          id: 'ALL',
+          success: true,
+          sentAutomatically: Boolean(data.sentAutomatically),
+          target: data.target,
+          message: data.sentAutomatically
+            ? `Rangkuman ${data.totalWarnings || warnings.length} peringatan otomatis terkirim ke WA ${data.target}`
+            : data.result?.note || 'Token Gateway WA belum dikonfigurasi.',
+          waUrl: data.waUrl,
+        })
+        if (data.sentAutomatically) {
+          setTimeout(() => setWaToast(null), 5000)
+        }
+      } else {
+        setWaToast({
+          id: 'ALL',
+          success: false,
+          sentAutomatically: false,
+          message: data.error || data.result?.error || 'Gagal mengirim rangkuman WA otomatis.',
+          waUrl: data.waUrl,
+        })
+      }
+    } catch (e: any) {
+      setWaToast({
+        id: 'ALL',
+        success: false,
+        sentAutomatically: false,
+        message: e.message || 'Gagal menghubungi server WA.',
+      })
+    } finally {
+      setIsSendingAllWa(false)
+    }
+  }
 
   useEffect(() => {
     if (!user?.username) return
@@ -187,17 +298,30 @@ export function Header({
                               {w.lahanNama || 'Sawah Desa'}
                             </span>
                             <div className="flex items-center gap-2">
-                              <a
-                                href={`https://api.whatsapp.com/send?phone=6285797864834&text=${encodeURIComponent(
-                                  `📢 *PERINGATAN DINI PERTANIAN (EARLY WARNING SYSTEM)*\n*Pemerintah Desa Cirebon Girang*\n━━━━━━━━━━━━━━━━━━━━━━━\n⚠️ *Topik:* ${w.title}\n🌾 *Lahan:* ${w.lahanNama || 'Hamparan Sawah Desa'}\n👤 *Petani:* ${w.petaniNama || 'Bapak Sukardi'}\n\n📋 *Pesan:* ${w.message}\n━━━━━━━━━━━━━━━━━━━━━━━\n_SI PADI Desa Cirebon Girang_`
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[10px] font-bold text-[#25D366] hover:underline flex items-center gap-0.5"
-                                title="Kirim ke WhatsApp (6285797864834)"
+                              <button
+                                type="button"
+                                onClick={() => handleSendSingleWa(w)}
+                                disabled={sendingWaId === w.id}
+                                className="text-[10px] font-bold text-[#15803d] hover:text-[#166534] hover:underline flex items-center gap-1 disabled:opacity-50 cursor-pointer"
+                                title="Kirim notifikasi ini secara otomatis ke WhatsApp tujuan"
                               >
-                                <span>Kirim WA</span>
-                              </a>
+                                {sendingWaId === w.id ? (
+                                  <>
+                                    <Loader2 size={10} className="animate-spin" />
+                                    <span>Mengirim...</span>
+                                  </>
+                                ) : waToast?.id === w.id && waToast?.sentAutomatically ? (
+                                  <>
+                                    <Check size={10} className="text-emerald-600" />
+                                    <span>Terkirim</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <MessageSquare size={10} />
+                                    <span>Kirim WA</span>
+                                  </>
+                                )}
+                              </button>
                               <Link
                                 href={w.actionUrl}
                                 onClick={() => setShowNotifications(false)}
@@ -215,52 +339,104 @@ export function Header({
                 )}
               </div>
 
-              {/* Footer: Kirim Rekapitulasi ke Email */}
-              <div className="p-2.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                <button
-                  onClick={async () => {
-                    try {
-                      setIsSendingEmail(true)
-                      const res = await fetch('/api/notifications/send-email', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          action: 'SEND_ALL_WARNINGS',
-                          to: 'karismasitinabila7@gmail.com',
-                        }),
-                      })
-                      const data = await res.json()
-                      if (data.success) {
-                        setEmailSentSuccess(true)
-                        setTimeout(() => setEmailSentSuccess(false), 4000)
+              {/* Footer: Kirim Rekapitulasi Otomatis ke WhatsApp & Email */}
+              <div className="p-2.5 bg-gray-50 border-t border-gray-100 space-y-2">
+                {waToast && (
+                  <div
+                    className={`px-2.5 py-1.5 rounded-lg text-[10px] flex items-center justify-between gap-2 border ${
+                      waToast.sentAutomatically
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : waToast.success
+                        ? 'bg-amber-50 border-amber-200 text-amber-800'
+                        : 'bg-rose-50 border-rose-200 text-rose-800'
+                    }`}
+                  >
+                    <span className="line-clamp-2">{waToast.message}</span>
+                    {!waToast.sentAutomatically && waToast.waUrl && (
+                      <a
+                        href={waToast.waUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold underline flex-shrink-0 text-emerald-800"
+                      >
+                        Buka WA Web
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleSendAllWa}
+                    disabled={isSendingAllWa || warnings.length === 0}
+                    className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-xl text-[10px] font-bold bg-[#16a34a] hover:bg-[#15803d] text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
+                    title="Kirimkan rangkuman seluruh peringatan aktif otomatis ke WhatsApp tujuan"
+                  >
+                    {isSendingAllWa ? (
+                      <>
+                        <Loader2 size={11} className="animate-spin" />
+                        <span>Mengirim WA...</span>
+                      </>
+                    ) : waToast?.id === 'ALL' && waToast?.sentAutomatically ? (
+                      <>
+                        <Check size={11} />
+                        <span>WA Terkirim!</span>
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare size={11} />
+                        <span>Kirim Semua WA</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        setIsSendingEmail(true)
+                        const res = await fetch('/api/notifications/send-email', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            action: 'SEND_ALL_WARNINGS',
+                            to: 'karismasitinabila7@gmail.com',
+                          }),
+                        })
+                        const data = await res.json()
+                        if (data.success) {
+                          setEmailSentSuccess(true)
+                          setTimeout(() => setEmailSentSuccess(false), 4000)
+                        }
+                      } catch (e) {
+                        console.error('Error sending email:', e)
+                      } finally {
+                        setIsSendingEmail(false)
                       }
-                    } catch (e) {
-                      console.error('Error sending email:', e)
-                    } finally {
-                      setIsSendingEmail(false)
-                    }
-                  }}
-                  disabled={isSendingEmail || warnings.length === 0}
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-emerald-700 hover:bg-emerald-800 text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
-                  title="Kirimkan rangkuman seluruh peringatan aktif ke karismasitinabila7@gmail.com"
-                >
-                  {isSendingEmail ? (
-                    <>
-                      <Loader2 size={12} className="animate-spin" />
-                      <span>Mengirim ke karismasitinabila7@gmail.com...</span>
-                    </>
-                  ) : emailSentSuccess ? (
-                    <>
-                      <Check size={12} className="text-emerald-200" />
-                      <span>Terkirim ke karismasitinabila7@gmail.com!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mail size={12} />
-                      <span>Kirim ke karismasitinabila7@gmail.com</span>
-                    </>
-                  )}
-                </button>
+                    }}
+                    disabled={isSendingEmail || warnings.length === 0}
+                    className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-xl text-[10px] font-bold bg-emerald-700 hover:bg-emerald-800 text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
+                    title="Kirimkan rangkuman seluruh peringatan aktif ke email target"
+                  >
+                    {isSendingEmail ? (
+                      <>
+                        <Loader2 size={11} className="animate-spin" />
+                        <span>Mengirim Email...</span>
+                      </>
+                    ) : emailSentSuccess ? (
+                      <>
+                        <Check size={11} className="text-emerald-200" />
+                        <span>Email Terkirim!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mail size={11} />
+                        <span>Kirim ke Email</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           )}

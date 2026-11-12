@@ -1,5 +1,7 @@
 import prisma from '@/lib/prisma'
 import { sendEmailNotification, buildGmailComposeUrl } from '@/lib/email'
+import { sendWhatsAppNotification, buildWhatsAppDirectUrl, WhatsAppSendResult } from '@/lib/whatsapp'
+import { getAppSettingsAsync } from '@/lib/settings'
 import crypto from 'crypto'
 
 export interface BroadcastNotificationItem {
@@ -76,30 +78,45 @@ export async function createManualNotification(input: CreateBroadcastInput) {
     )
   `
 
-  // Format link WhatsApp tujuan
+  // Tentukan nomor WhatsApp tujuan & kirim otomatis jika opsi WA diaktifkan
+  const settings = await getAppSettingsAsync()
+  let targetPhone = input.recipientPhone?.trim() || ''
+
+  if (!targetPhone && sentViaWa) {
+    if (targetRole === 'PETANI' || targetRole === 'ALL') {
+      const petaniRows = await prisma.petani.findMany({ select: { nomorTelepon: true } })
+      const phones = petaniRows.map((p) => p.nomorTelepon).filter(Boolean)
+      targetPhone = phones.length > 0 ? phones.join(',') : settings.defaultWhatsAppNumber
+    } else if (targetRole === 'PERANGKAT_DESA') {
+      const desaUsers = await prisma.user.findMany({ where: { role: 'PERANGKAT_DESA' }, select: { phone: true } })
+      const phones = desaUsers.map((u) => u.phone).filter(Boolean) as string[]
+      targetPhone = phones.length > 0 ? phones.join(',') : settings.defaultWhatsAppNumber
+    } else {
+      targetPhone = settings.defaultWhatsAppNumber
+    }
+  }
+
   let waUrl = ''
-  if (input.recipientPhone) {
-    let cleanPhone = input.recipientPhone.replace(/\D/g, '')
-    if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1)
-    if (!cleanPhone.startsWith('62') && cleanPhone.length > 8) cleanPhone = '62' + cleanPhone
+  let waResult: WhatsAppSendResult | null = null
+  const waPayload = {
+    to: targetPhone || settings.defaultWhatsAppNumber || '6285797864834',
+    title: input.title,
+    message: input.message,
+    type: category,
+    severity: severity,
+    petaniNama: input.targetPetaniName || (targetRole === 'ALL' ? 'Semua Petani & Perangkat Desa' : targetRole),
+    actionUrl: actionUrl,
+  }
 
-    const urgencyEmoji = severity === 'URGENT' ? '🔴 MENDESAK' : severity === 'WARNING' ? '🟡 PERHATIAN' : '🔵 INFORMASI'
-    const waText = [
-      `📢 *PEMBERITAHUAN RESMI PERTANIAN DESA CIREBON GIRANG*`,
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-      `⚠️ *Judul:* ${input.title}`,
-      `🏷️ *Tingkat:* ${urgencyEmoji}`,
-      input.targetPetaniName ? `👤 *Penerima:* ${input.targetPetaniName}` : `👥 *Target:* ${targetRole === 'ALL' ? 'Semua Petani & Perangkat Desa' : targetRole}`,
-      ``,
-      `📋 *Pesan:*`,
-      input.message,
-      ``,
-      `⏰ *Waktu:* ${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`,
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-      `_Pemberitahuan dari Administrator Sistem Pertanian Padi (SI PADI) Desa Cirebon Girang._`
-    ].filter(Boolean).join('\n')
+  if (targetPhone || sentViaWa) {
+    waUrl = buildWhatsAppDirectUrl(waPayload, settings.defaultWhatsAppNumber)
+  }
 
-    waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waText)}`
+  if (sentViaWa) {
+    waResult = await sendWhatsAppNotification(waPayload)
+    if (waResult?.waUrl) {
+      waUrl = waResult.waUrl
+    }
   }
 
   // Kirim email jika diminta
@@ -135,8 +152,9 @@ export async function createManualNotification(input: CreateBroadcastInput) {
     targetRole,
     targetPetaniName: input.targetPetaniName,
     recipientEmail: input.recipientEmail,
-    recipientPhone: input.recipientPhone,
+    recipientPhone: targetPhone || input.recipientPhone,
     waUrl,
+    waResult,
     gmailUrl,
     emailResult,
     createdAt: now

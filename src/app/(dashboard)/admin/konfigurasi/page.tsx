@@ -35,6 +35,7 @@ export default function AdminKonfigurasiPage() {
   // Form State
   const [showApiKey, setShowApiKey] = useState(false)
   const [showSmtpPass, setShowSmtpPass] = useState(false)
+  const [showWaToken, setShowWaToken] = useState(false)
 
   // AI Settings
   const [aiProvider, setAiProvider] = useState<'gemini' | 'openai'>('gemini')
@@ -49,6 +50,9 @@ export default function AdminKonfigurasiPage() {
   // Notification Settings
   const [notificationTargetEmail, setNotificationTargetEmail] = useState('karismasitinabila7@gmail.com')
   const [defaultWhatsAppNumber, setDefaultWhatsAppNumber] = useState('6285797864834')
+  const [waGatewayProvider, setWaGatewayProvider] = useState<'fonnte' | 'wablas' | 'webhook'>('fonnte')
+  const [waApiToken, setWaApiToken] = useState('')
+  const [waApiUrl, setWaApiUrl] = useState('https://api.fonnte.com/send')
   const [smtpHost, setSmtpHost] = useState('smtp.gmail.com')
   const [smtpPort, setSmtpPort] = useState(587)
   const [smtpUser, setSmtpUser] = useState('')
@@ -92,6 +96,18 @@ export default function AdminKonfigurasiPage() {
     isSimulated?: boolean
   } | null>(null)
 
+  const [testingWa, setTestingWa] = useState(false)
+  const [waTestResult, setWaTestResult] = useState<{
+    success: boolean
+    sentAutomatically?: boolean
+    isNotConfigured?: boolean
+    message?: string
+    waUrl?: string
+    error?: string
+    target?: string
+    provider?: string
+  } | null>(null)
+
   // Fetch current settings
   useEffect(() => {
     fetch('/api/settings')
@@ -110,6 +126,9 @@ export default function AdminKonfigurasiPage() {
 
           setNotificationTargetEmail(d.notificationTargetEmail || 'karismasitinabila7@gmail.com')
           setDefaultWhatsAppNumber(d.defaultWhatsAppNumber || '6285797864834')
+          setWaGatewayProvider(d.waGatewayProvider || 'fonnte')
+          setWaApiToken(d.waApiToken || '')
+          setWaApiUrl(d.waApiUrl || 'https://api.fonnte.com/send')
           setSmtpHost(d.smtpHost || 'smtp.gmail.com')
           setSmtpPort(d.smtpPort || 587)
           setSmtpUser(d.smtpUser || '')
@@ -153,6 +172,9 @@ export default function AdminKonfigurasiPage() {
 
         notificationTargetEmail,
         defaultWhatsAppNumber,
+        waGatewayProvider,
+        waApiToken,
+        waApiUrl,
         smtpHost,
         smtpPort: Number(smtpPort),
         smtpUser,
@@ -274,6 +296,55 @@ export default function AdminKonfigurasiPage() {
       })
     } finally {
       setTestingEmail(false)
+    }
+  }
+
+  // Test WhatsApp Gateway Otomatis
+  const handleTestWa = async () => {
+    setTestingWa(true)
+    setWaTestResult(null)
+    try {
+      const res = await fetch('/api/settings/test-wa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: defaultWhatsAppNumber,
+          token: waApiToken,
+          provider: waGatewayProvider,
+          apiUrl: waApiUrl,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setWaTestResult({
+          success: true,
+          sentAutomatically: Boolean(data.sentAutomatically),
+          isNotConfigured: Boolean(data.isNotConfigured),
+          message:
+            data.note ||
+            (data.sentAutomatically
+              ? `Pesan WhatsApp uji coba berhasil dikirim OTOMATIS ke ${data.target}!`
+              : 'Token Gateway WA belum diatur.'),
+          waUrl: data.waUrl,
+          target: data.target,
+          provider: data.provider,
+        })
+      } else {
+        setWaTestResult({
+          success: false,
+          sentAutomatically: false,
+          error: data.error || 'Gagal mengirim pesan WhatsApp uji coba.',
+          waUrl: data.waUrl,
+        })
+      }
+    } catch (err: any) {
+      setWaTestResult({
+        success: false,
+        sentAutomatically: false,
+        error: err.message || 'Terjadi kesalahan saat menguji gateway WhatsApp.',
+      })
+    } finally {
+      setTestingWa(false)
     }
   }
 
@@ -898,6 +969,113 @@ export default function AdminKonfigurasiPage() {
               </div>
             </div>
 
+            {/* Pengaturan WhatsApp Gateway Otomatis */}
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <div>
+                  <h3 className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                    <MessageSquare size={14} className="text-emerald-600" />
+                    <span>Konfigurasi WhatsApp Gateway Otomatis (Server-to-WhatsApp)</span>
+                  </h3>
+                  <p className="text-[11px] text-gray-500">
+                    Agar notifikasi &amp; broadcast terkirim otomatis ke nomor WhatsApp tujuan tanpa membuka WhatsApp Web secara manual.
+                  </p>
+                </div>
+                <span
+                  className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold self-start sm:self-center ${
+                    waApiToken.trim()
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}
+                >
+                  {waApiToken.trim() ? `Aktif (${waGatewayProvider.toUpperCase()})` : 'Token Belum Diisi'}
+                </span>
+              </div>
+
+              <div className="p-3.5 bg-emerald-50/80 border border-emerald-200 rounded-2xl text-xs space-y-1.5 mb-3.5">
+                <div className="font-bold flex items-center gap-1.5 text-emerald-950">
+                  <Info size={14} className="text-emerald-700 flex-shrink-0" />
+                  <span>Cara Mengaktifkan Pengiriman WhatsApp Otomatis (Gratis / Trial via Fonnte)</span>
+                </div>
+                <p className="text-[11px] text-emerald-900 leading-relaxed">
+                  1. Daftar / login di{' '}
+                  <a
+                    href="https://fonnte.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold underline hover:text-emerald-700"
+                  >
+                    fonnte.com
+                  </a>{' '}
+                  (tersedia paket gratis/trial), lalu tambahkan device &amp; scan QR WhatsApp desa/admin.
+                  <br />
+                  2. Salin <strong>API Token Device</strong> dari dashboard Fonnte, tempel di kolom <em>Token API Gateway</em> di bawah, lalu klik <strong>Simpan Konfigurasi</strong>.
+                  <br />
+                  3. Setiap peringatan dini atau broadcast dari admin akan langsung terkirim otomatis oleh server ke nomor WhatsApp petani/tujuan.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                    Provider Gateway WA:
+                  </label>
+                  <select
+                    value={waGatewayProvider}
+                    onChange={(e) => {
+                      const val = e.target.value as 'fonnte' | 'wablas' | 'webhook'
+                      setWaGatewayProvider(val)
+                      if (val === 'fonnte' && (!waApiUrl || waApiUrl.includes('wablas'))) {
+                        setWaApiUrl('https://api.fonnte.com/send')
+                      } else if (val === 'wablas' && (!waApiUrl || waApiUrl.includes('fonnte'))) {
+                        setWaApiUrl('https://solo.wablas.com/api/send-message')
+                      }
+                    }}
+                    className="w-full p-2.5 rounded-xl border border-gray-300 text-xs focus:ring-2 focus:ring-emerald-500 bg-white font-semibold"
+                  >
+                    <option value="fonnte">Fonnte (Direkomendasikan)</option>
+                    <option value="wablas">Wablas</option>
+                    <option value="webhook">Custom Webhook URL (JSON)</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                    Token API Gateway / Device Key:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showWaToken ? 'text' : 'password'}
+                      value={waApiToken}
+                      onChange={(e) => setWaApiToken(e.target.value)}
+                      placeholder="Masukkan Token API dari Fonnte / Wablas (contoh: aBcDeFg123456...)"
+                      className="w-full p-2.5 pr-10 rounded-xl border border-gray-300 text-xs font-mono focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowWaToken(!showWaToken)}
+                      className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                    >
+                      {showWaToken ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                    Endpoint API URL Gateway:
+                  </label>
+                  <input
+                    type="text"
+                    value={waApiUrl}
+                    onChange={(e) => setWaApiUrl(e.target.value)}
+                    placeholder="https://api.fonnte.com/send"
+                    className="w-full p-2.5 rounded-xl border border-gray-300 text-xs font-mono focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Checklist Pemicu Notifikasi Otomatis */}
             <div className="pt-2 border-t border-gray-100 space-y-2">
               <label className="block text-xs font-bold text-gray-800">
@@ -955,6 +1133,72 @@ export default function AdminKonfigurasiPage() {
                   <span>🌾 Notifikasi Pencatatan Hasil Panen Baru</span>
                 </label>
               </div>
+            </div>
+
+            {/* Uji Coba Pengiriman WhatsApp Otomatis */}
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-gray-900">Uji Coba Pengiriman WhatsApp Otomatis</h4>
+                  <p className="text-[11px] text-gray-500">
+                    Kirimkan pesan WhatsApp uji coba otomatis melalui server ke <strong>{defaultWhatsAppNumber}</strong> menggunakan konfigurasi Gateway di atas.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTestWa}
+                  disabled={testingWa}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#16a34a] hover:bg-[#15803d] text-white transition disabled:opacity-50 cursor-pointer shadow-xs"
+                >
+                  {testingWa ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      <span>Mengirim WhatsApp...</span>
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare size={13} />
+                      <span>Kirim WA Uji Coba</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {waTestResult && (
+                <div
+                  className={`mt-3 p-3.5 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    waTestResult.success
+                      ? waTestResult.sentAutomatically
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                        : 'bg-amber-50 border-amber-200 text-amber-950'
+                      : 'bg-rose-50 border-rose-200 text-rose-950'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {waTestResult.success ? (
+                      waTestResult.sentAutomatically ? (
+                        <CheckCircle size={15} className="text-emerald-600 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle size={15} className="text-amber-600 flex-shrink-0" />
+                      )
+                    ) : (
+                      <AlertCircle size={15} className="text-rose-600 flex-shrink-0" />
+                    )}
+                    <span className="leading-relaxed">{waTestResult.message || waTestResult.error}</span>
+                  </div>
+                  {!waTestResult.sentAutomatically && waTestResult.waUrl && (
+                    <a
+                      href={waTestResult.waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-semibold text-emerald-800 hover:underline flex-shrink-0 text-[11px]"
+                    >
+                      <span>Fallback WA Web</span>
+                      <ExternalLink size={11} />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Uji Coba Pengiriman Email */}

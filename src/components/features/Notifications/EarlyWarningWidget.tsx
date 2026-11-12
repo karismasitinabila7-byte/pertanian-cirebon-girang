@@ -42,6 +42,7 @@ interface WarningNotification {
   lahanNama?: string
   petaniNama?: string
   petaniTelepon?: string
+  recipientPhone?: string
   daysRemaining?: number
   hst?: number
   actionUrl: string
@@ -125,6 +126,8 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
   const [dismissedIds, setDismissedIds] = useState<string[]>([])
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null)
   const [sendingAllEmail, setSendingAllEmail] = useState(false)
+  const [sendingWaId, setSendingWaId] = useState<string | null>(null)
+  const [sendingAllWa, setSendingAllWa] = useState(false)
   const [emailStatus, setEmailStatus] = useState<{
     type: 'success' | 'error'
     message: string
@@ -281,11 +284,19 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
 
       if (res.ok && data.success) {
         setIsModalOpen(false)
+        const waAuto = data.data?.waResult?.sentAutomatically
+        const waTarget = data.data?.waResult?.target || manualPhone
+        const waNote = sendViaWaChecked
+          ? waAuto
+            ? ` & terkirim OTOMATIS ke WhatsApp (${waTarget})`
+            : ` (WA: Token Fonnte belum diatur di Konfigurasi Sistem)`
+          : ''
+
         setEmailStatus({
           type: 'success',
-          message: `Notifikasi "${manualTitle}" berhasil diterbitkan ke Dashboard petani/desa${manualEmail ? ` & email ${manualEmail}` : ''}!`,
+          message: `Notifikasi "${manualTitle}" berhasil diterbitkan ke Dashboard${manualEmail && sendViaEmailChecked ? ` & email ${manualEmail}` : ''}${waNote}!`,
           gmailUrl: data.data?.gmailUrl,
-          waUrl: data.data?.waUrl,
+          waUrl: waAuto ? undefined : data.data?.waUrl,
         })
 
         // Reset form
@@ -294,11 +305,6 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
 
         // Refresh warnings list to include the newly added notification immediately
         await fetchWarnings()
-
-        // Jika opsi WhatsApp aktif dan link tersedia, tawarkan opsi buka WA
-        if (data.data?.waUrl && sendViaWaChecked) {
-          window.open(data.data.waUrl, '_blank')
-        }
       } else {
         alert(data.error || 'Gagal menerbitkan notifikasi.')
       }
@@ -395,6 +401,106 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
       })
     } finally {
       setSendingAllEmail(false)
+    }
+  }
+
+  // Kirim satu notifikasi ke WhatsApp secara OTOMATIS via server gateway
+  const handleSendSingleWa = async (item: WarningNotification) => {
+    try {
+      setSendingWaId(item.id)
+      setEmailStatus(null)
+
+      const targetWa = item.recipientPhone || item.petaniTelepon || TARGET_DEFAULT_WA
+
+      const res = await fetch('/api/notifications/send-wa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: targetWa,
+          title: item.title,
+          message: item.message,
+          type: item.type,
+          severity: item.severity,
+          lahanNama: item.lahanNama,
+          petaniNama: item.petaniNama,
+          hst: item.hst,
+          daysRemaining: item.daysRemaining,
+          actionUrl: item.actionUrl,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.sentAutomatically) {
+        setEmailStatus({
+          type: 'success',
+          message: `Notifikasi "${item.title}" berhasil dikirim OTOMATIS ke WhatsApp (${data.target})!`,
+        })
+      } else if (data.isNotConfigured) {
+        setEmailStatus({
+          type: 'error',
+          message: `Pengiriman otomatis WA belum aktif: Token WhatsApp Gateway (Fonnte) belum diisi di Admin > Konfigurasi Sistem.`,
+          waUrl: data.waUrl,
+        })
+      } else {
+        setEmailStatus({
+          type: 'error',
+          message: data.result?.error || data.error || `Gagal mengirim WhatsApp otomatis ke ${targetWa}`,
+          waUrl: data.waUrl,
+        })
+      }
+    } catch (err: any) {
+      setEmailStatus({
+        type: 'error',
+        message: err.message || 'Terjadi gangguan jaringan saat pengiriman WhatsApp.',
+      })
+    } finally {
+      setSendingWaId(null)
+    }
+  }
+
+  // Kirim rangkuman semua peringatan aktif ke WhatsApp secara OTOMATIS
+  const handleSendAllWa = async () => {
+    try {
+      setSendingAllWa(true)
+      setEmailStatus(null)
+
+      const res = await fetch('/api/notifications/send-wa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'SEND_ALL_WARNINGS',
+          to: TARGET_DEFAULT_WA,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.sentAutomatically) {
+        setEmailStatus({
+          type: 'success',
+          message: `Rangkuman ${data.totalWarnings || warnings.length} peringatan aktif berhasil dikirim OTOMATIS ke WhatsApp (${data.target})!`,
+        })
+      } else if (data.isNotConfigured) {
+        setEmailStatus({
+          type: 'error',
+          message: `Pengiriman otomatis WA belum aktif: Token WhatsApp Gateway (Fonnte) belum diisi di Admin > Konfigurasi Sistem.`,
+          waUrl: data.waUrl,
+        })
+      } else {
+        setEmailStatus({
+          type: 'error',
+          message: data.result?.error || data.error || `Gagal mengirim rangkuman WhatsApp otomatis.`,
+          waUrl: data.waUrl,
+        })
+      }
+    } catch (err: any) {
+      setEmailStatus({
+        type: 'error',
+        message: err.message || 'Terjadi gangguan jaringan saat pengiriman WhatsApp.',
+      })
+    } finally {
+      setSendingAllWa(false)
     }
   }
 
@@ -516,6 +622,25 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
               <>
                 <Mail size={13} />
                 <span>Kirim Semua ke Email</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleSendAllWa}
+            disabled={sendingAllWa || visibleWarnings.length === 0}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#16a34a] hover:bg-[#15803d] text-white shadow-2xs hover:shadow-xs transition disabled:opacity-50 cursor-pointer"
+            title="Kirim seluruh rekapitulasi peringatan dini secara otomatis ke WhatsApp"
+          >
+            {sendingAllWa ? (
+              <>
+                <Loader2 size={13} className="animate-spin" />
+                <span>Mengirim WA...</span>
+              </>
+            ) : (
+              <>
+                <Send size={13} />
+                <span>Kirim Semua ke WA</span>
               </>
             )}
           </button>
@@ -707,22 +832,30 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
                     )}
                   </button>
 
-                  {/* Tombol Aksi Kirim ke WhatsApp */}
-                  <a
-                    href={buildWhatsAppUrl(item)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#25D366] hover:bg-[#20ba59] text-white shadow-2xs hover:shadow-xs transition cursor-pointer"
-                    title={`Kirim detail peringatan ini ke WhatsApp (${item.petaniTelepon || TARGET_DEFAULT_WA})`}
+                  {/* Tombol Aksi Kirim Otomatis ke WhatsApp */}
+                  <button
+                    onClick={() => handleSendSingleWa(item)}
+                    disabled={sendingWaId === item.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#25D366] hover:bg-[#20ba59] text-white shadow-2xs hover:shadow-xs transition cursor-pointer disabled:opacity-50"
+                    title={`Kirim otomatis detail peringatan ini ke WhatsApp (${item.recipientPhone || item.petaniTelepon || TARGET_DEFAULT_WA})`}
                   >
-                    <svg
-                      className="w-3.5 h-3.5 fill-current"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                    </svg>
-                    <span>WA</span>
-                  </a>
+                    {sendingWaId === item.id ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        <span>Mengirim...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-3.5 h-3.5 fill-current"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                        </svg>
+                        <span>Kirim WA</span>
+                      </>
+                    )}
+                  </button>
 
                   <Link
                     href={item.actionUrl}

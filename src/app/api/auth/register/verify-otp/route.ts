@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const verificationId = String(body.verificationId || '').trim()
     const otpCode = String(body.otpCode || '').replace(/\s+/g, '')
+    const skipSessionCookie = Boolean(body.skipSessionCookie)
 
     if (!verificationId || !/^\d{6}$/.test(otpCode)) {
       return NextResponse.json(
@@ -152,14 +153,16 @@ export async function POST(req: NextRequest) {
       return user
     })
 
-    // Buat sesi login otomatis sehingga petani langsung masuk dashboard
-    await createSession({
-      userId: createdUser.id,
-      username: createdUser.fullName || createdUser.username,
-      role: createdUser.role,
-      fullName: createdUser.fullName,
-      email: createdUser.email || '',
-    })
+    // Buat sesi login otomatis sehingga petani langsung masuk dashboard (kecuali didaftarkan lewat modal Admin)
+    if (!skipSessionCookie) {
+      await createSession({
+        userId: createdUser.id,
+        username: createdUser.fullName || createdUser.username,
+        role: createdUser.role,
+        fullName: createdUser.fullName,
+        email: createdUser.email || '',
+      })
+    }
 
     return NextResponse.json({
       success: true,
@@ -181,3 +184,4 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+

@@ -18,7 +18,10 @@ import {
   XCircle,
   KeyRound,
   Shield,
-  Loader2
+  Loader2,
+  Mail,
+  MessageSquare,
+  RefreshCw,
 } from 'lucide-react'
 
 export default function AdminPetaniPage() {
@@ -40,6 +43,17 @@ export default function AdminPetaniPage() {
   const [isEdit, setIsEdit] = useState(false)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
+  const [requireOtp, setRequireOtp] = useState(true)
+  const [otpStep, setOtpStep] = useState<'form' | 'otp'>('form')
+  const [otpVerificationId, setOtpVerificationId] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+  const [otpDeliveryInfo, setOtpDeliveryInfo] = useState<{
+    message: string
+    maskedPhone?: string
+    maskedEmail?: string
+    whatsapp?: { sentAutomatically: boolean; note?: string }
+    email?: { sent: boolean; isSimulated?: boolean; note?: string }
+  } | null>(null)
 
   // Form Fields
   const [form, setForm] = useState({
@@ -119,6 +133,11 @@ export default function AdminPetaniPage() {
       isActive: true,
     })
     setFormError('')
+    setRequireOtp(true)
+    setOtpStep('form')
+    setOtpVerificationId('')
+    setOtpCode('')
+    setOtpDeliveryInfo(null)
     setIsFormOpen(true)
   }
 
@@ -126,6 +145,8 @@ export default function AdminPetaniPage() {
   const handleOpenEdit = (item: any) => {
     setIsEdit(true)
     setSelectedPetani(item)
+    setOtpStep('form')
+    setOtpDeliveryInfo(null)
     setForm({
       username: item.user?.username || '',
       email: item.user?.email || '',
@@ -174,6 +195,56 @@ export default function AdminPetaniPage() {
         if (!res.ok) throw new Error(json.error || 'Gagal memperbarui data petani')
 
         setSuccess('Data petani berhasil diperbarui')
+        setIsFormOpen(false)
+        fetchData()
+        setTimeout(() => setSuccess(''), 4000)
+      } else if (requireOtp && otpStep === 'form') {
+        const res = await fetch('/api/auth/register/request-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            namaLengkap: form.namaLengkap,
+            username: form.username,
+            email: form.email,
+            nomorTelepon: form.nomorTelepon,
+            nik: form.nik || null,
+            jenisKelamin: form.jenisKelamin,
+            alamat: form.alamat,
+            kelompokTaniId: form.kelompokTaniId || null,
+            password: form.password,
+          }),
+        })
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error || 'Gagal mengirim kode OTP ke petani')
+
+        setOtpVerificationId(json.verificationId)
+        setOtpCode('')
+        setOtpDeliveryInfo({
+          message: json.message,
+          maskedPhone: json.maskedPhone,
+          maskedEmail: json.maskedEmail,
+          whatsapp: json.channels?.whatsapp,
+          email: json.channels?.email,
+        })
+        setOtpStep('otp')
+      } else if (requireOtp && otpStep === 'otp') {
+        const res = await fetch('/api/auth/register/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            verificationId: otpVerificationId,
+            otpCode,
+            skipSessionCookie: true,
+          }),
+        })
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error || 'Verifikasi OTP gagal')
+
+        setSuccess(`Petani baru (${form.namaLengkap}) berhasil diverifikasi OTP & didaftarkan!`)
+        setIsFormOpen(false)
+        setOtpStep('form')
+        fetchData()
+        setTimeout(() => setSuccess(''), 5000)
       } else {
         const payload = {
           ...form,
@@ -190,11 +261,10 @@ export default function AdminPetaniPage() {
         if (!res.ok) throw new Error(json.error || 'Gagal menambahkan petani baru')
 
         setSuccess('Petani baru berhasil didaftarkan')
+        setIsFormOpen(false)
+        fetchData()
+        setTimeout(() => setSuccess(''), 4000)
       }
-
-      setIsFormOpen(false)
-      fetchData()
-      setTimeout(() => setSuccess(''), 4000)
     } catch (err: any) {
       setFormError(err.message || 'Terjadi kesalahan saat menyimpan data')
     } finally {
@@ -516,6 +586,107 @@ export default function AdminPetaniPage() {
             )}
 
             <form onSubmit={handleSubmitForm} className="mt-4 space-y-4">
+              {!isEdit && requireOtp && otpStep === 'otp' && otpDeliveryInfo ? (
+                <div className="space-y-4">
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900">
+                    {otpDeliveryInfo.message}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div
+                      className={`p-3 rounded-xl border ${
+                        otpDeliveryInfo.whatsapp?.sentAutomatically
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}
+                    >
+                      <div className="font-bold flex items-center gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        <span>WhatsApp ({otpDeliveryInfo.maskedPhone})</span>
+                      </div>
+                      <p className="text-[11px] mt-1">
+                        {otpDeliveryInfo.whatsapp?.sentAutomatically
+                          ? '✓ OTP terkirim otomatis ke WA petani.'
+                          : otpDeliveryInfo.whatsapp?.note || 'Gateway WA belum aktif.'}
+                      </p>
+                    </div>
+
+                    <div
+                      className={`p-3 rounded-xl border ${
+                        otpDeliveryInfo.email?.sent && !otpDeliveryInfo.email?.isSimulated
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}
+                    >
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Mail className="h-3.5 w-3.5" />
+                        <span>Email ({otpDeliveryInfo.maskedEmail})</span>
+                      </div>
+                      <p className="text-[11px] mt-1">
+                        {otpDeliveryInfo.email?.sent && !otpDeliveryInfo.email?.isSimulated
+                          ? '✓ OTP terkirim otomatis ke Email petani.'
+                          : otpDeliveryInfo.email?.note || 'SMTP Email belum diisi penuh.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-center space-y-2">
+                    <label className="block text-xs font-bold text-gray-800">
+                      Masukkan 6 Digit Kode OTP dari Petani
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      required
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="••••••"
+                      className="w-52 mx-auto block text-center text-2xl font-extrabold tracking-[0.45em] py-2.5 px-3 border-2 border-emerald-400 rounded-xl bg-white font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+                    />
+                    <p className="text-[11px] text-gray-500">Kode berlaku selama 5 menit.</p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpStep('form')
+                        setFormError('')
+                      }}
+                      className="text-xs font-semibold text-gray-600 hover:text-gray-900 underline"
+                    >
+                      ← Ubah Data
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={formLoading}
+                        onClick={() => {
+                          setOtpStep('form')
+                          setTimeout(() => {
+                            const formEl = document.querySelector<HTMLFormElement>('form')
+                            formEl?.requestSubmit()
+                          }, 0)
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        <span>Kirim Ulang</span>
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={formLoading || otpCode.length !== 6}
+                        className="px-4 py-2 border border-transparent rounded-lg text-xs sm:text-sm font-semibold text-white bg-green-700 hover:bg-green-800 disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        {formLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                        <span>Verifikasi OTP &amp; Aktifkan</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
                   Nama Lengkap Petani *
@@ -644,10 +815,11 @@ export default function AdminPetaniPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                      Alamat Email
+                      Alamat Email {!isEdit && requireOtp ? '*' : ''}
                     </label>
                     <input
                       type="email"
+                      required={!isEdit && requireOtp}
                       placeholder="sukardi@gmail.com"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -669,6 +841,25 @@ export default function AdminPetaniPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
+
+                {!isEdit && (
+                  <label className="mt-3 flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={requireOtp}
+                      onChange={(e) => setRequireOtp(e.target.checked)}
+                      className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <div className="text-xs text-emerald-950">
+                      <span className="font-bold block">
+                        Kirim &amp; Verifikasi Kode OTP (WhatsApp + Email Petani)
+                      </span>
+                      <span className="text-[11px] text-emerald-800">
+                        Kode OTP 6 digit otomatis dikirim ke WhatsApp &amp; Email petani sebelum akun diaktifkan.
+                      </span>
+                    </div>
+                  </label>
+                )}
               </div>
 
               <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
@@ -685,9 +876,15 @@ export default function AdminPetaniPage() {
                   className="px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-green-700 hover:bg-green-800 disabled:opacity-50 flex items-center gap-2"
                 >
                   {formLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isEdit ? 'Simpan Perubahan' : 'Daftarkan Petani'}
+                  {isEdit
+                    ? 'Simpan Perubahan'
+                    : requireOtp
+                    ? 'Kirim OTP & Daftarkan'
+                    : 'Daftarkan Petani'}
                 </button>
               </div>
+                </>
+              )}
             </form>
           </div>
         </div>

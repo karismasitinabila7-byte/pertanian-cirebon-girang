@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Sprout, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { Sprout, CheckCircle2 } from 'lucide-react'
 import { getSession } from '@/lib/session'
+import { LandingNavActions, LandingHeroActions } from '@/components/layout/LandingAuthActions'
 
 export const metadata = {
   title: 'SI PADI | Sistem Informasi Pertanian Padi Desa Cirebon Girang',
@@ -10,14 +11,6 @@ export const metadata = {
 
 export default async function HomePage() {
   const session = await getSession()
-
-  // Redirect target jika sudah login
-  let loggedInUrl = '/login'
-  if (session) {
-    if (session.role === 'ADMIN') loggedInUrl = '/admin'
-    else if (session.role === 'PERANGKAT_DESA') loggedInUrl = '/desa'
-    else loggedInUrl = '/petani'
-  }
 
   return (
     <div className="min-h-screen bg-[#f8faf9] text-gray-800 flex flex-col justify-between font-sans selection:bg-emerald-200">
@@ -39,23 +32,7 @@ export default async function HomePage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            {session ? (
-              <Link
-                href={loggedInUrl}
-                className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold px-4.5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition"
-              >
-                <span>Buka Dashboard ({session.role.replace('_', ' ')})</span>
-                <ArrowRight size={16} />
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold px-4.5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition"
-              >
-                <span>Masuk ke Sistem</span>
-                <ArrowRight size={16} />
-              </Link>
-            )}
+            <LandingNavActions session={session} />
           </div>
         </div>
       </header>
@@ -84,15 +61,9 @@ export default async function HomePage() {
             <strong>Perangkat Desa</strong>, dan <strong>Administrator</strong>.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href={session ? loggedInUrl : '/login'}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-700/20 text-sm hover:scale-[1.02] active:scale-[0.98] transition"
-            >
-              <span>{session ? 'Masuk ke Dashboard' : 'Masuk ke Portal Login'}</span>
-              <ArrowRight size={18} />
-            </Link>
+          {/* CTA Buttons (Selalu Tersedia Akses Portal Login) */}
+          <div className="mt-8">
+            <LandingHeroActions session={session} />
           </div>
 
           {/* Micro details */}

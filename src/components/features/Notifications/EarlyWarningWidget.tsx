@@ -16,7 +16,7 @@ import {
   RefreshCw,
   Sparkles,
   Info,
-  MessageSquare,
+  Mail,
   Send,
   Loader2,
   ExternalLink,
@@ -62,6 +62,7 @@ interface PetaniOption {
 }
 
 const TARGET_DEFAULT_WA = '6285797864834'
+const TARGET_NOTIFICATION_EMAIL = 'karismasitinabila7@gmail.com'
 
 function buildWhatsAppUrl(item: WarningNotification): string {
   let phone = TARGET_DEFAULT_WA
@@ -123,6 +124,8 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
   const [loading, setLoading] = useState(true)
   const [filterType, setFilterType] = useState<string>('ALL')
   const [dismissedIds, setDismissedIds] = useState<string[]>([])
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null)
+  const [sendingAllEmail, setSendingAllEmail] = useState(false)
   const [sendingWaId, setSendingWaId] = useState<string | null>(null)
   const [sendingAllWa, setSendingAllWa] = useState(false)
   const [emailStatus, setEmailStatus] = useState<{
@@ -137,11 +140,13 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
   const [petaniOptions, setPetaniOptions] = useState<PetaniOption[]>([])
   const [selectedTarget, setSelectedTarget] = useState<string>('ALL')
   const [customPetaniName, setCustomPetaniName] = useState('')
+  const [manualEmail, setManualEmail] = useState('')
   const [manualPhone, setManualPhone] = useState('')
   const [manualTitle, setManualTitle] = useState('')
   const [manualMessage, setManualMessage] = useState('')
   const [manualCategory, setManualCategory] = useState<string>('PEMUPUKAN')
   const [manualSeverity, setManualSeverity] = useState<'URGENT' | 'WARNING' | 'INFO'>('WARNING')
+  const [sendViaEmailChecked, setSendViaEmailChecked] = useState(true)
   const [sendViaWaChecked, setSendViaWaChecked] = useState(true)
   const [isSubmittingManual, setIsSubmittingManual] = useState(false)
 
@@ -183,21 +188,26 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
     setSelectedTarget(targetVal)
     if (targetVal === 'ALL') {
       setCustomPetaniName('')
+      setManualEmail(TARGET_NOTIFICATION_EMAIL)
       setManualPhone('0852-1122-3344')
     } else if (targetVal === 'PETANI') {
       setCustomPetaniName('Seluruh Kelompok Tani')
+      setManualEmail('sukardi@gmail.com')
       setManualPhone('0852-1122-3344')
     } else if (targetVal === 'PERANGKAT_DESA') {
       setCustomPetaniName('Perangkat Desa')
+      setManualEmail('karsiman@gmail.com')
       setManualPhone('0812-9876-5432')
     } else if (targetVal === 'CUSTOM') {
       setCustomPetaniName('')
+      setManualEmail('')
       setManualPhone('')
     } else {
       // Petani spesifik berdasarkan ID
       const selected = petaniOptions.find((p) => p.id === targetVal)
       if (selected) {
         setCustomPetaniName(selected.nama)
+        setManualEmail(selected.email || `${selected.nama.toLowerCase().replace(/[^a-z]/g, '')}@gmail.com`)
         setManualPhone(selected.telepon || '')
       }
     }
@@ -261,8 +271,9 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
           targetPetaniName: customPetaniName.trim() || undefined,
           category: manualCategory,
           severity: manualSeverity,
+          recipientEmail: manualEmail.trim() || undefined,
           recipientPhone: manualPhone.trim() || undefined,
-          sendEmail: false,
+          sendEmail: sendViaEmailChecked,
           sendWa: sendViaWaChecked,
           actionUrl: '/petani',
           actionLabel: 'Buka Dashboard',
@@ -278,12 +289,13 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
         const waNote = sendViaWaChecked
           ? waAuto
             ? ` & terkirim OTOMATIS ke WhatsApp (${waTarget})`
-            : ` (WA: Siap dikirim manual atau konfigurasikan Token Fonnte di Konfigurasi Sistem)`
+            : ` (WA: Token Fonnte belum diatur di Konfigurasi Sistem)`
           : ''
 
         setEmailStatus({
           type: 'success',
-          message: `Notifikasi "${manualTitle}" berhasil diterbitkan ke Dashboard${waNote}!`,
+          message: `Notifikasi "${manualTitle}" berhasil diterbitkan ke Dashboard${manualEmail && sendViaEmailChecked ? ` & email ${manualEmail}` : ''}${waNote}!`,
+          gmailUrl: data.data?.gmailUrl,
           waUrl: waAuto ? undefined : data.data?.waUrl,
         })
 
@@ -300,6 +312,95 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
       alert(err.message || 'Terjadi gangguan jaringan saat membuat notifikasi.')
     } finally {
       setIsSubmittingManual(false)
+    }
+  }
+
+  // Kirim satu notifikasi ke Email
+  const handleSendSingleEmail = async (item: WarningNotification) => {
+    try {
+      setSendingEmailId(item.id)
+      setEmailStatus(null)
+
+      const targetTo = item.recipientEmail || TARGET_NOTIFICATION_EMAIL
+
+      const res = await fetch('/api/notifications/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: targetTo,
+          title: item.title,
+          message: item.message,
+          type: item.type,
+          severity: item.severity,
+          lahanNama: item.lahanNama,
+          petaniNama: item.petaniNama,
+          hst: item.hst,
+          daysRemaining: item.daysRemaining,
+          actionUrl: item.actionUrl,
+          actionLabel: item.actionLabel,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setEmailStatus({
+          type: 'success',
+          message: `Notifikasi "${item.title}" berhasil dikirimkan ke email ${targetTo}`,
+          gmailUrl: data.gmailUrl,
+        })
+      } else {
+        setEmailStatus({
+          type: 'error',
+          message: data.error || `Gagal mengirim email ke ${targetTo}`,
+        })
+      }
+    } catch (err: any) {
+      setEmailStatus({
+        type: 'error',
+        message: err.message || 'Terjadi gangguan jaringan saat pengiriman email.',
+      })
+    } finally {
+      setSendingEmailId(null)
+    }
+  }
+
+  // Kirim rangkuman semua peringatan aktif ke karismasitinabila7@gmail.com
+  const handleSendAllEmail = async () => {
+    try {
+      setSendingAllEmail(true)
+      setEmailStatus(null)
+
+      const res = await fetch('/api/notifications/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'SEND_ALL_WARNINGS',
+          to: TARGET_NOTIFICATION_EMAIL,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setEmailStatus({
+          type: 'success',
+          message: `Rangkuman ${data.totalWarnings || warnings.length} peringatan aktif berhasil dikirimkan ke ${TARGET_NOTIFICATION_EMAIL}`,
+          gmailUrl: data.gmailUrl,
+        })
+      } else {
+        setEmailStatus({
+          type: 'error',
+          message: data.error || `Gagal mengirim rangkuman email ke ${TARGET_NOTIFICATION_EMAIL}`,
+        })
+      }
+    } catch (err: any) {
+      setEmailStatus({
+        type: 'error',
+        message: err.message || 'Terjadi gangguan jaringan saat pengiriman email.',
+      })
+    } finally {
+      setSendingAllEmail(false)
     }
   }
 
@@ -484,14 +585,14 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
               </span>
             </div>
             <p className="text-xs text-gray-500 mt-0.5">
-              Notifikasi terhubung ke WhatsApp Gateway otomatis dan Dashboard seluruh petani & perangkat desa.
+              Notifikasi terhubung ke Email (<strong>{TARGET_NOTIFICATION_EMAIL}</strong>), WhatsApp, dan Dashboard seluruh petani & perangkat desa.
             </p>
           </div>
         </div>
 
-        {/* Action Buttons: Buat Notifikasi Manual, Kirim Semua ke WA, dan Filter */}
+        {/* Action Buttons: Buat Notifikasi Manual, Kirim Semua, dan Filter */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Tombol Buat Notifikasi Baru (WA Manual) */}
+          {/* Tombol Buat Notifikasi Baru (Email & WA Manual) */}
           {isAdminOrDesa && (
             <button
               onClick={() => {
@@ -499,12 +600,31 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
                 setIsModalOpen(true)
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs transition cursor-pointer"
-              title="Buat notifikasi baru untuk dikirimkan ke WhatsApp dan Dashboard Petani"
+              title="Buat notifikasi baru untuk dikirimkan ke Email, WhatsApp, dan Dashboard Petani"
             >
               <PlusCircle size={14} />
               <span>Kirim Notifikasi Petani</span>
             </button>
           )}
+
+          <button
+            onClick={handleSendAllEmail}
+            disabled={sendingAllEmail || visibleWarnings.length === 0}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-700 hover:bg-sky-800 text-white shadow-2xs hover:shadow-xs transition disabled:opacity-50 cursor-pointer"
+            title={`Kirim seluruh rekapitulasi peringatan dini aktif ke ${TARGET_NOTIFICATION_EMAIL}`}
+          >
+            {sendingAllEmail ? (
+              <>
+                <Loader2 size={13} className="animate-spin" />
+                <span>Mengirim...</span>
+              </>
+            ) : (
+              <>
+                <Mail size={13} />
+                <span>Kirim Semua ke Email</span>
+              </>
+            )}
+          </button>
 
           <button
             onClick={handleSendAllWa}
@@ -520,7 +640,7 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
             ) : (
               <>
                 <Send size={13} />
-                <span>Kirim Semua ke WhatsApp</span>
+                <span>Kirim Semua ke WA</span>
               </>
             )}
           </button>
@@ -601,8 +721,20 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
               </a>
             )}
             <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/90 px-2.5 py-1 rounded-lg">
-              <MessageSquare size={12} /> WhatsApp Gateway SI PADI
+              <Mail size={12} /> Notifikasi SI PADI
             </span>
+            {emailStatus.gmailUrl && (
+              <a
+                href={emailStatus.gmailUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Draft manual di Gmail (Catatan: Mengirim manual akan menampilkan nama akun Google pribadi Anda)"
+                className="inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-700 underline"
+              >
+                <span>Draft Cadangan</span>
+                <ExternalLink size={10} />
+              </a>
+            )}
             <button
               onClick={() => setEmailStatus(null)}
               className="text-gray-400 hover:text-gray-600 p-0.5"
@@ -635,6 +767,8 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
         ) : (
           visibleWarnings.map((item) => {
             const style = getSeverityStyle(item.severity, item.isManual)
+            const isSendingThis = sendingEmailId === item.id
+            const targetEmailForThis = item.recipientEmail || TARGET_NOTIFICATION_EMAIL
 
             return (
               <div
@@ -678,6 +812,26 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
                 </div>
 
                 <div className="flex items-center gap-2 self-end sm:self-center flex-shrink-0 flex-wrap">
+                  {/* Tombol Aksi Kirim ke Email */}
+                  <button
+                    onClick={() => handleSendSingleEmail(item)}
+                    disabled={isSendingThis}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-2xs hover:shadow-xs transition cursor-pointer disabled:opacity-50"
+                    title={`Kirim peringatan ini langsung ke email ${targetEmailForThis}`}
+                  >
+                    {isSendingThis ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        <span>Mengirim...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mail size={13} />
+                        <span>Kirim Email</span>
+                      </>
+                    )}
+                  </button>
+
                   {/* Tombol Aksi Kirim Otomatis ke WhatsApp */}
                   <button
                     onClick={() => handleSendSingleWa(item)}
@@ -753,7 +907,7 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
                     Kirim Notifikasi Manual ke Petani
                   </h3>
                   <p className="text-xs text-gray-500">
-                    Otomatis masuk ke Dashboard Petani dan WhatsApp
+                    Otomatis masuk ke Dashboard Petani, Email, dan WhatsApp
                   </p>
                 </div>
               </div>
@@ -791,24 +945,45 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
                 </select>
               </div>
 
-              {/* Detail Kontak WhatsApp Petani / Penerima */}
-              <div className="bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-200/80">
-                <label className="block font-semibold text-emerald-950 mb-1">
-                  Nomor WhatsApp Penerima:
-                </label>
-                <div className="relative">
-                  <Phone size={14} className="absolute left-2.5 top-2.5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={manualPhone}
-                    onChange={(e) => setManualPhone(e.target.value)}
-                    placeholder="contoh: 0852-1122-3344 atau 6285797864834"
-                    className="w-full pl-8 pr-2.5 py-2 rounded-lg border border-gray-300 text-xs focus:ring-1 focus:ring-emerald-500 bg-white"
-                  />
+              {/* Detail Kontak Petani / Penerima */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-200/80">
+                <div>
+                  <label className="block font-semibold text-emerald-950 mb-1">
+                    Alamat Email Penerima:
+                  </label>
+                  <div className="relative">
+                    <Mail size={14} className="absolute left-2.5 top-2.5 text-gray-400" />
+                    <input
+                      type="email"
+                      value={manualEmail}
+                      onChange={(e) => setManualEmail(e.target.value)}
+                      placeholder="contoh: sukardi@gmail.com"
+                      className="w-full pl-8 pr-2.5 py-2 rounded-lg border border-gray-300 text-xs focus:ring-1 focus:ring-emerald-500 bg-white"
+                    />
+                  </div>
+                  <span className="text-[10px] text-gray-500 mt-0.5 block">
+                    Bisa dimasukkan alamat Gmail pribadi petani.
+                  </span>
                 </div>
-                <span className="text-[10px] text-gray-500 mt-0.5 block">
-                  Nomor WhatsApp aktif untuk pesan notifikasi langsung via Gateway Fonnte.
-                </span>
+
+                <div>
+                  <label className="block font-semibold text-emerald-950 mb-1">
+                    Nomor WhatsApp Penerima:
+                  </label>
+                  <div className="relative">
+                    <Phone size={14} className="absolute left-2.5 top-2.5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={manualPhone}
+                      onChange={(e) => setManualPhone(e.target.value)}
+                      placeholder="contoh: 0852-1122-3344"
+                      className="w-full pl-8 pr-2.5 py-2 rounded-lg border border-gray-300 text-xs focus:ring-1 focus:ring-emerald-500 bg-white"
+                    />
+                  </div>
+                  <span className="text-[10px] text-gray-500 mt-0.5 block">
+                    Nomor WA aktif untuk pesan langsung.
+                  </span>
+                </div>
               </div>
 
               {/* Judul & Kategori */}
@@ -921,11 +1096,20 @@ export function EarlyWarningWidget({ role }: { role?: string }) {
                   <label className="inline-flex items-center gap-2 cursor-pointer font-medium text-gray-700">
                     <input
                       type="checkbox"
+                      checked={sendViaEmailChecked}
+                      onChange={(e) => setSendViaEmailChecked(e.target.checked)}
+                      className="rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span>📧 Kirimkan ke Email</span>
+                  </label>
+                  <label className="inline-flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                    <input
+                      type="checkbox"
                       checked={sendViaWaChecked}
                       onChange={(e) => setSendViaWaChecked(e.target.checked)}
                       className="rounded text-emerald-600 focus:ring-emerald-500"
                     />
-                    <span>💬 Kirimkan ke WhatsApp Gateway</span>
+                    <span>💬 Kirimkan ke WhatsApp</span>
                   </label>
                 </div>
               </div>

@@ -214,7 +214,7 @@ export default function RegisterPetaniPage() {
           </h1>
           <p className="text-xs text-gray-600 mt-1">
             Setelah mendaftar, sistem akan mengirimkan <strong>kode OTP 6 digit otomatis</strong> ke{' '}
-            <strong>WhatsApp</strong> Anda untuk aktivasi akun petani.
+            <strong>WhatsApp</strong> &amp; <strong>Email</strong> Anda untuk aktivasi akun.
           </p>
 
           <div className="mt-4 grid grid-cols-2 gap-2">
@@ -244,7 +244,7 @@ export default function RegisterPetaniPage() {
               >
                 2
               </span>
-              <span>Verifikasi OTP WhatsApp</span>
+              <span>Verifikasi OTP (WA &amp; Email)</span>
             </div>
           </div>
         </div>
@@ -454,12 +454,12 @@ export default function RegisterPetaniPage() {
               {submitting ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>Mengirim OTP ke WhatsApp...</span>
+                  <span>Mengirim OTP ke WhatsApp &amp; Email...</span>
                 </>
               ) : (
                 <>
                   <ShieldCheck size={16} />
-                  <span>Daftar &amp; Kirim OTP ke WhatsApp</span>
+                  <span>Daftar &amp; Kirim Kode OTP</span>
                   <ArrowRight size={16} />
                 </>
               )}
@@ -470,23 +470,43 @@ export default function RegisterPetaniPage() {
         {/* STEP 2: VERIFIKASI KODE OTP */}
         {step === 'otp' && otpSession && (
           <form onSubmit={handleVerifyOtp} className="space-y-5">
-            {/* Status Pengiriman WhatsApp */}
-            <div
-              className={`p-3.5 rounded-xl border text-xs ${
-                otpSession.channels.whatsapp.sentAutomatically
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                  : 'bg-amber-50 border-amber-200 text-amber-900'
-              }`}
-            >
-              <div className="font-bold flex items-center gap-1.5">
-                <MessageSquare size={15} />
-                <span>Notifikasi WhatsApp ({otpSession.maskedPhone})</span>
+            {/* Status Pengiriman Dual-Channel */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div
+                className={`p-3 rounded-xl border ${
+                  otpSession.channels.whatsapp.sentAutomatically
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <MessageSquare size={14} />
+                  <span>WhatsApp ({otpSession.maskedPhone})</span>
+                </div>
+                <p className="text-[11px] mt-1 leading-relaxed">
+                  {otpSession.channels.whatsapp.sentAutomatically
+                    ? '✓ Kode OTP terkirim otomatis ke WhatsApp Anda.'
+                    : otpSession.channels.whatsapp.note || 'Gateway WA belum aktif di Konfigurasi.'}
+                </p>
               </div>
-              <p className="text-[11px] mt-1 leading-relaxed">
-                {otpSession.channels.whatsapp.sentAutomatically
-                  ? '✓ Kode OTP 6 digit berhasil dikirim otomatis ke WhatsApp Anda. Silakan periksa chat WhatsApp.'
-                  : otpSession.channels.whatsapp.note || 'Kode OTP dibuat. Hubungkan token gateway di Konfigurasi agar terkirim otomatis.'}
-              </p>
+
+              <div
+                className={`p-3 rounded-xl border ${
+                  otpSession.channels.email.sent && !otpSession.channels.email.isSimulated
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <Mail size={14} />
+                  <span>Email ({otpSession.maskedEmail})</span>
+                </div>
+                <p className="text-[11px] mt-1 leading-relaxed">
+                  {otpSession.channels.email.sent && !otpSession.channels.email.isSimulated
+                    ? '✓ Kode OTP terkirim otomatis ke kotak masuk Email.'
+                    : otpSession.channels.email.note || 'SMTP Email belum diisi penuh di Konfigurasi.'}
+                </p>
+              </div>
             </div>
 
             <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center space-y-3">
@@ -579,4 +599,3 @@ export default function RegisterPetaniPage() {
     </div>
   )
 }
-

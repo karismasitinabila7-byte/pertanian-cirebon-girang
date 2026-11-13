@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { sendEmailNotification, buildGmailComposeUrl } from '@/lib/email'
 import { sendWhatsAppNotification, buildWhatsAppDirectUrl, WhatsAppSendResult } from '@/lib/whatsapp'
 import { getAppSettingsAsync } from '@/lib/settings'
 import crypto from 'crypto'
@@ -55,8 +56,8 @@ export async function createManualNotification(input: CreateBroadcastInput) {
   const targetRole = input.targetRole || 'ALL'
   const category = input.category || 'UMUM'
   const severity = input.severity || 'INFO'
-  const sentViaEmail = false // Pengiriman notifikasi dikhususkan melalui WhatsApp Gateway
-  const sentViaWa = input.sendWa !== false // Default aktif via WhatsApp
+  const sentViaEmail = !!input.sendEmail
+  const sentViaWa = !!input.sendWa
   const senderName = input.senderName || 'Administrator Desa Cirebon Girang'
   const actionUrl = input.actionUrl || '/login'
   const actionLabel = input.actionLabel || 'Buka Sistem Pertanian'
@@ -118,7 +119,32 @@ export async function createManualNotification(input: CreateBroadcastInput) {
     }
   }
 
-  // Pengiriman notifikasi dikhususkan melalui WhatsApp & Dashboard
+  // Kirim email jika diminta
+  let emailResult: any = null
+  let gmailUrl = ''
+  if (sentViaEmail && input.recipientEmail) {
+    emailResult = await sendEmailNotification({
+      to: input.recipientEmail,
+      subject: `[SI PADI] ${input.title}`,
+      title: input.title,
+      message: input.message,
+      type: (category as any) || 'UMUM',
+      severity: severity,
+      petaniNama: input.targetPetaniName || 'Warga Tani Desa Cirebon Girang',
+      actionUrl: actionUrl,
+      actionLabel: actionLabel
+    })
+
+    gmailUrl = buildGmailComposeUrl({
+      to: input.recipientEmail,
+      subject: `[SI PADI] ${input.title}`,
+      title: input.title,
+      message: input.message,
+      petaniNama: input.targetPetaniName,
+      severity: severity,
+    })
+  }
+
   return {
     id,
     title: input.title,
@@ -129,8 +155,8 @@ export async function createManualNotification(input: CreateBroadcastInput) {
     recipientPhone: targetPhone || input.recipientPhone,
     waUrl,
     waResult,
-    gmailUrl: '',
-    emailResult: null,
+    gmailUrl,
+    emailResult,
     createdAt: now
   }
 }

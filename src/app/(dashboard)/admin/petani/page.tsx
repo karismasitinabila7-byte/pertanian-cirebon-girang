@@ -592,22 +592,42 @@ export default function AdminPetaniPage() {
                     {otpDeliveryInfo.message}
                   </div>
 
-                  <div
-                    className={`p-3.5 rounded-xl border text-xs ${
-                      otpDeliveryInfo.whatsapp?.sentAutomatically
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                        : 'bg-amber-50 border-amber-200 text-amber-900'
-                    }`}
-                  >
-                    <div className="font-bold flex items-center gap-1.5">
-                      <MessageSquare className="h-4 w-4 text-emerald-700" />
-                      <span>Notifikasi WhatsApp ({otpDeliveryInfo.maskedPhone})</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div
+                      className={`p-3 rounded-xl border ${
+                        otpDeliveryInfo.whatsapp?.sentAutomatically
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}
+                    >
+                      <div className="font-bold flex items-center gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        <span>WhatsApp ({otpDeliveryInfo.maskedPhone})</span>
+                      </div>
+                      <p className="text-[11px] mt-1">
+                        {otpDeliveryInfo.whatsapp?.sentAutomatically
+                          ? '✓ OTP terkirim otomatis ke WA petani.'
+                          : otpDeliveryInfo.whatsapp?.note || 'Gateway WA belum aktif.'}
+                      </p>
                     </div>
-                    <p className="text-[11px] mt-1 leading-relaxed">
-                      {otpDeliveryInfo.whatsapp?.sentAutomatically
-                        ? '✓ Kode OTP 6 digit berhasil dikirim otomatis ke nomor WhatsApp petani.'
-                        : otpDeliveryInfo.whatsapp?.note || 'Kode OTP dibuat. Pastikan token WhatsApp Gateway terisi di Konfigurasi.'}
-                    </p>
+
+                    <div
+                      className={`p-3 rounded-xl border ${
+                        otpDeliveryInfo.email?.sent && !otpDeliveryInfo.email?.isSimulated
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}
+                    >
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Mail className="h-3.5 w-3.5" />
+                        <span>Email ({otpDeliveryInfo.maskedEmail})</span>
+                      </div>
+                      <p className="text-[11px] mt-1">
+                        {otpDeliveryInfo.email?.sent && !otpDeliveryInfo.email?.isSimulated
+                          ? '✓ OTP terkirim otomatis ke Email petani.'
+                          : otpDeliveryInfo.email?.note || 'SMTP Email belum diisi penuh.'}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-center space-y-2">
@@ -795,10 +815,11 @@ export default function AdminPetaniPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                      Alamat Email (Opsional)
+                      Alamat Email {!isEdit && requireOtp ? '*' : ''}
                     </label>
                     <input
                       type="email"
+                      required={!isEdit && requireOtp}
                       placeholder="sukardi@gmail.com"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -831,10 +852,10 @@ export default function AdminPetaniPage() {
                     />
                     <div className="text-xs text-emerald-950">
                       <span className="font-bold block">
-                        Kirim &amp; Verifikasi Kode OTP (WhatsApp Petani)
+                        Kirim &amp; Verifikasi Kode OTP (WhatsApp + Email Petani)
                       </span>
                       <span className="text-[11px] text-emerald-800">
-                        Kode OTP 6 digit otomatis dikirimkan ke WhatsApp petani sebelum akun diaktifkan.
+                        Kode OTP 6 digit otomatis dikirim ke WhatsApp &amp; Email petani sebelum akun diaktifkan.
                       </span>
                     </div>
                   </label>
@@ -858,7 +879,7 @@ export default function AdminPetaniPage() {
                   {isEdit
                     ? 'Simpan Perubahan'
                     : requireOtp
-                    ? 'Kirim OTP ke WA & Daftarkan'
+                    ? 'Kirim OTP & Daftarkan'
                     : 'Daftarkan Petani'}
                 </button>
               </div>

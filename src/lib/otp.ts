@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import prisma from '@/lib/prisma'
 import { sendWhatsAppNotification, formatWhatsAppPhone } from '@/lib/whatsapp'
+import { sendEmailNotification } from '@/lib/email'
 
 let otpTableEnsured = false
 
@@ -61,8 +62,7 @@ export interface SendDualOtpParams {
 export async function sendDualChannelOtp({ otpCode, namaLengkap, email, phone }: SendDualOtpParams) {
   const normalizedPhone = formatWhatsAppPhone(phone, phone)
 
-  // Pengiriman notifikasi OTP HANYA melalui WhatsApp Gateway
-  const waResult = await sendWhatsAppNotification({
+  const waPromise = sendWhatsAppNotification({
     to: normalizedPhone,
     type: 'OTP',
     severity: 'INFO',
@@ -73,12 +73,41 @@ export async function sendDualChannelOtp({ otpCode, namaLengkap, email, phone }:
       `👉 *${otpCode}*\n\n` +
       `Kode ini berlaku selama *5 menit*. Masukkan kode tersebut pada halaman pendaftaran SI PADI Desa Cirebon Girang.`,
     actionUrl: '/register',
-  }).catch((err) => ({
-    success: false,
-    sentAutomatically: false,
-    isNotConfigured: false,
-    note: err?.message || 'Gagal mengirim OTP via WhatsApp',
-  }))
+  })
+
+  const emailPromise = sendEmailNotification({
+    to: email,
+    subject: `[SI PADI] Kode OTP Verifikasi Pendaftaran: ${otpCode}`,
+    title: 'Kode OTP Pendaftaran Akun Petani SI PADI',
+    severity: 'INFO',
+    petaniNama: namaLengkap,
+    message:
+      `Halo ${namaLengkap}, gunakan kode OTP 6 digit berikut untuk menyelesaikan pendaftaran akun Petani SI PADI Desa Cirebon Girang:\n\n` +
+      `KODE OTP: ${otpCode}\n\n` +
+      `Kode berlaku selama 5 menit. Demi keamanan, jangan bagikan kode ini kepada siapa pun.`,
+    actionUrl: '/register',
+  })
+
+  const [waSettled, emailSettled] = await Promise.allSettled([waPromise, emailPromise])
+
+  const waResult =
+    waSettled.status === 'fulfilled'
+      ? waSettled.value
+      : {
+          success: false,
+          sentAutomatically: false,
+          isNotConfigured: false,
+          note: waSettled.reason?.message || 'Gagal mengirim OTP via WhatsApp',
+        }
+
+  const emailResult =
+    emailSettled.status === 'fulfilled'
+      ? emailSettled.value
+      : {
+          success: false,
+          isSimulated: true,
+          note: emailSettled.reason?.message || 'Gagal mengirim OTP via Email',
+        }
 
   return {
     normalizedPhone,
@@ -88,10 +117,9 @@ export async function sendDualChannelOtp({ otpCode, namaLengkap, email, phone }:
       note: (waResult as any).note || (waResult as any).error || '',
     },
     email: {
-      sent: false,
-      isSimulated: false,
-      note: 'Notifikasi dialihkan khusus via WhatsApp.',
+      sent: Boolean(emailResult.success),
+      isSimulated: Boolean((emailResult as any).isSimulated),
+      note: (emailResult as any).note || (emailResult as any).error || '',
     },
   }
 }
-

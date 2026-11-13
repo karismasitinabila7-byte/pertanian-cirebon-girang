@@ -250,7 +250,7 @@ Pengguna Saat Ini: ${userContext?.namaLengkap || namaUser} (Role: ${role})
 - Wilayah: ${s.appSettings?.villageName || 'Desa Cirebon Girang'}, ${s.appSettings?.districtName || 'Kecamatan Talun'}, ${s.appSettings?.regencyName || 'Kabupaten Cirebon'}
 - Kepala Desa / Kuwu / Perangkat Desa Pengawas: ${kadesName} (@${kades?.username || 'perangkat_desa'}, Role: PERANGKAT_DESA, Email: ${kadesEmail}, HP: ${kadesPhone}). Di dalam sistem SI PADI, ${kadesName} bertugas sebagai Perangkat Desa (Seksi Pelayanan & Pembinaan Pertanian) sekaligus Kuwu / Kepala Desa penandatangan laporan resmi desa.
 - Administrator Sistem: ${adminName} (@${admin?.username || 'admin'}, Role: ADMIN, Email: ${adminEmail}, HP: ${adminPhone}).
-- Notifikasi Email & WA: Email target ${s.appSettings?.notificationTargetEmail || 'karismasitinabila7@gmail.com'} (SMTP Nodemailer), WhatsApp Gateway otomatis (${(s.appSettings?.waGatewayProvider || 'fonnte').toUpperCase()} / Wablas / Webhook - Status token: ${s.appSettings?.waConfigured ? 'AKTIF Otomatis' : 'Belum diisi, tersedia fallback Click-to-Chat'}, nomor default ${s.appSettings?.defaultWhatsAppNumber || '6285797864834'}).
+- Saluran Notifikasi: WhatsApp Gateway otomatis (${(s.appSettings?.waGatewayProvider || 'fonnte').toUpperCase()} / Wablas / Webhook - Status token: ${s.appSettings?.waConfigured ? 'AKTIF Otomatis' : 'Belum diisi, tersedia fallback Click-to-Chat'}, nomor default ${s.appSettings?.defaultWhatsAppNumber || '6285797864834'}), dan Dashboard pengguna.
 - Arsitektur Teknis Web: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Prisma ORM, Database MySQL (TiDB Cloud Serverless), Hosting Vercel, Peta GIS Leaflet, Auth JWT (jose) + bcryptjs.
 
 2. DATA AKUN PENGGUNA (${s.totalUsers ?? 0} Akun):
@@ -457,13 +457,13 @@ export function handleActionButtonAndFeatureResponse(q: string): string | null {
     return `**Pola Rotasi Tanam di Desa Cirebon Girang:**\n1. **MT1 (Musim Rendeng - Nov–Maret):** Padi sawah varietas unggul (Inpari 32 HDB / Ciherang).\n2. **MT2 (Musim Gadu - April–Juli):** Padi hemat air (Inpari 42 GSR / Mekongga).\n3. **MT3 (Palawija/Bera - Ags–Okt):** Jagung, kedelai, atau pemberaan lahan untuk memutus siklus hama wereng & tikus.`
   }
   if (qL.includes('fonnte') || qL.includes('notifikasi wa') || qL.includes('kirim wa') || qL.includes('whatsapp gateway')) {
-    return 'Notifikasi WhatsApp pada SI PADI dikirim **secara otomatis oleh server (Server-to-WhatsApp)** melalui integrasi **WhatsApp Gateway API** yang mendukung **Fonnte** (direkomendasikan), **Wablas**, atau **Custom Webhook** (dikonfigurasi di menu *Konfigurasi Sistem → Notifikasi & Email*). Apabila token gateway belum diisi, sistem menyediakan fallback tautan `api.whatsapp.com/send`. Sedangkan **Email** dikirim otomatis via protokol **SMTP Nodemailer**.'
+    return 'Notifikasi peringatan dini dan pesan pada SI PADI dikirim **secara otomatis oleh server (Server-to-WhatsApp)** khusus melalui integrasi **WhatsApp Gateway API** yang mendukung **Fonnte** (direkomendasikan), **Wablas**, atau **Custom Webhook** (dikonfigurasi di menu *Konfigurasi Sistem*). Apabila token gateway belum diisi, sistem menyediakan fallback tautan langsung `api.whatsapp.com/send`.'
   }
   if (qL.includes('daftar petani') || qL.includes('registrasi') || qL.includes('pendaftaran baru') || qL.includes('otp')) {
-    return '**Cara Pendaftaran Petani Baru (Verifikasi OTP Otomatis):**\n1. Buka halaman **Login** -> klik **Daftar Sekarang (Verifikasi OTP)** (`/register`).\n2. Isi data diri petani (Nama, Username, Email, Nomor WhatsApp aktif, Alamat, Kelompok Tani, Kata Sandi) -> klik **Daftar & Kirim Kode OTP**.\n3. Sistem otomatis mengirim **kode OTP 6 digit** (berlaku 5 menit) ke **WhatsApp (via Fonnte Gateway)** sekaligus ke **Email (via SMTP)**.\n4. Masukkan 6 digit OTP untuk aktivasi akun & langsung masuk ke Dashboard Petani.'
+    return '**Cara Pendaftaran Petani Baru (Verifikasi OTP WhatsApp):**\n1. Buka halaman **Login** -> klik **Daftar Sekarang (Verifikasi OTP)** (`/register`).\n2. Isi data diri petani (Nama, Username, Email, Nomor WhatsApp aktif, Alamat, Kelompok Tani, Kata Sandi) -> klik **Daftar & Kirim OTP ke WhatsApp**.\n3. Sistem otomatis mengirim **kode OTP 6 digit** (berlaku 5 menit) langsung ke **WhatsApp petani (via Fonnte Gateway)**.\n4. Masukkan 6 digit OTP untuk aktivasi akun & langsung masuk ke Dashboard Petani.'
   }
   if (qL.includes('database apa') || qL.includes('pakai database') || qL.includes('teknologi web') || qL.includes('hosting') || qL.includes('framework')) {
-    return '**Arsitektur & Teknologi Platform SI PADI:**\n• **Frontend & Backend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS.\n• **Database & ORM:** **MySQL** (di-host di **TiDB Cloud Serverless**) diakses melalui **Prisma ORM** (13 tabel relasional).\n• **Hosting & Domain:** Di-deploy di cloud **Vercel** (`pertanian-cirebon-girang.vercel.app`) aktif 24/7.\n• **Integrasi:** Peta GIS Leaflet, AI Engine (Gemini / OpenAI + Local Engine), Email SMTP Nodemailer, WhatsApp Gateway Otomatis (Fonnte/Wablas/Webhook), OTP Dual-Channel, dan Widget Cuaca Open-Meteo.'
+    return '**Arsitektur & Teknologi Platform SI PADI:**\n• **Frontend & Backend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS.\n• **Database & ORM:** **MySQL** (di-host di **TiDB Cloud Serverless**) diakses melalui **Prisma ORM** (13 tabel relasional).\n• **Hosting & Domain:** Di-deploy di cloud **Vercel** (`pertanian-cirebon-girang.vercel.app`) aktif 24/7.\n• **Integrasi:** Peta GIS Leaflet, AI Engine (Gemini / OpenAI + Local Engine), WhatsApp Gateway Otomatis (Fonnte/Wablas/Webhook), OTP WhatsApp, dan Widget Cuaca Open-Meteo.'
   }
   return null
 }
@@ -1638,7 +1638,7 @@ export function generateVillageServicesResponse(query: string, userContext?: Pet
     return `**Alur Pengajuan Surat Desa:**\n1. Minta surat pengantar RT/RW.\n2. Bawa berkas ke Loket Balai Desa Cirebon Girang.\n3. Petugas memverifikasi dan memproses tanda tangan pengesahan Kepala Desa (${getKepalaDesaUser(userContext?.statsDesa)?.fullName || 'Bapak Karsiman, S.Sos'}).`
   }
   if (role === 'ADMIN') {
-    return `**Layanan Administrator SI PADI:**\n• Manajemen akun user, data petani & kelompok tani\n• Pemetaan GIS lahan sawah, monitoring musim tanam & panen\n• Peringatan dini Email/WA, konfigurasi sistem & laporan dinas`
+    return `**Layanan Administrator SI PADI:**\n• Manajemen akun user, data petani & kelompok tani\n• Pemetaan GIS lahan sawah, monitoring musim tanam & panen\n• Peringatan dini WhatsApp Gateway, konfigurasi sistem & laporan dinas`
   }
   return `**Layanan SI PADI untuk Petani:**\n• Konsultasi hama, penyakit, dan dosis pupuk per HST\n• Pemantauan petak sawah GIS dan jadwal musim tanam\n• Pencatatan hasil panen padi dan informasi desa`
 }

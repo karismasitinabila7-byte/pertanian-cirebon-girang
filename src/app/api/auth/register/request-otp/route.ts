@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // 5. Kirim OTP Otomatis Dual-Channel: WhatsApp (Fonnte/Gateway) + Email (SMTP)
+    // 5. Kirim OTP Otomatis khusus ke WhatsApp Petani (Fonnte/Gateway)
     const delivery = await sendDualChannelOtp({
       otpCode,
       namaLengkap,
@@ -157,19 +157,13 @@ export async function POST(req: NextRequest) {
       phone: normalizedPhone,
     })
 
-    const sentRealEmail = delivery.email.sent && !delivery.email.isSimulated
     const sentRealWa = delivery.whatsapp.sentAutomatically
 
     let summaryMsg = 'Kode OTP 6 digit telah dibuat.'
-    if (sentRealWa && sentRealEmail) {
-      summaryMsg = `Kode OTP 6 digit berhasil dikirim otomatis ke WhatsApp (${maskPhoneNumber(normalizedPhone)}) dan Email (${maskEmailAddress(email)}).`
-    } else if (sentRealWa) {
+    if (sentRealWa) {
       summaryMsg = `Kode OTP 6 digit berhasil dikirim otomatis ke WhatsApp (${maskPhoneNumber(normalizedPhone)}).`
-    } else if (sentRealEmail) {
-      summaryMsg = `Kode OTP 6 digit berhasil dikirim otomatis ke Email (${maskEmailAddress(email)}).`
     } else {
-      summaryMsg =
-        'Kode OTP sudah diproses, namun Token Gateway WA & SMTP Gmail belum dikonfigurasi penuh di Admin > Konfigurasi Sistem.'
+      summaryMsg = `Kode OTP 6 digit telah dibuat untuk nomor WhatsApp ${maskPhoneNumber(normalizedPhone)}.`
     }
 
     return NextResponse.json({
@@ -192,3 +186,4 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+

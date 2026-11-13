@@ -377,7 +377,7 @@ export default function AdminKonfigurasiPage() {
             </h1>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Kelola parameter kecerdasan buatan (AI Assistant), notifikasi Email & WhatsApp, serta identitas sistem Desa Cirebon Girang.
+            Kelola parameter kecerdasan buatan (AI Assistant), notifikasi WhatsApp Gateway, serta identitas sistem Desa Cirebon Girang.
           </p>
         </div>
 
@@ -446,9 +446,9 @@ export default function AdminKonfigurasiPage() {
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          <Mail size={16} />
-          <span>Notifikasi Email & WA</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">Terhubung</span>
+          <MessageSquare size={16} />
+          <span>Notifikasi WhatsApp Gateway</span>
+          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">Otomatis</span>
         </button>
 
         <button
@@ -817,11 +817,11 @@ export default function AdminKonfigurasiPage() {
           <Card className="p-6 space-y-6">
             <div>
               <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <Bell size={18} className="text-emerald-700" />
-                <span>Penerima & Server Pengiriman Notifikasi</span>
+                <MessageSquare size={18} className="text-emerald-700" />
+                <span>Saluran Notifikasi WhatsApp Gateway (Fonnte / Wablas)</span>
               </h2>
               <p className="text-xs text-gray-500 mt-0.5">
-                Atur alamat email pengawas, nomor WhatsApp tujuan default, dan konfigurasi server pengiriman SMTP.
+                Seluruh notifikasi peringatan dini, rekapitulasi, dan verifikasi OTP pendaftaran petani dikirimkan langsung ke nomor WhatsApp penerima melalui Server Gateway.
               </p>
             </div>
 

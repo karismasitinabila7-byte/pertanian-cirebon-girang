@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, Menu, User, ChevronDown, Bell, AlertTriangle, Droplets, Wheat, ShieldAlert, ExternalLink, Bot, Sparkles, Mail, Loader2, Check, MessageSquare } from 'lucide-react'
+import { LogOut, Menu, User, ChevronDown, Bell, AlertTriangle, Droplets, Wheat, ShieldAlert, ExternalLink, Bot, Sparkles, Loader2, Check, MessageSquare } from 'lucide-react'
 
 export function Header({
   user,
@@ -17,8 +17,6 @@ export function Header({
   const [showNotifications, setShowNotifications] = useState(false)
   const [warnings, setWarnings] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
-  const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [emailSentSuccess, setEmailSentSuccess] = useState(false)
   const [sendingWaId, setSendingWaId] = useState<string | null>(null)
   const [isSendingAllWa, setIsSendingAllWa] = useState(false)
   const [waToast, setWaToast] = useState<{
@@ -339,7 +337,7 @@ export function Header({
                 )}
               </div>
 
-              {/* Footer: Kirim Rekapitulasi Otomatis ke WhatsApp & Email */}
+              {/* Footer: Kirim Rekapitulasi Otomatis ke WhatsApp */}
               <div className="p-2.5 bg-gray-50 border-t border-gray-100 space-y-2">
                 {waToast && (
                   <div
@@ -365,78 +363,30 @@ export function Header({
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={handleSendAllWa}
-                    disabled={isSendingAllWa || warnings.length === 0}
-                    className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-xl text-[10px] font-bold bg-[#16a34a] hover:bg-[#15803d] text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
-                    title="Kirimkan rangkuman seluruh peringatan aktif otomatis ke WhatsApp tujuan"
-                  >
-                    {isSendingAllWa ? (
-                      <>
-                        <Loader2 size={11} className="animate-spin" />
-                        <span>Mengirim WA...</span>
-                      </>
-                    ) : waToast?.id === 'ALL' && waToast?.sentAutomatically ? (
-                      <>
-                        <Check size={11} />
-                        <span>WA Terkirim!</span>
-                      </>
-                    ) : (
-                      <>
-                        <MessageSquare size={11} />
-                        <span>Kirim Semua WA</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        setIsSendingEmail(true)
-                        const res = await fetch('/api/notifications/send-email', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            action: 'SEND_ALL_WARNINGS',
-                            to: 'karismasitinabila7@gmail.com',
-                          }),
-                        })
-                        const data = await res.json()
-                        if (data.success) {
-                          setEmailSentSuccess(true)
-                          setTimeout(() => setEmailSentSuccess(false), 4000)
-                        }
-                      } catch (e) {
-                        console.error('Error sending email:', e)
-                      } finally {
-                        setIsSendingEmail(false)
-                      }
-                    }}
-                    disabled={isSendingEmail || warnings.length === 0}
-                    className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-xl text-[10px] font-bold bg-emerald-700 hover:bg-emerald-800 text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
-                    title="Kirimkan rangkuman seluruh peringatan aktif ke email target"
-                  >
-                    {isSendingEmail ? (
-                      <>
-                        <Loader2 size={11} className="animate-spin" />
-                        <span>Mengirim Email...</span>
-                      </>
-                    ) : emailSentSuccess ? (
-                      <>
-                        <Check size={11} className="text-emerald-200" />
-                        <span>Email Terkirim!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Mail size={11} />
-                        <span>Kirim ke Email</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleSendAllWa}
+                  disabled={isSendingAllWa || warnings.length === 0}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold bg-[#16a34a] hover:bg-[#15803d] text-white transition disabled:opacity-50 cursor-pointer shadow-2xs"
+                  title="Kirimkan rangkuman seluruh peringatan aktif otomatis ke WhatsApp tujuan"
+                >
+                  {isSendingAllWa ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin" />
+                      <span>Mengirim Semua WA...</span>
+                    </>
+                  ) : waToast?.id === 'ALL' && waToast?.sentAutomatically ? (
+                    <>
+                      <Check size={12} />
+                      <span>WA Terkirim!</span>
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare size={12} />
+                      <span>Kirim Semua Peringatan ke WhatsApp</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           )}

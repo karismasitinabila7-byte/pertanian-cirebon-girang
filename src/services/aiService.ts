@@ -1310,7 +1310,7 @@ export function handleDosenQuestion(
     qL.includes('skema database') ||
     qL.includes('relasi database') ||
     qL.includes('tabel relasional') ||
-    qL.includes('erd') ||
+    /\berd\b/i.test(qL) ||
     qL.includes('basis data') ||
     qL.includes('berapa tabel') ||
     (qL.includes('database') && (qL.includes('struktur') || qL.includes('skema') || qL.includes('tabel') || qL.includes('bagaimana') || qL.includes('apa')))
@@ -1342,7 +1342,7 @@ export function handleDosenQuestion(
     qL.includes('autentikasi') ||
     qL.includes('apakah aman') ||
     qL.includes('enkripsi') ||
-    qL.includes('jwt') ||
+    /\bjwt\b/i.test(qL) ||
     qL.includes('bcrypt')
   ) {
     return [
@@ -1462,7 +1462,7 @@ export function handleDosenQuestion(
     qL.includes('arsitektur ai') ||
     qL.includes('apakah ai sungguhan') ||
     qL.includes('context injection') ||
-    qL.includes('rag')
+    /\brag\b/i.test(qL)
   ) {
     return [
       '**Arsitektur & Cara Kerja AI Assistant SI PADI:**',
@@ -1500,7 +1500,7 @@ export function handleDosenQuestion(
     qL.includes('metode pengembangan') ||
     qL.includes('metodologi pengembangan') ||
     qL.includes('metode rekayasa') ||
-    qL.includes('sdlc') ||
+    /\bsdlc\b/i.test(qL) ||
     qL.includes('tahapan pengembangan') ||
     qL.includes('siklus pengembangan') ||
     (qL.includes('metode') && (qL.includes('software') || qL.includes('sistem') || qL.includes('aplikasi') || qL.includes('perangkat lunak')))
@@ -1528,7 +1528,7 @@ export function handleDosenQuestion(
     qL.includes('pengujian sistem') ||
     qL.includes('black box') ||
     qL.includes('white box') ||
-    qL.includes('uat') ||
+    /\buat\b/i.test(qL) ||
     qL.includes('user acceptance test')
   ) {
     return [
@@ -1551,8 +1551,8 @@ export function handleDosenQuestion(
   // 14. KEAMANAN DARI SERANGAN WEB (SQL INJECTION, XSS, CSRF)
   if (
     qL.includes('sql injection') ||
-    qL.includes('xss') ||
-    qL.includes('csrf') ||
+    /\bxss\b/i.test(qL) ||
+    /\bcsrf\b/i.test(qL) ||
     qL.includes('mencegah serangan') ||
     qL.includes('keamanan web') ||
     qL.includes('keamanan sistem') ||

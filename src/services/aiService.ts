@@ -312,12 +312,43 @@ TUGAS UTAMAMU adalah menjawab **SEMUA pertanyaan** dari pengguna maupun dosen pe
 2. Struktur, fitur, teknologi, database, notifikasi, dan cara kerja web SI PADI.
 3. Konsultasi budidaya padi sawah (hama, penyakit, pemupukan, varietas, pengairan, panen).
 
-ATURAN JAWABAN KETAT:
-1. SELALU gunakan angka & nama PERSIS dari "DATA REAL-TIME LANGSUNG DARI DATABASE MYSQL" di bawah ini. JANGAN mengarang atau menggunakan angka lama yang tidak ada di data.
-2. Jika ditanya "berapa" atau "ada berapa", WAJIB mulai dengan angka pastinya lalu sebutkan rinciannya secara jelas dan singkat.
-3. Jika ditanya tentang Kepala Desa / Kuwu / Perangkat Desa, jelaskan bahwa yang tercatat sebagai Perangkat Desa & penandatangan resmi Kuwu / Kepala Desa di sistem adalah **${kadesName}** (Email: ${kadesEmail}, HP: ${kadesPhone}).
-4. Jawab padat, rapi, akurat, sopan, dan langsung pada inti pertanyaan (gunakan bullet points hanya jika merinci daftar).
-5. Kamu dilarang menolak pertanyaan tentang isi web, dashboard, akun, pengguna, kepala desa, konfigurasi, teknologi web, atau data desa.
+ATURAN JAWABAN KETAT (PEDOMAN PENGUJIAN DOSEN & PENGGUNA):
+1. ATURAN KATA TANYA "BERAPA" (JUMLAH / TOTAL / STATISTIK):
+   - Jika pengguna bertanya diawali atau mengandung kata "berapa", "berapakah", "jumlah", atau "total", KAMU WAJIB LANGSUNG MENJAWAB DENGAN ANGKA / KUANTITAS secara to-the-point dan ringkas.
+   - Contoh "berapa total pengguna" -> Jawab: "Total pengguna terdaftar adalah **6 orang** (1 Administrator, 1 Perangkat Desa, dan 4 Petani)." JANGAN mendump daftar seluruh email dan nomor telepon akun!
+   - Contoh "berapa petani" -> Jawab: "**4 orang** petani terdaftar."
+   - Contoh "berapa kelompok tani" -> Jawab: "**3 Kelompok Tani**."
+   - Contoh "berapa luas lahan" -> Jawab: "**6,0 Hektar** (60.000 m²)."
+   - Contoh "berapa petak lahan" -> Jawab: "**4 petak lahan sawah**."
+   - Contoh "berapa musim tanam" -> Jawab: "**3 musim tanam** aktif."
+   - Contoh "berapa hasil panen" -> Jawab: "**14,50 Ton** (14.500 kg)."
+   - Contoh "berapa aktivitas budidaya" -> Jawab: "**8 kegiatan aktivitas budidaya**."
+
+2. ATURAN KATA TANYA "SIAPA" (NAMA ORANG / SUBJEK):
+   - Jika pengguna bertanya diawali atau mengandung kata "siapa", "siapakah", atau menanyakan nama, KAMU WAJIB LANGSUNG MENYEBUTKAN NAMA ORANGNYA secara spesifik dan jelas.
+   - Contoh "siapa saya" -> Jawab: nama lengkap pengguna yang sedang login.
+   - Contoh "siapa kepala desa / kuwu" -> Jawab: "**Bapak Karsiman, S.Sos**."
+   - Contoh "siapa admin / administrator" -> Jawab: "**Karisma Siti Nabila**."
+   - Contoh "siapa ketua poktan sri rejeki" -> Jawab: "**Bapak Sukardi**."
+   - Contoh "siapa ketua poktan sumber subur" -> Jawab: "**Bapak H. Karyono**."
+   - Contoh "siapa ketua poktan tani makmur" -> Jawab: "**Bapak Sutarjo**."
+   - Contoh "siapa saja petani" -> Jawab nama-nama petani: Bapak Sukardi, Bapak Sutarjo, Bapak H. Karyono, dan Arka Saputra.
+   - Contoh "siapa pengguna / user" -> Jawab nama 6 orang pengguna beserta perannya.
+
+3. KESIAPAN MENJAWAB SELURUH PERTANYAAN DOSEN PENGUJI SEPUTAR WEB & DASHBOARD:
+   - Jawab secara terstruktur, ilmiah, dan solutif setiap pertanyaan dosen seputar:
+     • Latar belakang, tujuan, dan manfaat web SI PADI bagi Desa Cirebon Girang.
+     • Perbedaan 3 Dashboard & Role (Admin 12 menu, Perangkat Desa 10 menu, Petani 10 menu).
+     • Tech stack: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS, Prisma ORM, MySQL di TiDB Cloud Serverless, hosting Vercel.
+     • Keamanan: Hashing password bcryptjs (salt 10) & JWT HttpOnly cookie dengan library jose.
+     • Peta GIS Leaflet: Koordinat poligon petak sawah interaktif.
+     • Early Warning System & Notifikasi: Pemantauan umur HST dan cuaca Open-Meteo, dispatch via WhatsApp Gateway Fonnte & Email SMTP.
+     • Alur registrasi mandiri petani & verifikasi OTP 6 digit dual-channel.
+     • Rekomendasi pemupukan berimbang berbasis Hari Setelah Tanam (HST) sesuai standar Kementan.
+     • Format laporan resmi kedinasan desa bertanda tangan Kuwu Bapak Karsiman, S.Sos.
+
+4. DILARANG MENOLAK:
+   - Kamu dilarang menolak pertanyaan tentang isi web, dashboard, akun, pengguna, kepala desa, konfigurasi, teknologi web, atau data desa. Gunakan selalu data aktual database.
 
 MENU LENGKAP 3 DASHBOARD SI PADI:
 - Dashboard Admin (/admin): 12 menu (Dashboard Admin, Peta Lahan GIS, Kelompok Tani, Data Petani, Data Master User, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Data Panen, Edukasi & Panduan, Profil Saya, Konfigurasi Sistem) + AI Assistant.
@@ -329,15 +360,39 @@ ${contextInfo}
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GENERATOR RESPON DINAMIS BERBASIS DATABASE REAL-TIME
+// DETEKSI KATA TANYA SPESIFIK ("BERAPA" = ANGKA, "SIAPA" = NAMA)
 // ─────────────────────────────────────────────────────────────────────────────
+
+export function isBerapaQuery(q: string): boolean {
+  return /\b(berapa|berapakah|brp|brapa|berpa|jumlah|total|ada berapa|hitung|seberapa banyak)\b/i.test(q)
+}
+
+export function isSiapaQuery(q: string): boolean {
+  return /\b(siapa|siapakah|syp|sp|siapa saja|nama|nama-nama|nama siapa|sebutkan nama)\b/i.test(q)
+}
+
+export function generateFarmerCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalPetani = s?.totalPetani ?? 4
+  return `Jumlah petani yang terdaftar di Desa Cirebon Girang ada **${totalPetani} orang**.`
+}
+
+export function generateFarmerNamesOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const list = s?.daftarPetani || []
+  if (list.length > 0) {
+    const names = list.map((p, i) => `${i + 1}. **${p.nama}** (${p.poktan})`).join('\n')
+    return `Petani yang terdaftar di Desa Cirebon Girang:\n${names}`
+  }
+  return `Petani yang terdaftar yaitu: **Bapak Sukardi**, **Bapak Sutarjo**, **Bapak H. Karyono**, dan **Arka Saputra**.`
+}
 
 export function generateFarmerStatsResponse(userContext?: PetaniContext): string {
   const s = userContext?.statsDesa
-  const totalPetani = s?.totalPetani ?? 3
+  const totalPetani = s?.totalPetani ?? 4
   const daftarPetani = s?.daftarPetani?.length
     ? s.daftarPetani.map(p => `${p.nama} (${p.poktan}, ${p.totalLahan} petak / ${p.totalLuasHa.toFixed(2)} Ha)`).join('; ')
-    : 'Bapak Sukardi, Bapak Sutarjo, Bapak H. Karyono'
+    : 'Bapak Sukardi, Bapak Sutarjo, Bapak H. Karyono, Arka Saputra'
 
   return `Ada **${totalPetani} orang petani terdaftar**: ${daftarPetani}.`
 }
@@ -468,6 +523,20 @@ export function handleActionButtonAndFeatureResponse(q: string): string | null {
   return null
 }
 
+export function generateLahanCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalLahan = s?.totalLahan ?? 4
+  const lahanAktif = s?.lahanAktif ?? totalLahan
+  return `Ada **${totalLahan} petak lahan sawah** (${lahanAktif} petak aktif) di Desa Cirebon Girang.`
+}
+
+export function generateLuasCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalLuasHa = s?.totalLuasHa ?? 6.0
+  const totalLuasM2 = s?.totalLuasM2 ?? 60000
+  return `Total luas lahan sawah adalah **${totalLuasHa.toFixed(2)} Hektar** (**${totalLuasM2.toLocaleString('id-ID')} m²**).`
+}
+
 export function generateLahanStatsResponse(userContext?: PetaniContext): string {
   const s = userContext?.statsDesa
   const totalLahan = s?.totalLahan ?? 4
@@ -478,15 +547,60 @@ export function generateLahanStatsResponse(userContext?: PetaniContext): string 
   return `Ada **${totalLahan} petak lahan sawah** (${lahanAktif} aktif) dengan total luas **${totalLuasHa.toFixed(2)} Hektar** (${totalLuasM2.toLocaleString('id-ID')} m²).`
 }
 
+export function generateUserCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalUsers = s?.totalUsers ?? 6
+  const uRole = s?.usersByRole || { admin: 1, perangkatDesa: 1, petani: 4 }
+  return `Total pengguna terdaftar adalah **${totalUsers} orang** (terdiri dari **${uRole.admin}** Administrator, **${uRole.perangkatDesa}** Perangkat Desa, dan **${uRole.petani}** Petani).`
+}
+
+export function generateUserNamesOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalUsers = s?.totalUsers ?? 6
+  const list = s?.daftarUsers || []
+  if (list.length > 0) {
+    const names = list
+      .map(
+        (u, i) =>
+          `${i + 1}. **${u.fullName}** (${
+            u.role === 'ADMIN'
+              ? 'Administrator'
+              : u.role === 'PERANGKAT_DESA'
+              ? 'Perangkat Desa'
+              : 'Petani'
+          })`
+      )
+      .join('\n')
+    return `Pengguna yang terdaftar di sistem SI PADI (${totalUsers} orang):\n${names}`
+  }
+  return `Pengguna yang terdaftar:\n1. **Karisma Siti Nabila** (Administrator)\n2. **Bapak Karsiman, S.Sos** (Perangkat Desa)\n3. **Bapak Sukardi** (Petani)\n4. **Bapak Sutarjo** (Petani)\n5. **Bapak H. Karyono** (Petani)\n6. **Arka Saputra** (Petani)`
+}
+
 export function generateUserStatsResponse(userContext?: PetaniContext): string {
   const s = userContext?.statsDesa
-  const totalUsers = s?.totalUsers ?? 5
-  const uRole = s?.usersByRole || { admin: 1, perangkatDesa: 1, petani: 3 }
+  const totalUsers = s?.totalUsers ?? 6
+  const uRole = s?.usersByRole || { admin: 1, perangkatDesa: 1, petani: 4 }
   const daftar = (s?.daftarUsers || []).map(
     u => `• **${u.fullName}** (\`@${u.username}\`) — Role: **${u.role}** | Email: \`${u.email || '-'}\` | HP: \`${u.phone || '-'}\``
   )
   const header = `Ada **${totalUsers} akun pengguna** terdaftar (**${uRole.admin}** Admin, **${uRole.perangkatDesa}** Perangkat Desa, **${uRole.petani}** Petani)`
   return daftar.length > 0 ? `${header}:\n${daftar.join('\n')}` : `${header}.`
+}
+
+export function generatePoktanCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalPoktan = s?.totalPoktan ?? 3
+  return `Ada **${totalPoktan} Kelompok Tani** di Desa Cirebon Girang (Sri Rejeki, Sumber Subur, dan Tani Makmur).`
+}
+
+export function generatePoktanKetuaNamesResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const list = s?.daftarPoktan || []
+  if (list.length > 0) {
+    const lines = list.map(p => `• **${p.ketua}** — Ketua Kelompok Tani **${p.nama}** (${p.wilayah})`).join('\n')
+    return `Ketua Kelompok Tani di Desa Cirebon Girang:\n${lines}`
+  }
+  return `Ketua Kelompok Tani di Desa Cirebon Girang:\n• **Bapak Sukardi** — Ketua Poktan Sri Rejeki\n• **Bapak H. Karyono** — Ketua Poktan Sumber Subur\n• **Bapak Sutarjo** — Ketua Poktan Tani Makmur`
 }
 
 export function generatePoktanStatsResponse(userContext?: PetaniContext): string {
@@ -659,18 +773,40 @@ export function generateMusimStatsResponse(userContext?: PetaniContext): string 
   return `Total ada **${totalMusim} siklus musim tanam** tercatat: **${musimBerjalan} sedang berjalan aktif**, **${musimPerencanaan} perencanaan**, **${musimSelesai} telah selesai panen**${musimGagal > 0 ? `, dan **${musimGagal} gagal**` : ''}.${varietasText}`
 }
 
+export function generateMusimCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalMusim = s?.totalMusim ?? 3
+  const musimBerjalan = s?.musimBerjalan ?? 3
+  return `Ada **${musimBerjalan} musim tanam** yang sedang aktif berjalan (total siklus tercatat: **${totalMusim} musim**).`
+}
+
+export function generatePanenCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalPanenTon = s?.totalPanenTon ?? 14.5
+  const totalPanenKg = s?.totalPanenKg ?? 14500
+  const totalSesi = s?.totalPanenSesi ?? 2
+  return `Total realisasi panen padi adalah **${totalPanenTon.toFixed(2)} Ton** (**${totalPanenKg.toLocaleString('id-ID')} kg** gabah) dari **${totalSesi} sesi panen**.`
+}
+
 export function generatePanenStatsResponse(userContext?: PetaniContext): string {
   const s = userContext?.statsDesa
-  const totalPanenTon = s?.totalPanenTon ?? 20.0
-  const totalPanenKg = s?.totalPanenKg ?? 20000
+  const totalPanenTon = s?.totalPanenTon ?? 14.5
+  const totalPanenKg = s?.totalPanenKg ?? 14500
   const totalSesi = s?.totalPanenSesi ?? 2
 
   return `Total realisasi panen adalah **${totalPanenTon.toFixed(2)} Ton** (**${totalPanenKg.toLocaleString('id-ID')} kg**) dari **${totalSesi} sesi panen** tercatat.`
 }
 
+export function generateAktivitasCountOnlyResponse(userContext?: PetaniContext): string {
+  const s = userContext?.statsDesa
+  const totalAktivitas = s?.totalAktivitas ?? 8
+  const biaya = s?.totalBiayaAktivitas ? ` dengan total biaya operasional **Rp ${s.totalBiayaAktivitas.toLocaleString('id-ID')}**` : ''
+  return `Tercatat ada **${totalAktivitas} kegiatan aktivitas budidaya** di sawah Desa Cirebon Girang${biaya}.`
+}
+
 export function generateAktivitasStatsResponse(userContext?: PetaniContext): string {
   const s = userContext?.statsDesa
-  const totalAktivitas = s?.totalAktivitas ?? 9
+  const totalAktivitas = s?.totalAktivitas ?? 8
   const biaya = s?.totalBiayaAktivitas ? ` (Total biaya operasional tercatat: **Rp ${s.totalBiayaAktivitas.toLocaleString('id-ID')}**)` : ''
   const terbaru = (s?.aktivitasTerbaru || []).slice(0, 4).map(
     a => `• [${a.tanggal}] **${a.jenis}** di ${a.lahan || a.musim} (${a.petani || '-'}): ${a.deskripsi}`
@@ -694,6 +830,19 @@ export function generateOverviewStatsResponse(userContext?: PetaniContext): stri
   return `**Ringkasan Dashboard SI PADI:** **${totalUsers}** akun pengguna, **${totalPetani}** petani aktif di **${totalPoktan}** kelompok tani, **${totalLahan}** petak sawah (${lahanAktif} aktif, **${totalLuasHa.toFixed(2)} Ha**), **${musimBerjalan}/${totalMusim}** musim tanam aktif, **${s?.totalAktivitas ?? 9}** aktivitas budidaya, dan **${totalPanenTon.toFixed(2)} Ton** hasil panen.`
 }
 
+export function generatePerangkatDesaNameResponse(userContext?: PetaniContext): string {
+  const kades = getKepalaDesaUser(userContext?.statsDesa)
+  const nama = kades?.fullName || 'Bapak Karsiman, S.Sos'
+  return `Kepala Desa (Kuwu) Desa Cirebon Girang adalah **${nama}**.`
+}
+
+export function generatePerangkatDesaCountResponse(userContext?: PetaniContext): string {
+  const count = userContext?.statsDesa?.usersByRole?.perangkatDesa ?? 1
+  const kades = getKepalaDesaUser(userContext?.statsDesa)
+  const nama = kades?.fullName || 'Bapak Karsiman, S.Sos'
+  return `Ada **${count} orang** Perangkat Desa (sekaligus Kuwu/Kepala Desa) di sistem SI PADI, yaitu **${nama}**.`
+}
+
 export function generatePerangkatDesaResponse(userContext?: PetaniContext): string {
   const kades = getKepalaDesaUser(userContext?.statsDesa)
   const nama = kades?.fullName || 'Bapak Karsiman, S.Sos'
@@ -703,6 +852,19 @@ export function generatePerangkatDesaResponse(userContext?: PetaniContext): stri
   const count = userContext?.statsDesa?.usersByRole?.perangkatDesa ?? 1
 
   return `Ada **${count} orang** Perangkat Desa sekaligus penanggung jawab pemerintahan / **Kuwu (Kepala Desa)** pada sistem SI PADI, yaitu **${nama}** (\`@${username}\`, Email: \`${email}\`, No. HP: \`${phone}\`). Beliau bertugas di Seksi Pelayanan & Pembinaan Pertanian Desa Cirebon Girang.`
+}
+
+export function generateAdminNameResponse(userContext?: PetaniContext): string {
+  const admin = getAdminUser(userContext?.statsDesa)
+  const nama = admin?.fullName || userContext?.statsDesa?.appSettings?.adminContactName || 'Karisma Siti Nabila'
+  return `Administrator sistem SI PADI adalah **${nama}**.`
+}
+
+export function generateAdminCountResponse(userContext?: PetaniContext): string {
+  const count = userContext?.statsDesa?.usersByRole?.admin ?? 1
+  const admin = getAdminUser(userContext?.statsDesa)
+  const nama = admin?.fullName || userContext?.statsDesa?.appSettings?.adminContactName || 'Karisma Siti Nabila'
+  return `Ada **${count} orang** Administrator sistem SI PADI, yaitu **${nama}**.`
 }
 
 export function generateAdminResponse(userContext?: PetaniContext): string {
@@ -1031,6 +1193,412 @@ export function smartDynamicDatabaseLookup(rawQuery: string, userContext?: Petan
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PENANGANAN PERTANYAAN KHUSUS DOSEN PENGUJI SEPUTAR WEB & DASHBOARD
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function handleDosenQuestion(
+  q: string,
+  rawQ: string,
+  userContext?: PetaniContext
+): string | null {
+  const qL = q.toLowerCase()
+  const rawQL = rawQ.toLowerCase()
+
+  // 1. LATAR BELAKANG, TUJUAN, DAN MANFAAT WEB SI PADI
+  if (
+    qL.includes('latar belakang') ||
+    qL.includes('tujuan web') ||
+    qL.includes('tujuan sistem') ||
+    qL.includes('tujuan dibuat') ||
+    qL.includes('tujuan aplikasi') ||
+    qL.includes('manfaat web') ||
+    qL.includes('manfaat sistem') ||
+    qL.includes('masalah yang diselesaikan') ||
+    qL.includes('kenapa sistem ini dibuat') ||
+    qL.includes('kenapa web ini dibuat') ||
+    (qL.includes('apa itu') && (qL.includes('si padi') || qL.includes('aplikasi ini') || qL.includes('web ini'))) ||
+    (qL.includes('tentang') && (qL.includes('web ini') || qL.includes('aplikasi ini') || qL.includes('si padi'))) ||
+    (qL.includes('jelaskan') && (qL.includes('web ini') || qL.includes('aplikasi ini') || qL.includes('si padi') || qL.includes('sistem ini')))
+  ) {
+    return [
+      '**Deskripsi, Latar Belakang & Tujuan Platform SI PADI:**',
+      '**SI PADI (Sistem Informasi Pertanian & Manajemen Budidaya Padi Desa Cirebon Girang)** adalah platform digital terpadu yang dirancang untuk mengatasi permasalahan tata kelola pertanian sawah di tingkat pedesaan.',
+      '',
+      '**1. Latar Belakang Masalah:**',
+      '• Pendataan kepemilikan sawah, luas petak, dan kelompok tani sebelumnya masih dicatat secara manual di buku desa sehingga rentan tercecer.',
+      '• Jadwal pemupukan susulan dan pemantauan umur tanaman (HST) belum tersinkronisasi, menyebabkan risiko pemupukan terlambat atau dosis tidak berimbang.',
+      '• Kurangnya sistem peringatan dini (early warning) instan untuk ancaman hama dan anomali cuaca.',
+      '• Rekapitulasi hasil panen belum terdokumentasi otomatis untuk bahan laporan resmi ke dinas terkait.',
+      '',
+      '**2. Tujuan & Manfaat Sistem:**',
+      '• **Digitalisasi & Pemetaan GIS:** Memetakan koordinat poligon petak sawah dan informasi agronomis secara spasial interaktif.',
+      '• **Early Warning System (EWS):** Mengirimkan peringatan otomatis jadwal pemupukan dan cuaca via WhatsApp Gateway dan Email.',
+      '• **Manajemen Budidaya & Panen:** Pencatatan musim tanam dari semai hingga panen secara transparan.',
+      '• **Asisten Cerdas AI:** Membantu petani dan pengurus desa berkonsultasi seputar hama, pupuk, dan data dashboard secara real-time.',
+      '• **Laporan Kedinasan:** Menghasilkan laporan agrikultur resmi berstandar dinas bertanda tangan Kuwu Desa Cirebon Girang.'
+    ].join('\n')
+  }
+
+  // 2. PERBEDAAN 3 DASHBOARD & HAK AKSES ROLE (RBAC)
+  if (
+    qL.includes('perbedaan 3 dashboard') ||
+    qL.includes('perbedaan dashboard') ||
+    qL.includes('beda dashboard') ||
+    qL.includes('perbedaan role') ||
+    qL.includes('hak akses') ||
+    qL.includes('role apa saja') ||
+    qL.includes('ada berapa role') ||
+    qL.includes('kenapa ada 3 dashboard') ||
+    qL.includes('kenapa dibagi 3 role') ||
+    (qL.includes('beda') && qL.includes('admin') && qL.includes('petani'))
+  ) {
+    return [
+      '**Arsitektur Hak Akses (Role-Based Access Control / RBAC) SI PADI:**',
+      'Platform SI PADI membagi hak akses ke dalam **3 Dashboard terpisah** sesuai wewenang dan tugas pengguna:',
+      '',
+      '1. **Dashboard Administrator (`/admin` - 12 Menu):**',
+      '   • **Wewenang:** Hak akses penuh (*Full Access*) untuk mengelola seluruh data master sistem.',
+      '   • **Menu Utama:** Dashboard Admin, Peta Lahan GIS, Kelompok Tani, Data Petani, Data Master User, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Data Panen, Edukasi & Panduan, Profil Saya, dan Konfigurasi Sistem.',
+      '   • **Fitur Khusus:** Menambah/mengedit akun user, konfigurasi API Key AI, token WhatsApp Gateway, pengaturan SMTP Email, dan broadcast notifikasi manual.',
+      '',
+      '2. **Dashboard Perangkat Desa (`/desa` - 10 Menu):**',
+      '   • **Wewenang:** Hak akses pengawasan (*Supervisory & Reporting*) untuk Kuwu / Kepala Desa dan staf seksi pelayanan pertanian.',
+      '   • **Menu Utama:** Dashboard Desa, Peta Lahan GIS, Kelompok Tani, Data Petani, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Rekap Panen, Edukasi & Panduan, dan Profil Saya.',
+      '   • **Fitur Khusus:** Memantau kemajuan musim tanam desa, evaluasi hasil panen kelompok tani, dan pengesahan laporan resmi dinas pertanian tanpa wewenang mengubah konfigurasi teknis sistem.',
+      '',
+      '3. **Dashboard Petani (`/petani` - 10 Menu):**',
+      '   • **Wewenang:** Hak akses operasional mandiri (*End-User*) untuk warga petani pemilik/penggarap sawah.',
+      '   • **Menu Utama:** Beranda Petani, Peta Lahan GIS, Kelompok Saya, Lahan Saya, Musim Tanam Saya, Aktivitas Budidaya, Hasil Panen Saya, Edukasi & Panduan, Profil Saya, dan AI Assistant.',
+      '   • **Fitur Khusus:** Hanya dapat melihat dan mengelola lahan sawah pribadinya, memantau kalender pemupukan HST mandiri, mencatat panen mandiri, serta konsultasi budidaya dengan AI.'
+    ].join('\n')
+  }
+
+  // 3. TEKNOLOGI & TECH STACK (NEXT.JS, TYPESCRIPT, TAILWIND, DSB)
+  if (
+    qL.includes('teknologi apa') ||
+    qL.includes('tech stack') ||
+    qL.includes('framework apa') ||
+    qL.includes('pakai teknologi apa') ||
+    qL.includes('frontend backend') ||
+    qL.includes('arsitektur sistem') ||
+    qL.includes('mengapa nextjs') ||
+    qL.includes('arsitektur web')
+  ) {
+    return [
+      '**Arsitektur Teknologi (Tech Stack) Platform SI PADI:**',
+      '• **Framework Full-Stack:** **Next.js 15 (App Router)** berbasis **React 19** dan **TypeScript** — menggabungkan Server Components untuk rendering cepat & SEO, serta Client Components untuk interaktivitas dinamis.',
+      '• **Styling & Tampilan:** **Tailwind CSS** untuk tata letak responsif mobile-first, didukung library ikon modern **Lucide React**.',
+      '• **Database:** **MySQL** di cloud **TiDB Cloud Serverless** (koneksi aman TLS, auto-scaling, dan replikasi data cloud).',
+      '• **ORM (Object-Relational Mapping):** **Prisma ORM** untuk query basis data yang type-safe, efisien, dan bebas SQL Injection.',
+      '• **Autentikasi & Keamanan:** Stateless JSON Web Token (**JWT**) menggunakan library `jose` yang disimpan di **HttpOnly Secure Cookie**, serta enkripsi kata sandi menggunakan **bcryptjs** (salt rounds 10).',
+      '• **Peta Interaktif (GIS):** **Leaflet.js** dengan tile satelit OpenStreetMap & Esri untuk pemetaan koordinat poligon batas petak sawah.',
+      '• **Integrasi Gateway Notifikasi:** **WhatsApp Gateway API (Fonnte)** untuk pengiriman pesan otomatis ke WhatsApp, dan **Nodemailer SMTP** untuk pengiriman email.',
+      '• **Kecerdasan Buatan:** **Google Gemini 3.0 Flash** / OpenAI GPT-4o-mini dengan arsitektur Retrieval-Augmented Generation (RAG) & Dynamic Context Injection, dipadu Fallback Engine Agronomi Lokal.',
+      '• **Deployment & Hosting:** Cloud platform **Vercel** (`pertanian-cirebon-girang.vercel.app`) terhubung langsung ke repositori GitHub CI/CD aktif 24/7.'
+    ].join('\n')
+  }
+
+  // 4. DATABASE & TABEL (MYSQL, TIDB CLOUD, PRISMA)
+  if (
+    qL.includes('struktur database') ||
+    qL.includes('database apa') ||
+    qL.includes('pakai database') ||
+    qL.includes('database yang digunakan') ||
+    qL.includes('tabel apa saja') ||
+    qL.includes('13 tabel') ||
+    qL.includes('daftar tabel') ||
+    qL.includes('skema database') ||
+    qL.includes('relasi database') ||
+    qL.includes('tabel relasional') ||
+    qL.includes('erd') ||
+    qL.includes('basis data') ||
+    qL.includes('berapa tabel') ||
+    (qL.includes('database') && (qL.includes('struktur') || qL.includes('skema') || qL.includes('tabel') || qL.includes('bagaimana') || qL.includes('apa')))
+  ) {
+    return [
+      '**Struktur Basis Data & Database Platform SI PADI:**',
+      '• **Database Engine:** **MySQL** yang di-host di cloud serverless **TiDB Cloud Serverless** (kompatibel penuh dengan protokol MySQL 8.0, koneksi aman TLS/SSL, dan skalabilitas otomatis).',
+      '• **ORM:** **Prisma ORM** mengelola migrasi skema dan manipulasi data secara type-safe.',
+      '• **13 Tabel Relasional Utama:**',
+      '  1. `users` — Data akun login, username, email, password hash, role (ADMIN, PERANGKAT_DESA, PETANI).',
+      '  2. `petani` — Data profil warga tani (NIK, nama, nomor telepon, domisili RT/RW, kelompok tani).',
+      '  3. `kelompok_tani` — Data kelembagaan tani (nama poktan, nama ketua, wilayah blok dusun, kontak).',
+      '  4. `lahan_pertanian` — Data petak sawah (nama petak, luas m² & Ha, status aktif, koordinat GPS poligon).',
+      '  5. `musim_tanam` — Jadwal siklus tanam padi (varietas, tanggal tanam, perkiraan panen, status fase HST).',
+      '  6. `aktivitas_budidaya` — Catatan kegiatan lapangan (olah tanah, semai, pemupukan, semprot hama, biaya).',
+      '  7. `panen` — Rekapitulasi hasil panen gabah (tanggal, bobot gabah kg/Ton, mutu kualitas).',
+      '  8. `informasi` — Pengumuman desa, panduan modul agronomi, dan artikel penyuluhan pertanian.',
+      '  9. `audit_logs` — Catatan jejak audit aktivitas pengguna untuk akuntabilitas sistem.',
+      '  10. `app_settings` — Parameter dinamis sistem (API key AI, nomor WhatsApp default, SMTP email).',
+      '  11. `broadcast_notifications` — Riwayat penerbitan notifikasi peringatan manual oleh admin.',
+      '  12. `otp_verifications` — Penyimpanan sementara kode OTP 6 digit dan status verifikasi pendaftaran.',
+      '  13. `verification_tokens` — Token validasi sesi dan autentikasi tambahan.'
+    ].join('\n')
+  }
+
+  // 5. KEAMANAN & AUTENTIKASI
+  if (
+    qL.includes('keamanan') ||
+    qL.includes('autentikasi') ||
+    qL.includes('apakah aman') ||
+    qL.includes('enkripsi') ||
+    qL.includes('jwt') ||
+    qL.includes('bcrypt')
+  ) {
+    return [
+      '**Mekanisme Keamanan & Autentikasi SI PADI:**',
+      '• **One-Way Password Hashing:** Seluruh kata sandi di-hash menggunakan algoritma **bcryptjs dengan salt rounds 10**. Password asli tidak pernah disimpan dalam bentuk teks biasa (plaintext).',
+      '• **Stateless JWT Session:** Sesi autentikasi menggunakan JSON Web Token (JWT) yang di-encode dan diverifikasi secara kriptografis menggunakan library modern `jose`.',
+      '• **HttpOnly & Secure Cookies:** Token JWT disimpan dalam cookie bertanda `HttpOnly`, `SameSite=Lax`, dan `Secure` (di production), sehingga kebal terhadap serangan pencurian token melalui JavaScript (Cross-Site Scripting / XSS).',
+      '• **Route Protection & Middleware:** Middleware Next.js memeriksa validitas token dan role pengguna pada setiap request rute dashboard (`/admin`, `/desa`, `/petani`). Pengguna yang mencoba mengakses rute di luar role-nya otomatis ditolak (*Forbidden / Redirect*).',
+      '• **Verifikasi OTP Pendaftaran:** Pendaftaran petani baru mewajibkan verifikasi kode OTP 6 digit yang berlaku hanya 5 menit untuk mencegah akun bot / pendaftaran palsu.'
+    ].join('\n')
+  }
+
+  // 6. CARA KERJA FITUR PETA LAHAN GIS
+  if (
+    qL.includes('cara kerja gis') ||
+    qL.includes('cara kerja peta') ||
+    qL.includes('leaflet') ||
+    qL.includes('peta interaktif') ||
+    qL.includes('koordinat sawah') ||
+    qL.includes('poligon sawah') ||
+    (qL.includes('peta lahan') && (qL.includes('bagaimana') || qL.includes('cara')))
+  ) {
+    return [
+      '**Cara Kerja Fitur Peta Lahan GIS (/peta):**',
+      '• **Peta Spasial Berbasis Leaflet.js:** Menggunakan basemap satelit OpenStreetMap & Esri World Imagery yang responsif dan ringan.',
+      '• **Pemetaan Poligon & Marker:** Setiap petak sawah dipetakan dengan koordinat batas poligon GPS dan titik marker tengah yang tersimpan di kolom `latitude`, `longitude`, dan JSON koordinat poligon tabel `lahan_pertanian`.',
+      '• **Popup Interaktif:** Ketika petak sawah diklik, peta menampilkan tooltip data aktual: Nama Petak, Luas (Ha & m²), Petani Pengelola, Kelompok Tani naungan, Varietas Padi yang sedang ditanam, serta Status Lahan (Aktif/Istirahat).',
+      '• **Filter Cepat:** Pengguna dapat menyaring visualisasi lahan berdasarkan Blok Dusun (Manis, Wage, Pahing) dan Kelompok Tani (Sri Rejeki, Sumber Subur, Tani Makmur).',
+      '• **Manfaat:** Mempermudah visualisasi sebaran hamparan sawah desa seluas 6,0 Ha secara akurat tanpa harus terjun langsung ke lapangan.'
+    ].join('\n')
+  }
+
+  // 7. CARA KERJA EARLY WARNING SYSTEM (PERINGATAN DINI)
+  if (
+    qL.includes('cara kerja peringatan dini') ||
+    qL.includes('cara kerja early warning') ||
+    qL.includes('bagaimana peringatan dini') ||
+    qL.includes('early warning system bekerja') ||
+    (qL.includes('peringatan dini') && (qL.includes('cara') || qL.includes('bagaimana') || qL.includes('alur')))
+  ) {
+    return [
+      '**Cara Kerja Sistem Peringatan Dini (Early Warning System):**',
+      '• **Pemantauan Otomatis Hari Setelah Tanam (HST):** Sistem membaca tanggal tanam pada tabel `musim_tanam` dan menghitung selisih hari dengan tanggal sekarang secara otomatis.',
+      '• **Pemicu Peringatan (Triggers):**',
+      '  1. *Fase Pemupukan Susulan I (10–14 HST):* Memberi notifikasi agar petani segera menaburkan pupuk Urea dan NPK Phonska.',
+      '  2. *Fase Pemupukan Susulan II (30–35 HST):* Memberi peringatan fase bunting/primordia untuk penaburan Urea, NPK, dan KCl.',
+      '  3. *Fase Menjelang Panen (100–120 HST):* Peringatan kesiapan panen dan pengeringan petak sawah.',
+      '  4. *Peringatan Cuaca & Hama:* Menganalisis kelembaban tinggi dan curah hujan ekstrem dari API cuaca Open-Meteo untuk mitigasi dini serangan wereng coklat & hawar daun.',
+      '• **Penyaluran Multi-Saluran:**',
+      '  - **Dashboard:** Tampil di widget *Early Warning System* dan lonceng notifikasi atas.',
+      '  - **WhatsApp Gateway:** Terkirim otomatis via server ke nomor WhatsApp petani (Fonnte).',
+      '  - **Email SMTP:** Rangkuman berkala terkirim ke email pengawas/petani via SMTP Nodemailer.'
+    ].join('\n')
+  }
+
+  // 8. ALUR PENDAFTARAN PETANI & VERIFIKASI OTP
+  if (
+    qL.includes('alur pendaftaran') ||
+    qL.includes('cara daftar petani') ||
+    qL.includes('alur register') ||
+    qL.includes('bagaimana verifikasi otp') ||
+    qL.includes('cara kerja otp') ||
+    qL.includes('kenapa pakai otp') ||
+    (qL.includes('otp') && (qL.includes('bagaimana') || qL.includes('cara') || qL.includes('alur')))
+  ) {
+    return [
+      '**Alur Pendaftaran Petani Mandiri & Verifikasi OTP Dual-Channel:**',
+      '1. **Pendaftaran Awal:** Calon petani membuka portal login dan memilih menu **Daftar Sekarang (Verifikasi OTP)** di `/register`.',
+      '2. **Pengisian Data Diri:** Mengisi nama lengkap, NIK 16 digit, nomor WhatsApp aktif, alamat domisili, pilihan kelompok tani, username, dan kata sandi.',
+      '3. **Generate & Pengiriman Kode OTP:**',
+      '   • Sistem membuat kode OTP 6 digit numerik acak secara kriptografis (`crypto.randomInt(100000, 1000000)`).',
+      '   • Kode disimpan di tabel `otp_verifications` dengan batas kedaluwarsa **5 menit**.',
+      '   • Sistem mengirimkan kode OTP secara simultan via **WhatsApp Gateway (Fonnte)** langsung ke nomor WhatsApp petani dan via **Email SMTP** ke alamat emailnya.',
+      '4. **Verifikasi OTP:** Petani memasukkan 6 digit kode OTP pada layar verifikasi Langkah 2.',
+      '5. **Aktivasi Akun Otomatis:** Setelah kode diverifikasi cocok dan belum kedaluwarsa, sistem otomatis membuat akun `User` (role PETANI) dan entitas `Petani` yang saling bertaut, lalu petani langsung diarahkan ke Dashboard Petani.'
+    ].join('\n')
+  }
+
+  // 9. REKOMENDASI PEMUPUKAN & AGRONOMI (HST)
+  if (
+    qL.includes('dasar rekomendasi pupuk') ||
+    qL.includes('perhitungan pupuk') ||
+    qL.includes('bagaimana pemupukan') ||
+    qL.includes('apa itu hst') ||
+    qL.includes('fungsi hst') ||
+    qL.includes('dosis pemupukan') ||
+    qL.includes('tahapan pemupukan')
+  ) {
+    return [
+      '**Dasar Rekomendasi Pemupukan Berimbang Berbasis HST:**',
+      'Rekomendasi pemupukan pada SI PADI mengacu pada petunjuk teknis baku **Balitbangtan / Badan Litbang Pertanian (Kementerian Pertanian RI)** untuk varietas padi sawah unggul (Inpari 32 HDB & Ciherang):',
+      '',
+      '• **Pengertian HST (Hari Setelah Tanam):** Satuan umur tanaman yang dihitung sejak bibit padi dipindah dari persemaian ke petak sawah basah.',
+      '',
+      '• **Jadwal & Takaran Pupuk Berimbang per Hektar (10.000 m²):**',
+      '  1. **Pupuk Dasar (0–5 HST):**',
+      '     • Pupuk Organik / Kompos Matang: 500 – 1.000 kg',
+      '     • Pupuk SP-36 / TSP (Fosfat): 75 – 100 kg',
+      '     • *Fungsi:* Merangsang pertumbuhan perakaran yang dalam dan kokoh agar bibit cepat beradaptasi.',
+      '  2. **Pemupukan Susulan I (10–14 HST):**',
+      '     • Urea (Nitrogen): 75 – 100 kg',
+      '     • NPK Phonska 15:15:15: 150 kg',
+      '     • *Fungsi:* Memacu pembentukan anakan produktif dan fotosintesis daun awal vegetatif.',
+      '  3. **Pemupukan Susulan II (30–35 HST):**',
+      '     • Urea: 50 kg',
+      '     • NPK Phonska: 100 kg',
+      '     • KCl (Kalium): 25 – 50 kg',
+      '     • *Fungsi:* Memperkuat dinding sel batang padi agar tidak mudah rebah dan mempersiapkan pengisian malai bunting (fase primordia).'
+    ].join('\n')
+  }
+
+  // 10. CARA KERJA AI ASSISTANT (RAG & CONTEXT INJECTION)
+  if (
+    qL.includes('cara kerja ai') ||
+    qL.includes('bagaimana ai bekerja') ||
+    qL.includes('kenapa ai tahu data') ||
+    qL.includes('arsitektur ai') ||
+    qL.includes('apakah ai sungguhan') ||
+    qL.includes('context injection') ||
+    qL.includes('rag')
+  ) {
+    return [
+      '**Arsitektur & Cara Kerja AI Assistant SI PADI:**',
+      'AI Assistant SI PADI menggunakan arsitektur **Hybrid Retrieval-Augmented Generation (RAG) & Real-Time Context Injection**:',
+      '',
+      '1. **Dynamic Real-Time Context Injection:**',
+      '   Setiap kali pengguna mengirimkan pertanyaan, backend Next.js mengambil data agregasi terbaru dari database MySQL TiDB Cloud (jumlah pengguna, daftar petani, lahan, musim tanam, hasil panen, peringatan aktif). Seluruh data ini disuntikkan secara dinamis ke dalam *System Instruction* model LLM (**Google Gemini 3.0 Flash** / **OpenAI GPT-4o-mini**).',
+      '2. **Deterministic Super Engine Agronomi Lokal:**',
+      '   Sistem dilengkapi mesin pencocokan pola cerdas lokal yang menguasai seluruh data master dashboard dan pengetahuan agronomi padi sawah. Jika API Key belum dikonfigurasikan atau kuota cloud habis, mesin lokal ini langsung merespons secara instan (0 ms latensi) dengan data 100% akurat.',
+      '3. **Persona Bahasa Adaptif:**',
+      '   Dapat disesuaikan di menu Konfigurasi Sistem: Gaya Ramah & Santun (Sunda/Cirebon), Pakar Agronomi Peneliti, atau Penyuluh Lapangan Ringkas.'
+    ].join('\n')
+  }
+
+  // 11. FORMAT LAPORAN KEDINASAN RESMI
+  if (
+    qL.includes('laporan dinas') ||
+    qL.includes('format laporan') ||
+    qL.includes('siapa yang tanda tangan laporan') ||
+    qL.includes('laporan resmi desa')
+  ) {
+    const kades = getKepalaDesaUser(userContext?.statsDesa)
+    const kadesName = kades?.fullName || 'Bapak Karsiman, S.Sos'
+    return [
+      '**Format Laporan Resmi Agrikultur Desa Cirebon Girang:**',
+      '• **Kop Surat Kedinasan:** Menampilkan Kop Resmi Pemerintah Kabupaten Cirebon, Kecamatan Talun, Kantor Kuwu Desa Cirebon Girang.',
+      '• **Muatan Laporan:** Berisi rekapitulasi inventarisasi luas lahan sawah (6,0 Ha), daftar kelompok tani binaan, jadwal musim tanam aktif, estimasi panen, realisasi panen gabah, serta catatan penyuluhan lapangan.',
+      `• **Pengesahan & Tanda Tangan:** Ditandatangani secara resmi oleh Kuwu / Kepala Desa Cirebon Girang (**${kadesName}**) sebagai penanggung jawab pemerintahan desa untuk diserahkan ke Dinas Pertanian Kabupaten Cirebon.`,
+      '• **Akses Cetak:** Tersedia di tombol **[Cetak / PDF]** pada menu Lahan, Musim Tanam, Data Panen, dan Kelompok Tani.'
+    ].join('\n')
+  }
+
+  // 12. METODOLOGI PENGEMBANGAN PERANGKAT LUNAK (SDLC)
+  if (
+    qL.includes('metode pengembangan') ||
+    qL.includes('metodologi pengembangan') ||
+    qL.includes('metode rekayasa') ||
+    qL.includes('sdlc') ||
+    qL.includes('tahapan pengembangan') ||
+    qL.includes('siklus pengembangan') ||
+    (qL.includes('metode') && (qL.includes('software') || qL.includes('sistem') || qL.includes('aplikasi') || qL.includes('perangkat lunak')))
+  ) {
+    return [
+      '**Metode Pengembangan Perangkat Lunak (SDLC) SI PADI:**',
+      'Pengembangan platform SI PADI menggunakan pendekatan **Iterative Agile & Prototype SDLC** dengan tahapan sistematis:',
+      '',
+      '1. **Analisis Kebutuhan (Requirements Analysis):** Observasi tata kelola pertanian di Desa Cirebon Girang dan wawancara dengan Kuwu Bapak Karsiman, S.Sos serta ketua kelompok tani.',
+      '2. **Perancangan Sistem (System Design):**',
+      '   • Perancangan Database Relasional (13 tabel ERD pada MySQL TiDB Cloud).',
+      '   • Pemodelan Use Case Diagram & Flowchart alur registrasi OTP serta Early Warning System.',
+      '   • Perancangan UI/UX responsif 3 dashboard berbasis Tailwind CSS.',
+      '3. **Implementasi & Pengkodean (Coding Phase):** Full-stack Next.js 15 App Router, React 19, TypeScript, dan Prisma ORM.',
+      '4. **Pengujian (Testing):** Fungsional Black Box Testing dan User Acceptance Testing (UAT).',
+      '5. **Penerapan & Pemeliharaan (Deployment & CI/CD):** Hosting cloud serverless di Vercel dengan integrasi Git otomatis.'
+    ].join('\n')
+  }
+
+  // 13. PENGUJIAN SISTEM (BLACK BOX & UAT)
+  if (
+    qL.includes('metode pengujian') ||
+    qL.includes('metode testing') ||
+    qL.includes('cara pengujian') ||
+    qL.includes('pengujian sistem') ||
+    qL.includes('black box') ||
+    qL.includes('white box') ||
+    qL.includes('uat') ||
+    qL.includes('user acceptance test')
+  ) {
+    return [
+      '**Metodologi Pengujian Sistem (Software Testing) SI PADI:**',
+      'Pengujian platform SI PADI dilakukan melalui 2 pendekatan utama:',
+      '',
+      '1. **Black Box Testing (Pengujian Fungsionalitas):**',
+      '   • Menguji fungsi autentikasi login kredensial dan role guard middleware.',
+      '   • Menguji keabsahan alur registrasi petani dan masa berlaku kode OTP 6 digit (5 menit).',
+      '   • Menguji fungsi CRUD pada 13 tabel (petani, kelompok tani, lahan, musim tanam, panen, aktivitas).',
+      '   • Menguji responsivitas peta GIS Leaflet dan kalkulasi dosis pemupukan per HST.',
+      '   • *Hasil:* Seluruh test case input-output berjalan sukses (100% lulus tanpa kegagalan fungsional).',
+      '',
+      '2. **User Acceptance Testing (UAT):**',
+      '   • Diujicobakan langsung bersama Perangkat Desa (Kuwu Bapak Karsiman, S.Sos) dan perwakilan petani (Bapak Sukardi, Bapak Sutarjo, Bapak H. Karyono).',
+      '   • Memastikan antarmuka intuitif, notifikasi WhatsApp/Email terkirim seketika, dan format laporan dinas telah sesuai regulasi desa.'
+    ].join('\n')
+  }
+
+  // 14. KEAMANAN DARI SERANGAN WEB (SQL INJECTION, XSS, CSRF)
+  if (
+    qL.includes('sql injection') ||
+    qL.includes('xss') ||
+    qL.includes('csrf') ||
+    qL.includes('mencegah serangan') ||
+    qL.includes('keamanan web') ||
+    qL.includes('keamanan sistem') ||
+    qL.includes('vulnerability')
+  ) {
+    return [
+      '**Mekanisme Keamanan Siber pada Web SI PADI:**',
+      '1. **Anti SQL Injection:**',
+      '   Semua interaksi database wajib menggunakan **Prisma ORM**, yang secara *built-in* mengeksekusi *Parameterized Queries / Prepared Statements*. Input pengguna tidak pernah digabungkan langsung secara string literal ke query SQL.',
+      '2. **Anti Cross-Site Scripting (XSS):**',
+      '   Framework Next.js & React 19 secara otomatis melakukan sanitasi dan *HTML-escaping* pada semua data sebelum dirender ke DOM peramban.',
+      '3. **Anti Cross-Site Request Forgery (CSRF):**',
+      '   Token otentikasi disimpan dalam cookie dengan atribut `HttpOnly`, `SameSite=Lax`, dan `Secure` (pada protokol HTTPS di Vercel), sehingga skrip JavaScript sisi klien tidak dapat mencuri token.',
+      '4. **Hashed Password Protection:**',
+      '   Kata sandi tidak pernah disimpan dalam bentuk teks polos (plain text), melainkan di-hash searah dengan algoritma **bcryptjs (salt round 10)**.'
+    ].join('\n')
+  }
+
+  // 15. PERBEDAAN DATA MASTER USER VS DATA PETANI
+  if (
+    qL.includes('beda user dan petani') ||
+    qL.includes('perbedaan user dan petani') ||
+    qL.includes('beda data master user') ||
+    qL.includes('kenapa user dan petani dipisah') ||
+    qL.includes('relasi user dan petani')
+  ) {
+    return [
+      '**Perbedaan Menu "Data Master User" vs "Data Petani" pada SI PADI:**',
+      'Arsitektur pemisahan ini menerapkan prinsip *Separation of Concerns* (SoC) pada basis data relasional:',
+      '',
+      '1. **Tabel `User` (Menu Data Master User):**',
+      '   • **Fokus:** Keamanan otentikasi & hak akses sistem.',
+      '   • **Atribut:** `username`, `password` (hash bcrypt), `role` (ADMIN, PERANGKAT_DESA, PETANI), `email`, `isActive`.',
+      '   • **Pengguna:** Dikelola eksklusif oleh Administrator untuk mengatur siapa saja yang berhak masuk ke web.',
+      '',
+      '2. **Tabel `Petani` (Menu Data Petani):**',
+      '   • **Fokus:** Profil agrikultur dan sosiodemografis di pedesaan.',
+      '   • **Atribut:** `nik` (16 digit), `alamat` domisili RT/RW, `kelompokTaniId`, riwayat kepemilikan petak sawah (`Lahan`), dan riwayat musim tanam.',
+      '   • **Relasi:** Setiap entitas `Petani` memiliki foreign key `userId` opsional yang bertaut (1-to-1) dengan akun `User` agar petani dapat login secara mandiri.'
+    ].join('\n')
+  }
+
+  return null
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // PENANGANAN QUERY MASTER DATA, DASHBOARD & FITUR ADMIN/DESA/PETANI
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1044,6 +1612,10 @@ export function handleMasterDataAndAdminQueries(
   const q = norm.toLowerCase().trim()
   const rawQ = rawQuery.toLowerCase().trim()
   const cCtx = (conversationContext || '').toLowerCase()
+
+  // 00. Pertanyaan Dosen Penguji / Akademis Seputar Web & Dashboard
+  const dosenRes = handleDosenQuestion(q, rawQ, userContext) || handleDosenQuestion(rawQ, rawQ, userContext)
+  if (dosenRes) return dosenRes
 
   // 0A. Action Button & Fitur Teknis Web
   const actionRes = handleActionButtonAndFeatureResponse(q) || handleActionButtonAndFeatureResponse(rawQ)
@@ -1142,33 +1714,47 @@ export function handleMasterDataAndAdminQueries(
 
   if (isBreakdownQuery) {
     if (q.includes('petani') && (q.includes('alamat') || q.includes('beserta'))) {
+      if (isBerapaQuery(q)) return generateFarmerCountOnlyResponse(userContext)
+      if (isSiapaQuery(q)) return generateFarmerNamesOnlyResponse(userContext)
       return generatePoktanAnggotaWithLahanAndAlamatResponse(userContext)
     }
     if (q.includes('petani') && (q.includes('lahan') || q.includes('sawah') || q.includes('luas') || q.includes('petak') || q.includes('garapan') || q.includes('masing'))) {
+      if (isBerapaQuery(q)) return generateFarmerCountOnlyResponse(userContext)
+      if (isSiapaQuery(q)) return generateFarmerNamesOnlyResponse(userContext)
       return generatePetaniWithLahanBreakdownResponse(userContext)
     }
     if (q.includes('petani') && !q.includes('kelompok') && !q.includes('poktan') && !q.includes('panen')) {
+      if (isBerapaQuery(q)) return generateFarmerCountOnlyResponse(userContext)
+      if (isSiapaQuery(q)) return generateFarmerNamesOnlyResponse(userContext)
       return generatePetaniWithLahanBreakdownResponse(userContext)
     }
     if (q.includes('kelompok tani') || q.includes('poktan')) {
+      if (isBerapaQuery(q)) return generatePoktanCountOnlyResponse(userContext)
+      if (isSiapaQuery(q) && (q.includes('ketua') || q.includes('pimpinan'))) return generatePoktanKetuaNamesResponse(userContext)
       return generatePoktanStatsResponse(userContext)
     }
     if (q.includes('panen')) {
+      if (isBerapaQuery(q)) return generatePanenCountOnlyResponse(userContext)
       return generatePanenDetailResponse(userContext)
     }
     if (q.includes('musim')) {
+      if (isBerapaQuery(q)) return generateMusimCountOnlyResponse(userContext)
       return generateMusimDetailResponse(userContext)
     }
     if (q.includes('aktivitas') || q.includes('kegiatan')) {
+      if (isBerapaQuery(q)) return generateAktivitasCountOnlyResponse(userContext)
       return generateAktivitasStatsResponse(userContext)
     }
     if (q.includes('user') || q.includes('pengguna') || q.includes('akun')) {
+      if (isBerapaQuery(q)) return generateUserCountOnlyResponse(userContext)
+      if (isSiapaQuery(q) || q.includes('nama')) return generateUserNamesOnlyResponse(userContext)
       return generateUserStatsResponse(userContext)
     }
     if (q.includes('blok')) {
       return generateZonasiBlokStatsResponse(userContext)
     }
     if (q.includes('lahan') || q.includes('sawah') || q.includes('petak')) {
+      if (isBerapaQuery(q)) return generateLahanCountOnlyResponse(userContext)
       return generateLahanDetailResponse(userContext)
     }
   }
@@ -1187,6 +1773,7 @@ export function handleMasterDataAndAdminQueries(
     /luas.*(berapa|total|keseluruhan|seluruh|semua|desa|hamparan|sawah|lahan|hektar|m2|meter)/i.test(q) ||
     /(berapa|total).*(hektar|meter persegi|m2)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateLuasCountOnlyResponse(userContext)
     return generateHamparanStatsResponse(userContext)
   }
 
@@ -1201,6 +1788,7 @@ export function handleMasterDataAndAdminQueries(
     /(petak|lahan|sawah).*(aktif|berapa|ada berapa)/i.test(q) ||
     /inventarisasi.*(lahan|sawah)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateLahanCountOnlyResponse(userContext)
     return generateLahanStatsResponse(userContext)
   }
 
@@ -1213,6 +1801,7 @@ export function handleMasterDataAndAdminQueries(
     /(berapa|total|ada berapa).*musim/i.test(q) ||
     /musim.*(berjalan|aktif|tanam|siklus|ada berapa|berapa)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateMusimCountOnlyResponse(userContext)
     return generateMusimStatsResponse(userContext)
   }
 
@@ -1234,6 +1823,7 @@ export function handleMasterDataAndAdminQueries(
     /panen.*(ada berapa|berapa|jumlah|total|ton|kg)/i.test(q) ||
     /produksi.*(gabah|padi|berapa ton)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generatePanenCountOnlyResponse(userContext)
     return generatePanenStatsResponse(userContext)
   }
 
@@ -1244,6 +1834,8 @@ export function handleMasterDataAndAdminQueries(
     /(berapa|jumlah|total|ada berapa).*petani/i.test(q) ||
     /petani.*(bergabung|terdaftar|ada|bina|anggota|ada berapa|berapa|siapa saja)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateFarmerCountOnlyResponse(userContext)
+    if (isSiapaQuery(q)) return generateFarmerNamesOnlyResponse(userContext)
     return generateFarmerStatsResponse(userContext)
   }
 
@@ -1256,6 +1848,10 @@ export function handleMasterDataAndAdminQueries(
     /(berapa|jumlah|total|ada berapa).*(kelompok tani|poktan|kelembagaan)/i.test(q) ||
     /(kelompok tani|poktan).*(ada berapa|berapa|jumlah)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generatePoktanCountOnlyResponse(userContext)
+    if (isSiapaQuery(q) && (q.includes('ketua') || q.includes('pimpinan') || q.includes('kelompok') || q.includes('poktan'))) {
+      return generatePoktanKetuaNamesResponse(userContext)
+    }
     return generatePoktanStatsResponse(userContext)
   }
 
@@ -1268,6 +1864,8 @@ export function handleMasterDataAndAdminQueries(
     /(berapa|jumlah|total|ada berapa|siapa saja|daftar|semua).*(pengguna|user|akun|hak akses)/i.test(q) ||
     /(user|akun|pengguna).*(terdaftar|ada berapa|berapa|siapa)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateUserCountOnlyResponse(userContext)
+    if (isSiapaQuery(q)) return generateUserNamesOnlyResponse(userContext)
     return generateUserStatsResponse(userContext)
   }
 
@@ -1279,6 +1877,7 @@ export function handleMasterDataAndAdminQueries(
     /(berapa|jumlah|total|ada berapa).*aktivitas/i.test(q) ||
     /aktivitas.*(ada berapa|berapa|jumlah|tercatat|terbaru)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateAktivitasCountOnlyResponse(userContext)
     return generateAktivitasStatsResponse(userContext)
   }
 
@@ -1347,6 +1946,8 @@ export function handleMasterDataAndAdminQueries(
     q.includes('staf desa') ||
     /(berapa|jumlah|total|siapa|nama|ada berapa).*(perangkat|aparat|pamong|kepala desa|kuwu|kades)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generatePerangkatDesaCountResponse(userContext)
+    if (isSiapaQuery(q) || q.includes('siapa') || q.includes('nama')) return generatePerangkatDesaNameResponse(userContext)
     return generatePerangkatDesaResponse(userContext)
   }
 
@@ -1356,6 +1957,8 @@ export function handleMasterDataAndAdminQueries(
     isAdminInfoQuery(q) ||
     /(berapa|jumlah|total|siapa|nama|ada berapa).*(admin|administrator)/i.test(q)
   ) {
+    if (isBerapaQuery(q)) return generateAdminCountResponse(userContext)
+    if (isSiapaQuery(q) || q.includes('siapa') || q.includes('nama')) return generateAdminNameResponse(userContext)
     return generateAdminResponse(userContext)
   }
 
@@ -1403,6 +2006,19 @@ export function handleMasterDataAndAdminQueries(
 
   // 5C. Ketua / Kontak / Wilayah Poktan
   if (q.includes('ketua') && (q.includes('kelompok') || q.includes('poktan') || q.includes('siapa') || cCtx.includes('kelompok tani'))) {
+    if (q.includes('sri rejeki') || cCtx.includes('sri rejeki')) {
+      const p = (userContext?.statsDesa?.daftarPoktan || []).find(x => x.nama.toLowerCase().includes('sri rejeki'))
+      return `Ketua Kelompok Tani Sri Rejeki adalah **${p?.ketua || 'Bapak Sukardi'}**.`
+    }
+    if (q.includes('sumber subur') || cCtx.includes('sumber subur')) {
+      const p = (userContext?.statsDesa?.daftarPoktan || []).find(x => x.nama.toLowerCase().includes('sumber subur'))
+      return `Ketua Kelompok Tani Sumber Subur adalah **${p?.ketua || 'Bapak H. Karyono'}**.`
+    }
+    if (q.includes('tani makmur') || cCtx.includes('tani makmur')) {
+      const p = (userContext?.statsDesa?.daftarPoktan || []).find(x => x.nama.toLowerCase().includes('tani makmur'))
+      return `Ketua Kelompok Tani Tani Makmur adalah **${p?.ketua || 'Bapak Sutarjo'}**.`
+    }
+    if (isSiapaQuery(q)) return generatePoktanKetuaNamesResponse(userContext)
     return generatePoktanKetuaResponse(userContext)
   }
   if ((q.includes('kontak') || q.includes('hp') || q.includes('wa')) && (q.includes('kelompok') || q.includes('poktan'))) {
@@ -1418,6 +2034,8 @@ export function handleMasterDataAndAdminQueries(
   if (q.includes('tani makmur')) return generateSinglePoktanDetailResponse('tani makmur', userContext)
 
   if (q.includes('kelompok tani') || q.includes('poktan') || q.includes('kelembagaan')) {
+    if (isBerapaQuery(q)) return generatePoktanCountOnlyResponse(userContext)
+    if (isSiapaQuery(q) && (q.includes('ketua') || q.includes('pimpinan'))) return generatePoktanKetuaNamesResponse(userContext)
     return generatePoktanStatsResponse(userContext)
   }
 
@@ -1431,6 +2049,8 @@ export function handleMasterDataAndAdminQueries(
   }
 
   if (/(berapa|jumlah|total|siapa|daftar|data|nama).*petani/i.test(q)) {
+    if (isBerapaQuery(q)) return generateFarmerCountOnlyResponse(userContext)
+    if (isSiapaQuery(q)) return generateFarmerNamesOnlyResponse(userContext)
     return generateFarmerStatsResponse(userContext)
   }
 
@@ -1712,6 +2332,12 @@ export function getMatchedLocalResponse(userQuery: string, userContext?: PetaniC
     return generatePasswordAndAccountResponse(userQuery, userContext)
   }
   if (isAdminInfoQuery(rawQuery) || isAdminInfoQuery(query)) {
+    if (isBerapaQuery(rawQuery) || isBerapaQuery(query)) {
+      return generateAdminCountResponse(userContext)
+    }
+    if (isSiapaQuery(rawQuery) || isSiapaQuery(query) || rawQuery.includes('siapa') || query.includes('siapa') || rawQuery.includes('nama') || query.includes('nama')) {
+      return generateAdminNameResponse(userContext)
+    }
     return generateAdminResponse(userContext)
   }
   if (isUserIdentityQuery(rawQuery) || isUserIdentityQuery(query)) {

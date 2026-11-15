@@ -3,7 +3,8 @@
 **Mata Kuliah:** Rekayasa Perangkat Lunak (TIKB2503021) — Semester 3  
 **Dosen Pengampu:** Yudhistira Arie Wijaya, M.Kom., CDS.  
 **Program Studi:** S1 Teknik Informatika — STMIK IKMI Cirebon  
-**Pengembang Mandiri (Full-Stack):** Karisma Siti Nabila (NIM: 4122001)  
+**Pengembang Mandiri (Full-Stack):** Karisma Siti Nabila (NIM: 41257113)  
+**Kelas:** TI-KIP-1B-2025  
 **Tema Topik:** Public Service & Smart Agriculture AI  
 **Karakter Proyek:** Web Percobaan / Purwarupa (Prototype) Inovatif untuk Potensi Penerapan di Desa Cirebon Girang  
 **Format Naskah:** Naskah Presentasi Tunggal Terpadu (Menyatukan Konsep Ide, Perancangan SDD/UML, hingga Live Demo Web & CI/CD)  
@@ -35,7 +36,7 @@
 * **Narasi Narator:**
   > *"Assalamu’alaikum Warahmatullahi Wabarakatuh. Selamat pagi/siang, salam sejahtera bagi kita semua.*  
   > *Yang terhormat Dosen Pengampu Mata Kuliah Rekayasa Perangkat Lunak, Bapak Yudhistira Arie Wijaya, M.Kom., CDS., serta rekan-rekan civitas akademika STMIK IKMI Cirebon yang saya banggakan.*  
-  > *Perkenalkan, nama saya **Karisma Siti Nabila**, mahasiswi Program Studi S1 Teknik Informatika, dengan NIM **4122001**.*  
+  > *Perkenalkan, nama saya **Karisma Siti Nabila**, mahasiswi Program Studi S1 Teknik Informatika, Kelas **TI-KIP-1B-2025**, dengan NIM **41257113**.*  
   > *Pada kesempatan presentasi kali ini, saya akan memaparkan secara utuh proyek akhir rekayasa perangkat lunak mandiri yang telah saya rancang dan bangun dari nol, yaitu sebuah **web percobaan dan purwarupa sistem informasi pertanian cerdas** dengan judul:*  
   > ***SI PADI: Sistem Informasi Pertanian & Manajemen Budidaya Padi Desa Cirebon Girang Berbasis AI dan Early Warning System***.*  
   > *Proyek ini saya kembangkan 100% secara mandiri sebagai web percobaan inovatif. Saya merancang sistem ini dengan harapan dan visi ke depan: siapa tahu inovasi web percobaan ini kelak dapat benar-benar diuji coba, bermanfaat nyata, serta terpakai oleh pemerintah desa dan para petani di Desa Cirebon Girang."*

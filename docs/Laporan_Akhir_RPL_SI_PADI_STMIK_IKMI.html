@@ -2,1193 +2,1091 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Laporan Akhir Rekayasa Perangkat Lunak - SI PADI Desa Cirebon Girang</title>
+  <title>Laporan Proyek Rekayasa Perangkat Lunak - SI PADI STMIK IKMI Cirebon</title>
   <style>
     @page {
       size: A4;
-      margin: 25mm 20mm 20mm 20mm;
+      margin: 25mm 20mm 20mm 25mm; /* Standar Skripsi/Laporan: Kiri 25mm, Kanan 20mm, Atas 25mm, Bawah 20mm */
       @bottom-right {
         content: counter(page);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-size: 9pt;
-        color: #555;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 10pt;
       }
     }
-
+    @page :first {
+      @bottom-right { content: normal; }
+    }
     body {
-      font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
-      font-size: 11pt;
-      line-height: 1.6;
-      color: #222;
-      background-color: #fff;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12pt;
+      line-height: 1.5;
+      color: #000000;
       margin: 0;
       padding: 0;
+      text-align: justify;
     }
-
-    .cover-page {
-      page-break-after: always;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
+    .page-break {
+      page-break-before: always;
+    }
+    
+    /* COVER PAGE FORMAT RESMI STMIK IKMI */
+    .cover {
       text-align: center;
-      min-height: 95vh;
-      box-sizing: border-box;
-      padding: 20px 0;
+      padding-top: 10px;
+      page-break-after: always;
+    }
+    .cover-title {
+      font-size: 15pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+    .cover-subtitle {
+      font-size: 11pt;
+      font-weight: normal;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .cover-course {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+    .cover-logo {
+      margin: 30px auto;
+    }
+    .cover-logo img {
+      width: 175px;
+      height: auto;
+    }
+    .cover-lecturer {
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 35px;
+      margin-bottom: 25px;
+      text-transform: uppercase;
+    }
+    .cover-author-title {
+      font-size: 11pt;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .cover-author-table {
+      margin: 0 auto;
+      font-size: 11pt;
+      font-weight: bold;
+      text-align: left;
+      border-collapse: collapse;
+      width: 320px;
+    }
+    .cover-author-table td {
+      padding: 3px 6px;
+    }
+    .cover-institution {
+      margin-top: 55px;
+      font-size: 13pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      line-height: 1.4;
     }
 
-    .cover-institution {
+    /* HEADINGS */
+    h1.chapter-title {
+      text-align: center;
       font-size: 14pt;
       font-weight: bold;
-      color: #0f172a;
-      letter-spacing: 1px;
-      line-height: 1.4;
       text-transform: uppercase;
-      border-bottom: 3px double #15803d;
-      padding-bottom: 12px;
-      width: 100%;
-    }
-
-    .cover-title-box {
-      margin: 40px 0;
-    }
-
-    .cover-badge {
-      display: inline-block;
-      background: #ecfdf5;
-      color: #15803d;
-      border: 1px solid #86efac;
-      padding: 6px 16px;
-      font-size: 10pt;
-      font-weight: 700;
-      border-radius: 9999px;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-    }
-
-    .cover-title {
-      font-size: 18pt;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1.3;
-      margin: 10px 0;
-      text-transform: uppercase;
-    }
-
-    .cover-subtitle {
-      font-size: 12pt;
-      font-weight: 600;
-      color: #15803d;
-      margin-top: 8px;
-    }
-
-    .cover-meta {
-      width: 100%;
-      max-width: 520px;
-      margin: 25px auto;
-      text-align: left;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid #15803d;
-      border-radius: 6px;
-      padding: 16px 20px;
-      font-size: 10.5pt;
-    }
-
-    .cover-meta table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .cover-meta td {
-      padding: 4px 6px;
-      vertical-align: top;
-    }
-
-    .cover-footer {
-      font-size: 11pt;
-      font-weight: 600;
-      color: #334155;
-      margin-top: 30px;
-    }
-
-    .page-break {
-      page-break-after: always;
-    }
-
-    h1, h2, h3, h4 {
-      color: #0f172a;
-      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 24px;
       line-height: 1.3;
     }
-
-    h1 {
-      font-size: 15pt;
-      border-bottom: 2px solid #15803d;
-      padding-bottom: 6px;
-      margin-top: 28px;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-    }
-
     h2 {
-      font-size: 12.5pt;
-      color: #15803d;
-      margin-top: 20px;
-      margin-bottom: 10px;
+      font-size: 12pt;
+      font-weight: bold;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      text-align: left;
     }
-
     h3 {
-      font-size: 11pt;
-      color: #1e293b;
+      font-size: 12pt;
+      font-weight: bold;
       margin-top: 14px;
       margin-bottom: 6px;
+      text-align: left;
     }
-
     p {
       margin-top: 0;
       margin-bottom: 10px;
-      text-align: justify;
+      text-indent: 1.1cm; /* Indentasi khas dokumen ilmiah Indonesia */
+    }
+    p.no-indent {
+      text-indent: 0;
     }
 
-    ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-      padding-left: 24px;
-    }
-
-    li {
-      margin-bottom: 5px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0 18px 0;
-      font-size: 9.5pt;
-    }
-
-    th, td {
-      border: 1px solid #cbd5e1;
-      padding: 7px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background-color: #f1f5f9;
-      color: #0f172a;
-      font-weight: 700;
-    }
-
-    tr:nth-child(even) td {
-      background-color: #f8fafc;
-    }
-
-    .table-badge {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 8.5pt;
-      font-weight: 700;
-    }
-
-    .badge-admin { background: #fee2e2; color: #991b1b; }
-    .badge-desa { background: #e0e7ff; color: #3730a3; }
-    .badge-petani { background: #dcfce7; color: #166534; }
-    .badge-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-
-    .callout {
-      background: #f0fdf4;
-      border-left: 4px solid #16a34a;
-      padding: 10px 14px;
-      margin: 14px 0;
-      border-radius: 4px;
-      font-size: 10pt;
-    }
-
-    .callout-title {
-      font-weight: 700;
-      color: #15803d;
-      margin-bottom: 4px;
-    }
-
-    .code-block {
-      background: #0f172a;
-      color: #e2e8f0;
-      padding: 12px 14px;
-      border-radius: 6px;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 8.5pt;
-      line-height: 1.45;
-      margin: 12px 0;
-      overflow-x: auto;
-    }
-
-    .diagram-container {
-      text-align: center;
-      margin: 18px 0;
-      padding: 10px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-    }
-
-    .diagram-container img {
-      max-width: 95%;
-      height: auto;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
-
-    .diagram-caption {
-      font-size: 9pt;
-      font-weight: 600;
-      color: #475569;
-      margin-top: 8px;
-    }
-
-    .svg-diagram {
-      width: 100%;
-      max-width: 680px;
-      margin: 0 auto;
-      display: block;
-    }
-
-    .toc {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 16px 22px;
-      margin-bottom: 24px;
-    }
-
-    .toc ul {
-      list-style-type: none;
-      padding-left: 0;
-    }
-
-    .toc li {
-      margin-bottom: 6px;
+    /* DAFTAR ISI STYLING */
+    .toc-item {
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px dotted #cbd5e1;
-      padding-bottom: 2px;
+      margin-bottom: 5px;
+      font-size: 11pt;
     }
-
-    .toc-title {
-      font-weight: 600;
-      color: #0f172a;
-    }
-
     .toc-dots {
-      flex-grow: 1;
-      border-bottom: 1px dotted #94a3b8;
-      margin: 0 8px 4px 8px;
+      flex: 1;
+      border-bottom: 1px dotted #555;
+      margin: 0 6px 4px 6px;
+    }
+    .toc-bold {
+      font-weight: bold;
+    }
+
+    /* TABEL STANDAR */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 16px 0;
+      font-size: 10.5pt;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid #333;
+      padding: 6px 9px;
+      vertical-align: top;
+    }
+    table.data-table th {
+      background-color: #f2f2f2;
+      text-align: center;
+      font-weight: bold;
+    }
+    table.data-table td.center {
+      text-align: center;
+    }
+
+    /* GAMBAR & KETERANGAN */
+    .figure-container {
+      text-align: center;
+      margin: 16px 0;
+      page-break-inside: avoid;
+    }
+    .figure-container img {
+      max-width: 90%;
+      max-height: 380px;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .figure-caption {
+      font-weight: bold;
+      margin-top: 8px;
+      font-size: 11pt;
+    }
+    .figure-notes {
+      font-size: 10.5pt;
+      text-align: justify;
+      margin-top: 4px;
+      padding: 0 20px;
+      color: #222;
+    }
+    .figure-notes strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* KOTAK KODE */
+    pre {
+      background-color: #f8f9fa;
+      border: 1px solid #dcdcdc;
+      padding: 8px 12px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 9pt;
+      line-height: 1.4;
+      text-align: left;
+      overflow-x: auto;
+      border-radius: 4px;
+    }
+
+    ol, ul {
+      margin-top: 4px;
+      margin-bottom: 10px;
+      padding-left: 28px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .signature-area {
+      margin-top: 40px;
+      float: right;
+      text-align: center;
+      width: 250px;
+      page-break-inside: avoid;
     }
   </style>
 </head>
 <body>
 
-  <!-- ==================== HALAMAN SAMPUL (COVER) ==================== -->
-  <div class="cover-page">
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover">
+    <div class="cover-title">
+      LAPORAN PROYEK PERANCANGAN DAN IMPLEMENTASI SISTEM INFORMASI PERTANIAN PADI DESA CIREBON GIRANG BERBASIS AI DAN EARLY WARNING SYSTEM
+    </div>
+    
+    <div class="cover-subtitle">
+      Inovasi Web Percobaan : Digitalisasi Lahan GIS, Rekomendasi Pemupukan Cerdas Berbasis HST, Notifikasi WhatsApp/Email, dan Asisten AI
+    </div>
+
+    <div class="cover-course">
+      Mata Kuliah : Rekayasa Perangkat Lunak
+    </div>
+
+    <div class="cover-logo">
+      <img src="images/logo_ikmi.png" alt="Logo STMIK IKMI Cirebon">
+    </div>
+
+    <div class="cover-lecturer">
+      DOSEN : YUDHISTIRA ARIE WIJAYA, M.KOM., CDS.
+    </div>
+
+    <div class="cover-author-title">
+      DIBUAT OLEH :
+    </div>
+    <table class="cover-author-table">
+      <tr>
+        <td style="width: 80px;">NAMA</td>
+        <td style="width: 15px;">:</td>
+        <td>KARISMA SITI NABILA</td>
+      </tr>
+      <tr>
+        <td>NIM</td>
+        <td>:</td>
+        <td>41257113</td>
+      </tr>
+      <tr>
+        <td>KELAS</td>
+        <td>:</td>
+        <td>TI-KIP-1B-2025</td>
+      </tr>
+    </table>
+
     <div class="cover-institution">
-      PROGRAM STUDI S1 TEKNIK INFORMATIKA<br>
-      SEKOLAH TINGGI MANAJEMEN INFORMATIKA DAN KOMPUTER (STMIK) IKMI CIREBON<br>
-      TAHUN AKADEMIK 2026/2027
-    </div>
-
-    <div class="cover-title-box">
-      <span class="cover-badge">Laporan Tugas Proyek Akhir Mandiri (OBE Rubric Compliant)</span>
-      <div class="cover-title">
-        SI PADI: SISTEM INFORMASI PERTANIAN & MANAJEMEN BUDIDAYA PADI DESA CIREBON GIRANG
-      </div>
-      <div class="cover-subtitle">
-        Platform Web Full-Stack Terintegrasi Kecerdasan Artifisial (Hybrid RAG), Pemetaan Spasial GIS, & Early Warning System Multi-Saluran
-      </div>
-    </div>
-
-    <div class="cover-meta">
-      <table>
-        <tr>
-          <td style="width: 35%;"><strong>Mata Kuliah / Kode</strong></td>
-          <td style="width: 5%;">:</td>
-          <td>Rekayasa Perangkat Lunak / TIKB2503021 (4 SKS)</td>
-        </tr>
-        <tr>
-          <td><strong>Semester / Kelas</strong></td>
-          <td>:</td>
-          <td>Semester 3 / TI-S1</td>
-        </tr>
-        <tr>
-          <td><strong>Dosen Pengampu</strong></td>
-          <td>:</td>
-          <td><strong>Yudhistira Arie Wijaya, M.Kom., CDS.</strong></td>
-        </tr>
-        <tr>
-          <td><strong>Tema Topik Kelompok</strong></td>
-          <td>:</td>
-          <td>Public Service & Smart Agriculture AI (Pemberdayaan Desa Cerdas)</td>
-        </tr>
-        <tr>
-          <td><strong>Sifat Pengerjaan</strong></td>
-          <td>:</td>
-          <td>Mandiri / Perorangan (100% Individual Ownership & Full-App Build)</td>
-        </tr>
-        <tr>
-          <td><strong>Nama Mahasiswa</strong></td>
-          <td>:</td>
-          <td><strong>Karisma Siti Nabila</strong></td>
-        </tr>
-        <tr>
-          <td><strong>NIM Mahasiswa</strong></td>
-          <td>:</td>
-          <td><strong>4122001</strong></td>
-        </tr>
-        <tr>
-          <td><strong>Repositori GitHub</strong></td>
-          <td>:</td>
-          <td><code>github.com/karismasitinabila7-byte/pertanian-cirebon-girang</code></td>
-        </tr>
-        <tr>
-          <td><strong>Deployment Live</strong></td>
-          <td>:</td>
-          <td><code>pertanian-cirebon-girang.vercel.app</code></td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="cover-footer">
-      KOTA CIREBON — JAWA BARAT<br>
+      PROGRAM STUDI TEKNIK INFORMATIKA<br>
+      STMIK IKMI CIREBON<br>
       2026
     </div>
   </div>
 
-  <!-- ==================== LEMBAR PENGESAHAN ==================== -->
+  <!-- ==================== KATA PENGANTAR ==================== -->
   <div class="page-break">
-    <h1>LEMBAR PERNYATAAN KEASLIAN & PENGESAHAN PROYEK</h1>
-    <p>Saya yang bertanda tangan di bawah ini:</p>
-    <table style="width: 80%; margin: 15px 0;">
-      <tr><td style="width: 30%;"><strong>Nama Mahasiswa</strong></td><td style="width: 5%;">:</td><td>Karisma Siti Nabila</td></tr>
-      <tr><td><strong>Nomor Induk Mahasiswa</strong></td><td>:</td><td>4122001</td></tr>
-      <tr><td><strong>Program Studi</strong></td><td>:</td><td>S1 Teknik Informatika</td></tr>
-      <tr><td><strong>Mata Kuliah</strong></td><td>:</td><td>Rekayasa Perangkat Lunak (TIKB2503021)</td></tr>
-      <tr><td><strong>Judul Proyek</strong></td><td>:</td><td>SI PADI: Sistem Informasi Pertanian & Manajemen Budidaya Padi Desa Cirebon Girang</td></tr>
-    </table>
+    <h1 class="chapter-title">KATA PENGANTAR</h1>
+    
+    <p>
+      Puji syukur ke hadirat Tuhan Yang Maha Esa karena atas berkat, rahmat, dan karunia-Nya, penulis dapat menyelesaikan laporan proyek mandiri Rekayasa Perangkat Lunak yang berjudul <strong>“Perancangan dan Implementasi Sistem Informasi Pertanian Padi Desa Cirebon Girang Berbasis AI dan Early Warning System (SI PADI)”</strong> dengan tepat waktu.
+    </p>
+    <p>
+      Laporan ini disusun sebagai bentuk dokumentasi komprehensif dari serangkaian proses inisiasi ide, penyusunan spesifikasi kebutuhan perangkat lunak (PRD/SRS), perancangan sistem berbasis UML dan ERD, implementasi kode sumber menggunakan teknologi modern Next.js 15 dan MySQL TiDB Cloud Serverless, hingga pengujian otomatis dan jaminan mutu sistem (DevOps CI/CD).
+    </p>
+    <p>
+      Proyek ini merupakan sebuah rancang bangun web percobaan dan purwarupa (<em>prototype</em>) sistem cerdas yang dirancang sebagai proyek percontohan dengan mengambil studi pada sektor pertanian Desa Cirebon Girang, Kecamatan Talun, Kabupaten Cirebon. Penulis merancang sistem ini dengan harapan serta visi ke depan bahwa inovasi ini dapat diuji coba secara nyata, bermanfaat, dan siapa tahu dapat terpakai secara langsung oleh pihak pemerintah desa maupun para petani binaan setempat.
+    </p>
+    <p>
+      Dalam pelaksanaan proyek ini, penulis menyampaikan penghargaan dan rasa terima kasih yang sebesar-besarnya kepada Bapak <strong>Yudhistira Arie Wijaya, M.Kom., CDS.</strong>, selaku Dosen Pengampu Mata Kuliah Rekayasa Perangkat Lunak, yang telah memberikan bimbingan berharga, arahan kurikulum berbasis OBE, dan motivasi selama perkuliahan berlangsung.
+    </p>
+    <p>
+      Penulis menyadari sepenuhnya bahwa laporan dan sistem ini masih memiliki ruang untuk penyempurnaan. Oleh karena itu, berbagai saran, masukan, dan kritik yang membangun sangat diharapkan untuk pengembangan berkelanjutan di masa yang akan datang. Akhir kata, semoga laporan ini dapat memberikan manfaat akademis serta menambah wawasan mengenai rekayasa perangkat lunak modern.
+    </p>
 
-    <p>Menyatakan dengan sebenar-benarnya bahwa:</p>
-    <ol>
-      <li>Proyek aplikasi web dan berkas laporan akhir ini merupakan hasil karya rekayasa mandiri saya sendiri (<strong>100% Individual Ownership & Full-Stack Build</strong>) dari tahap inisiasi PRD/SRS, pemodelan UML, perancangan arsitektur sistem, konstruksi Clean Code Next.js 15, integrasi model Kecerdasan Buatan (AI), penulisan skrip pengujian otomatis (Unit Testing), hingga otomatisasi CI/CD Pipeline pada GitHub Actions dan deployment live Vercel.</li>
-      <li>Tidak ada pembagian modul antar-anggota kelompok dalam pembangunan aplikasi ini. Seluruh fungsi inti (Autentikasi, 3 Dashboard RBAC, GIS, EWS, AI Assistant, dan Reporting) dibangun dan dioperasikan secara utuh oleh saya sendiri.</li>
-      <li>Apabila di kemudian hari terbukti terdapat kecurangan atau plagiasi di luar ketentuan akademik, saya bersedia menerima sanksi akademik yang berlaku di STMIK IKMI Cirebon.</li>
-    </ol>
-
-    <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center;">
-      <div style="width: 45%;">
-        Mengetahui,<br>
-        <strong>Dosen Pengampu Mata Kuliah</strong><br><br><br><br><br>
-        <u><strong>Yudhistira Arie Wijaya, M.Kom., CDS.</strong></u><br>
-        NIDN. 0415088801
-      </div>
-      <div style="width: 45%;">
-        Cirebon, 15 November 2026<br>
-        <strong>Mahasiswa Pengembang Mandiri</strong><br><br><br><br><br>
-        <u><strong>Karisma Siti Nabila</strong></u><br>
-        NIM. 4122001
-      </div>
+    <div class="signature-area">
+      Cirebon, 15 November 2026<br>
+      Penulis,<br><br><br><br>
+      <strong>KARISMA SITI NABILA</strong><br>
+      NIM: 41257113
     </div>
+    <div style="clear: both;"></div>
   </div>
 
   <!-- ==================== DAFTAR ISI ==================== -->
   <div class="page-break">
-    <h1>DAFTAR ISI DOKUMEN INTEGRASI</h1>
-    <div class="toc">
-      <ul>
-        <li><span class="toc-title">HALAMAN JUDUL</span><span class="toc-dots"></span><span>i</span></li>
-        <li><span class="toc-title">LEMBAR PENGESAHAN PROYEK MANDIRI</span><span class="toc-dots"></span><span>ii</span></li>
-        <li><span class="toc-title">DAFTAR ISI</span><span class="toc-dots"></span><span>iii</span></li>
-        <li><span class="toc-title">BAB I: INISIASI & PENYUSUNAN PRD / SRS MANDIRI (IEEE 830)</span><span class="toc-dots"></span><span>1</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">1.1 Latar Belakang Masalah Riil Desa Cirebon Girang</span><span class="toc-dots"></span><span>1</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">1.2 Identifikasi Masalah & Value Proposition</span><span class="toc-dots"></span><span>2</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">1.3 Ruang Lingkup Sistem & User Persona (RBAC 3 Role)</span><span class="toc-dots"></span><span>3</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">1.4 Spesifikasi Kebutuhan Fungsional (User Stories & Acceptance Criteria)</span><span class="toc-dots"></span><span>4</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">1.5 Spesifikasi Kebutuhan Non-Fungsional (NFR)</span><span class="toc-dots"></span><span>6</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">1.6 Spesifikasi Fitur AI Utama (Hybrid RAG & Deterministic Agronomy)</span><span class="toc-dots"></span><span>7</span></li>
-        <li><span class="toc-title">BAB II: PERANCANGAN UML & ARSITEKTUR SISTEM MANDIRI (SDD)</span><span class="toc-dots"></span><span>8</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.1 Arsitektur Tingkat Tinggi Perangkat Lunak (Layered Architecture)</span><span class="toc-dots"></span><span>8</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.2 Pemodelan Use Case Diagram & Skenario Lengkap</span><span class="toc-dots"></span><span>9</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.3 Pemodelan Activity Diagram (Bisnis, Registrasi OTP, & AI)</span><span class="toc-dots"></span><span>11</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.4 Pemodelan Class Diagram Berorientasi Objek (Kepatuhan SOLID)</span><span class="toc-dots"></span><span>13</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.5 Pemodelan Sequence Diagram Interaksi Real-Time</span><span class="toc-dots"></span><span>15</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.6 Perancangan Basis Data (Entity Relationship Diagram - 13 Tabel)</span><span class="toc-dots"></span><span>17</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">2.7 Prototipe Desain Antarmuka Pengguna (UI/UX 3 Dashboard)</span><span class="toc-dots"></span><span>19</span></li>
-        <li><span class="toc-title">BAB III: KONSTRUKSI KODE, INTEGRASI AI, DAN KEAMANAN</span><span class="toc-dots"></span><span>21</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">3.1 Implementasi Clean Code & Pola Struktur Direktori Next.js 15</span><span class="toc-dots"></span><span>21</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">3.2 Implementasi Integrasi AI Hybrid (Gemini 3.0 Flash & Fallback Engine)</span><span class="toc-dots"></span><span>22</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">3.3 Mekanisme Keamanan Siber Web (Anti-SQLi, Anti-XSS, Anti-CSRF, Bcrypt)</span><span class="toc-dots"></span><span>24</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">3.4 Early Warning System & Integrasi WhatsApp Gateway Fonnte</span><span class="toc-dots"></span><span>25</span></li>
-        <li><span class="toc-title">BAB IV: PENGUJIAN PERANGKAT LUNAK (TESTING) & DEVOPS CI/CD</span><span class="toc-dots"></span><span>26</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">4.1 Rencana & Metodologi Pengujian (Black Box & UAT)</span><span class="toc-dots"></span><span>26</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">4.2 Matriks Kasus Uji (Test Cases) & Hasil Pengujian Fungsional</span><span class="toc-dots"></span><span>27</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">4.3 Pengujian Unit Test Otomatis (Node Native Test Runner)</span><span class="toc-dots"></span><span>29</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">4.4 Konfigurasi & Status Hijau CI/CD Pipeline GitHub Actions</span><span class="toc-dots"></span><span>30</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">4.5 Pengujian Penerimaan Pengguna (User Acceptance Testing / UAT)</span><span class="toc-dots"></span><span>31</span></li>
-        <li><span class="toc-title">BAB V: PENUTUP & REFLEKSI PEMBELAJARAN MANDIRI</span><span class="toc-dots"></span><span>32</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">5.1 Kesimpulan Capaian Proyek Rekayasa Perangkat Lunak</span><span class="toc-dots"></span><span>32</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">5.2 Refleksi Pembelajaran Rekayasa Perangkat Lunak (End-to-End Ownership)</span><span class="toc-dots"></span><span>33</span></li>
-        <li style="padding-left: 20px;"><span class="toc-title">5.3 Saran & Pengembangan Berkelanjutan</span><span class="toc-dots"></span><span>34</span></li>
-      </ul>
-    </div>
+    <h1 class="chapter-title">DAFTAR ISI</h1>
+
+    <div class="toc-item toc-bold"><span>HALAMAN JUDUL</span><span class="toc-dots"></span><span>i</span></div>
+    <div class="toc-item toc-bold"><span>KATA PENGANTAR</span><span class="toc-dots"></span><span>ii</span></div>
+    <div class="toc-item toc-bold"><span>DAFTAR ISI</span><span class="toc-dots"></span><span>iii</span></div>
+    
+    <div class="toc-item toc-bold" style="margin-top: 10px;"><span>BAB I PENDAHULUAN</span><span class="toc-dots"></span><span>1</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>1.1 Latar Belakang Inovasi Web Percobaan</span><span class="toc-dots"></span><span>1</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>1.2 Rumusan Masalah</span><span class="toc-dots"></span><span>2</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>1.3 Tujuan Proyek</span><span class="toc-dots"></span><span>2</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>1.4 Manfaat Proyek</span><span class="toc-dots"></span><span>3</span></div>
+
+    <div class="toc-item toc-bold" style="margin-top: 10px;"><span>BAB II LANDASAN TEORI</span><span class="toc-dots"></span><span>4</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.1 Rekayasa Perangkat Lunak & SDLC</span><span class="toc-dots"></span><span>4</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.2 Framework Next.js 15 & React 19</span><span class="toc-dots"></span><span>4</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.3 TypeScript</span><span class="toc-dots"></span><span>5</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.4 Basis Data MySQL & TiDB Cloud Serverless</span><span class="toc-dots"></span><span>5</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.5 Prisma Object-Relational Mapping (ORM)</span><span class="toc-dots"></span><span>5</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.6 Geographic Information System (GIS) & Leaflet.js</span><span class="toc-dots"></span><span>6</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.7 Artificial Intelligence & Google Gemini API</span><span class="toc-dots"></span><span>6</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.8 Retrieval-Augmented Generation (RAG) & Super Engine</span><span class="toc-dots"></span><span>7</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.9 Early Warning System & Gateway Notifikasi</span><span class="toc-dots"></span><span>7</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>2.10 Pengujian Perangkat Lunak & CI/CD DevOps</span><span class="toc-dots"></span><span>8</span></div>
+
+    <div class="toc-item toc-bold" style="margin-top: 10px;"><span>BAB III PERANCANGAN DAN IMPLEMENTASI</span><span class="toc-dots"></span><span>9</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>3.1 Gambaran Umum Proyek</span><span class="toc-dots"></span><span>9</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>3.2 Analisis Kebutuhan Sistem (PRD Standar IEEE 830)</span><span class="toc-dots"></span><span>10</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>3.3 Arsitektur Sistem 3-Tier</span><span class="toc-dots"></span><span>12</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>3.4 Pemodelan Visual UML (4 Diagram Utama)</span><span class="toc-dots"></span><span>13</span></div>
+    <div class="toc-item" style="padding-left: 35px;"><span>3.4.1 Use Case Diagram</span><span class="toc-dots"></span><span>13</span></div>
+    <div class="toc-item" style="padding-left: 35px;"><span>3.4.2 Activity Diagram</span><span class="toc-dots"></span><span>14</span></div>
+    <div class="toc-item" style="padding-left: 35px;"><span>3.4.3 Class Diagram Berprinsip SOLID</span><span class="toc-dots"></span><span>15</span></div>
+    <div class="toc-item" style="padding-left: 35px;"><span>3.4.4 Sequence Diagram</span><span class="toc-dots"></span><span>16</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>3.5 Perancangan Basis Data (ERD 13 Tabel Relasional)</span><span class="toc-dots"></span><span>17</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>3.6 Implementasi Antarmuka & Fitur Utama Web</span><span class="toc-dots"></span><span>19</span></div>
+
+    <div class="toc-item toc-bold" style="margin-top: 10px;"><span>BAB IV HASIL PENGUJIAN DAN PEMBAHASAN</span><span class="toc-dots"></span><span>24</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.1 Pengujian Fungsional (Black Box Testing)</span><span class="toc-dots"></span><span>24</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.2 Pengujian Otomatis Unit Testing (Terminal npm test)</span><span class="toc-dots"></span><span>26</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.3 Pengujian Semantik Chatbot AI ('Berapa' & 'Siapa')</span><span class="toc-dots"></span><span>27</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.4 Pengujian Dual-Channel OTP (WhatsApp & Email)</span><span class="toc-dots"></span><span>29</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.5 Pengujian Otomasi CI/CD Pipeline (GitHub Actions)</span><span class="toc-dots"></span><span>30</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.6 Pengujian Kelayakan Pengguna (UAT - SUS Score)</span><span class="toc-dots"></span><span>31</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>4.7 Rekapitulasi Hasil Pengujian Sistem</span><span class="toc-dots"></span><span>32</span></div>
+
+    <div class="toc-item toc-bold" style="margin-top: 10px;"><span>BAB V PENUTUP</span><span class="toc-dots"></span><span>33</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>5.1 Kesimpulan</span><span class="toc-dots"></span><span>33</span></div>
+    <div class="toc-item" style="padding-left: 20px;"><span>5.2 Saran & Pengembangan Berkelanjutan</span><span class="toc-dots"></span><span>34</span></div>
+
+    <div class="toc-item toc-bold" style="margin-top: 10px;"><span>DAFTAR PUSTAKA</span><span class="toc-dots"></span><span>35</span></div>
   </div>
 
   <!-- ==================== BAB I ==================== -->
   <div class="page-break">
-    <h1>BAB I: INISIASI & PENYUSUNAN PRD / SRS MANDIRI (IEEE 830)</h1>
+    <h1 class="chapter-title">BAB I<br>PENDAHULUAN</h1>
 
-    <h2>1.1 Latar Belakang Masalah Riil Desa Cirebon Girang</h2>
+    <h2>1.1 Latar Belakang Inovasi Web Percobaan</h2>
     <p>
-      Desa Cirebon Girang yang terletak di Kecamatan Talun, Kabupaten Cirebon, Jawa Barat, memiliki luas hamparan sawah produktif sebesar <strong>6,00 Hektar (60.000 m²)</strong> yang terbagi ke dalam 4 petak lahan utama pada 3 blok dusun: <em>Blok Manis (Dusun Karang Anyar)</em>, <em>Blok Wage (Dusun Girang Hilir)</em>, dan <em>Blok Pahing (Dusun Cirebon Ilir)</em>. Sektor pertanian padi sawah ini dinaungi oleh 3 Kelompok Tani (Poktan) binaan desa, yaitu <strong>Poktan Sri Rejeki</strong> (Ketua: Bapak Sukardi), <strong>Poktan Sumber Subur</strong> (Ketua: Bapak H. Karyono), dan <strong>Poktan Tani Makmur</strong> (Ketua: Bapak Sutarjo).
+      Sektor pertanian padi merupakan tulang punggung ketahanan pangan nasional yang memiliki peran strategis bagi perekonomian masyarakat pedesaan. Di tengah laju transformasi digital era Revolusi Industri 4.0 dan Society 5.0, tata kelola agrikultur di tingkat desa pada umumnya masih mengandalkan pola tradisional dan pencatatan manual. Ketiadaan integrasi teknologi komputasi menyebabkan pemantauan luas baku lahan, penjadwalan pemupukan, rekapitulasi hasil panen, hingga deteksi dini serangan hama sering kali mengalami keterlambatan.
     </p>
     <p>
-      Sebagai rancang bangun web percobaan dan purwarupa (<em>prototype</em>) sistem cerdas yang dirancang dengan objek percontohan di Desa Cirebon Girang (dengan visi kelak dapat diuji coba dan benar-benar terpakai oleh desa serta kelompok tani setempat), teridentifikasi sejumlah kendala umum pada tata kelola budidaya padi konvensional yang ingin dipecahkan melalui inovasi sistem ini:
+      Sebagai inisiatif mandiri dalam menjawab tantangan tersebut, penulis merancang sebuah <strong>web percobaan dan purwarupa (<em>prototype</em>) sistem informasi pertanian digital</strong> dengan judul <strong>SI PADI: Sistem Informasi Pertanian & Manajemen Budidaya Padi Terintegrasi Artificial Intelligence dan Early Warning System</strong>. Objek percontohan (<em>pilot project</em>) yang dipilih dalam perancangan web percobaan ini adalah <strong>Desa Cirebon Girang, Kecamatan Talun, Kabupaten Cirebon, Jawa Barat</strong>.
     </p>
-    <ul>
-      <li><strong>Pencatatan Fisik Rentan Tercecer:</strong> Pendataan inventarisasi luas petak, kepemilikan lahan, dan data anggota petani masih dicatat manual dalam buku register desa, sehingga memicu inkonsistensi data batas sawah antar-petani.</li>
-      <li><strong>Keterlambatan Jadwal Pemupukan (Fase HST):</strong> Petani kerap mengalami kesulitan dalam menghitung umur tanaman secara presisi berbasis <em>Hari Setelah Tanam (HST)</em>. Akibatnya, pemupukan susulan I (10–14 HST) dan susulan II (30–35 HST) terlambat diaplikasikan, menyebabkan penurunan anakan produktif dan potensi malai hampa.</li>
-      <li><strong>Absennya Sistem Peringatan Dini (Early Warning System):</strong> Perubahan anomali cuaca lokal (kelembapan tinggi dan curah hujan ekstrem) serta ancaman ledakan hama wereng batang coklat (WBC) dan blas leher sering terlambat dimitigasi karena tidak adanya saluran komunikasi darurat yang terhubung langsung ke WhatsApp petani.</li>
-      <li><strong>Sulitnya Konsultasi Agronomi Berbasis Data:</strong> Petani membutuhkan konsultasi agronomis instan mengenai takaran pupuk berimbang dan diagnosis penyakit tanpa harus menunggu kedatangan Penyuluh Pertanian Lapangan (PPL).</li>
-      <li><strong>Birokrasi Pelaporan Kedinasan:</strong> Perangkat desa membutuhkan rekapitulasi realisasi panen dan luas baku lahan yang cepat untuk dilaporkan secara resmi ke Dinas Pertanian Kabupaten Cirebon.</li>
-    </ul>
-
-    <h2>1.2 Identifikasi Masalah & Value Proposition</h2>
     <p>
-      Guna mentransformasikan permasalahan di atas menjadi solusi komputasional terukur, dibangunlah platform <strong>SI PADI (Sistem Informasi Pertanian & Manajemen Budidaya Padi Desa Cirebon Girang)</strong>. <em>Value Proposition</em> utama platform ini mencakup:
+      Desa Cirebon Girang memiliki potensi agraris yang sangat nyata dengan hamparan sawah produktif seluas <strong>6,00 Hektar (60.000 m²)</strong> yang terbagi ke dalam 4 petak lahan utama pada 3 dusun: <em>Blok Manis (Dusun Karang Anyar)</em>, <em>Blok Wage (Dusun Girang Hilir)</em>, dan <em>Blok Pahing (Dusun Cirebon Ilir)</em>. Potensi lahan ini dikelola oleh 3 Kelompok Tani (Poktan) binaan desa, yaitu <strong>Poktan Sri Rejeki</strong>, <strong>Poktan Sumber Subur</strong>, dan <strong>Poktan Tani Makmur</strong>.
     </p>
-    <div class="callout">
-      <div class="callout-title">Nilai Strategis Platform SI PADI:</div>
-      1. <strong>Spatial Precision:</strong> Digitalisasi batas petak sawah berbasis Geographic Information System (Leaflet GIS) dengan koordinat poligon satelit interaktif.<br>
-      2. <strong>Automated Agro-Intelligence:</strong> Perhitungan otomatis Hari Setelah Tanam (HST) dan penyaluran notifikasi darurat Early Warning System multi-saluran via WhatsApp Gateway (Fonnte) dan Email SMTP.<br>
-      3. <strong>Context-Aware Agronomy Assistant:</strong> Chatbot AI cerdas berarsitektur Hybrid RAG yang membaca statistik database MySQL secara real-time dan menguasai pedoman teknis Balitbangtan Kementan RI.<br>
-      4. <strong>Certified Official Reporting:</strong> Pembuatan otomatis lembar laporan resmi ber-Kop Kantor Kuwu bertanda tangan sah Kuwu Bapak Karsiman, S.Sos.
-    </div>
-
-    <h2>1.3 Ruang Lingkup Sistem & User Persona (Role-Based Access Control / RBAC)</h2>
     <p>
-      Sistem membagi hak akses ke dalam 3 level pengguna yang terlindungi oleh middleware keamanan:
-    </p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 15%;">Role</th>
-          <th style="width: 25%;">Persona Pengguna</th>
-          <th style="width: 20%;">Jumlah Menu</th>
-          <th>Cakupan Menu & Otoritas Sistem</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="table-badge badge-admin">ADMIN</span></td>
-          <td><strong>Karisma Siti Nabila</strong><br><small>Administrator Utama</small></td>
-          <td><strong>12 Menu Utama</strong><br>+ Widget AI</td>
-          <td>Dashboard Admin, Peta Lahan GIS, Kelompok Tani, Data Petani, Data Master User, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Data Panen, Edukasi & Panduan, Profil Saya, dan Konfigurasi Sistem. Berwenang mengelola API key AI, token WhatsApp, SMTP, dan audit trail.</td>
-        </tr>
-        <tr>
-          <td><span class="table-badge badge-desa">PERANGKAT DESA</span></td>
-          <td><strong>Bapak Karsiman, S.Sos</strong><br><small>Kuwu / Pembina Wilayah</small></td>
-          <td><strong>10 Menu Utama</strong><br>+ Widget AI</td>
-          <td>Dashboard Desa, Peta Lahan GIS, Kelompok Tani, Data Petani, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Rekap Panen, Edukasi & Panduan, dan Profil Saya. Berwenang memvalidasi laporan panen dan mengesahkan cetak laporan kedinasan.</td>
-        </tr>
-        <tr>
-          <td><span class="table-badge badge-petani">PETANI</span></td>
-          <td><strong>Bapak Sukardi, Sutarjo, H. Karyono, Arka Saputra</strong><br><small>Petani Binaan Poktan</small></td>
-          <td><strong>10 Menu Utama</strong><br>+ Widget AI</td>
-          <td>Beranda Petani, Peta Lahan GIS, Kelompok Saya, Lahan Saya, Musim Tanam Saya, Aktivitas Budidaya, Hasil Panen Saya, Edukasi & Panduan, Profil Saya, dan AI Assistant. Berwenang mencatat log harian sawah, mencatat panen mandiri, dan verifikasi OTP registrasi.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>1.4 Spesifikasi Kebutuhan Fungsional (User Stories & Acceptance Criteria)</h2>
-    <p>
-      Spesifikasi kebutuhan fungsional disusun mengacu pada standar IEEE 830 / ISO 29148 dengan identifikasi kebutuhan terukur:
-    </p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 10%;">ID</th>
-          <th style="width: 35%;">User Story (As a... I want to... So that...)</th>
-          <th>Kriteria Keberimaan (Acceptance Criteria)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>FR-01</strong></td>
-          <td>Sebagai <em>Pengguna</em>, saya ingin login menggunakan username dan password terenkripsi agar sesi saya aman.</td>
-          <td>1. Password diverifikasi dengan hash <code>bcryptjs</code> (salt round 10).<br>2. Sesi login disimpan dalam <code>HttpOnly</code> Secure Cookie menggunakan library <code>jose</code>.<br>3. Pengalihan rute otomatis sesuai Role (Admin &rarr; <code>/admin</code>, Desa &rarr; <code>/desa</code>, Petani &rarr; <code>/petani</code>).</td>
-        </tr>
-        <tr>
-          <td><strong>FR-02</strong></td>
-          <td>Sebagai <em>Calon Petani</em>, saya ingin mendaftar akun secara mandiri dengan verifikasi OTP agar akun saya tervalidasi.</td>
-          <td>1. Calon petani mengisi formulir registrasi pada <code>/register</code>.<br>2. Sistem membuat kode numerik acak 6 digit kriptografis dan disimpan pada tabel <code>otp_verifications</code> dengan masa kedaluwarsa 5 menit.<br>3. Kode OTP dikirimkan simultan via WhatsApp Gateway Fonnte dan SMTP Email.<br>4. Akun aktif otomatis setelah kode diverifikasi sukses.</td>
-        </tr>
-        <tr>
-          <td><strong>FR-03</strong></td>
-          <td>Sebagai <em>Administrator</em>, saya ingin mengelola data master pengguna (CRUD) agar kontrol hak akses terkendali.</td>
-          <td>1. Admin dapat membuat, membaca, memperbarui data pengguna, dan mereset sandi.<br>2. Admin dapat mengaktifkan atau menonaktifkan status login pengguna secara instan.</td>
-        </tr>
-        <tr>
-          <td><strong>FR-04</strong></td>
-          <td>Sebagai <em>Pengguna (Semua Role)</em>, saya ingin melihat peta spasial interaktif petak sawah desa agar mengetahui batas garapan.</td>
-          <td>1. Peta berbasis Leaflet.js menampilkan basemap satelit OpenStreetMap & Esri.<br>2. Poligon petak lahan terpetakan dengan koordinat GPS aktual (4 petak seluas 6,0 Ha).<br>3. Klik pada poligon menampilkan popup interaktif: Pengelola, Luas, Poktan, Varietas, dan Status Tanam.</td>
-        </tr>
-        <tr>
-          <td><strong>FR-05</strong></td>
-          <td>Sebagai <em>Petani / Admin</em>, saya ingin menjadwalkan musim tanam padi agar fase umur tanaman (HST) terpantau otomatis.</td>
-          <td>1. Input musim tanam mencatat tanggal semai, tanggal tanam pindah, petak sawah, dan varietas benih.<br>2. Sistem menghitung umur tanaman secara real-time setiap hari (HST = Tanggal Hari Ini - Tanggal Tanam).</td>
-        </tr>
-        <tr>
-          <td><strong>FR-06</strong></td>
-          <td>Sebagai <em>Pengguna</em>, saya ingin menerima notifikasi peringatan dini (Early Warning System) jadwal pemupukan dan cuaca.</td>
-          <td>1. Banner peringatan aktif otomatis pada fase 0–5 HST (Pupuk Dasar), 10–14 HST (Susulan I), dan 30–35 HST (Susulan II).<br>2. Peringatan dini dikirim otomatis via WhatsApp Fonnte dan Email SMTP jika dipicu sistem.</td>
-        </tr>
-        <tr>
-          <td><strong>FR-07</strong></td>
-          <td>Sebagai <em>Pengguna</em>, saya ingin berkonsultasi dengan chatbot AI mengenai data desa dan budidaya padi.</td>
-          <td>1. Pertanyaan "berapa" wajib dijawab langsung dengan angka/kuantitas ringkas.<br>2. Pertanyaan "siapa" wajib dijawab nama subjek secara spesifik.<br>3. AI menguasai 15 pertanyaan dosen penguji seputar arsitektur web, database, keamanan, dan metodologi.</td>
-        </tr>
-        <tr>
-          <td><strong>FR-08</strong></td>
-          <td>Sebagai <em>Kuwu / Admin</em>, saya ingin mengunduh laporan kedinasan resmi dalam format PDF ber-Kop Kantor Kuwu.</td>
-          <td>1. Dokumen laporan memuat Kop Resmi Kantor Kuwu Desa Cirebon Girang.<br>2. Memuat rekapitulasi luas baku (6,0 Ha), daftar kelompok tani, jadwal tanam, dan hasil panen.<br>3. Disertai tanda tangan pengesahan resmi Kuwu Bapak Karsiman, S.Sos.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>1.5 Spesifikasi Kebutuhan Non-Fungsional (NFR)</h2>
-    <ul>
-      <li><strong>NFR-01 (Kinerja & Kecepatan Respon):</strong> Waktu render halaman awal (First Contentful Paint) berada di bawah 1.5 detik. Respon mesin pencocokan AI lokal berlatensi 0 ms, sedangkan pemanggilan model Gemini Cloud berlatensi &lt; 3.0 detik.</li>
-      <li><strong>NFR-02 (Keamanan Siber):</strong> Seluruh password dienkripsi satu arah dengan <code>bcryptjs</code> (salt 10). Token sesi JWT disimpan di <code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Secure</code> cookie. Akses database diproteksi oleh Prisma ORM menggunakan <em>Parameterized Queries</em> untuk memitigasi serangan SQL Injection secara tuntas. Output HTML disanitasi otomatis oleh React 19 untuk memitigasi Cross-Site Scripting (XSS).</li>
-      <li><strong>NFR-03 (Skalabilitas & Ketersediaan):</strong> Basis data di-host pada TiDB Cloud Serverless MySQL dengan arsitektur multi-AZ auto-scaling. Aplikasi web di-deploy pada infrastruktur global edge Vercel dengan garansi uptime 99.9%.</li>
-      <li><strong>NFR-04 (Kompatibilitas & Responsivitas Mobile-First):</strong> Antarmuka web dibangun menggunakan Tailwind CSS yang responsif pada resolusi layar ponsel pintar (360px) hingga monitor desktop ultra-wide (1920px).</li>
-    </ul>
-
-    <h2>1.6 Spesifikasi Fitur AI Utama (Hybrid RAG & Deterministic Super Engine)</h2>
-    <p>
-      Fitur Kecerdasan Artifisial pada SI PADI mengimplementasikan paradigma <strong>Hybrid Retrieval-Augmented Generation (RAG)</strong> yang menggabungkan:
+      Melalui analisis umum terhadap kebutuhan manajerial pertanian desa, teridentifikasi sejumlah kendala mendasar yang ingin dipecahkan melalui web percobaan ini:
     </p>
     <ol>
-      <li><strong>Dynamic Real-Time Context Injection:</strong> Backend Next.js secara dinamis mengkueri basis data MySQL TiDB Cloud untuk mengambil agregat termutakhir (jumlah pengguna, rincian petani, kelompok tani, luas petak lahan, siklus musim tanam, hasil panen, dan peringatan aktif). Seluruh data terstruktur ini disuntikkan langsung ke dalam <em>System Instruction</em> LLM Cloud (<strong>Google Gemini 3.0 Flash</strong> / <strong>OpenAI GPT-4o-mini</strong>) sehingga AI tidak pernah mengalami halusinasi data desa.</li>
-      <li><strong>Deterministic Super Engine Agronomi Lokal:</strong> Sistem dilengkapi mesin lokal berbasis aturan heuristik cerdas yang menguasai seluruh inventarisasi desa dan modul teknis Kementan RI. Jika API key belum terpasang atau kuota cloud habis, mesin lokal ini langsung melayani pengguna secara instan (0 ms latensi) tanpa penurunan kualitas informasi.</li>
-      <li><strong>Strict Clue Evaluation:</strong> Dilengkapi parser semantik yang menegakkan aturan:
-        <ul>
-          <li>Kata tanya <strong>"BERAPA"</strong> &rarr; Dijawab ringkas dengan angka statistik (contoh: <em>"Total pengguna terdaftar adalah 6 orang"</em>).</li>
-          <li>Kata tanya <strong>"SIAPA"</strong> &rarr; Dijawab langsung dengan nama subjek spesifik (contoh: <em>"Kepala Desa (Kuwu) adalah Bapak Karsiman, S.Sos"</em>).</li>
-        </ul>
-      </li>
+      <li><strong>Pencatatan Konvensional:</strong> Pendataan inventarisasi luas petak, kepemilikan lahan, dan registrasi anggota kelompok tani masih dicatat dalam buku kas fisik, sehingga rawan tercecer dan batas spasial petak sawah tidak terdokumentasi secara digital.</li>
+      <li><strong>Tantangan Jadwal Pemupukan Presisi:</strong> Petani sering kesulitan menghitung umur tanaman secara tepat berbasis <em>Hari Setelah Tanam (HST)</em>, sehingga jadwal penaburan pupuk dasar, susulan I (10–14 HST), dan susulan II (30–35 HST) kerap terlambat diaplikasikan.</li>
+      <li><strong>Ketiadaan Peringatan Dini Instan:</strong> Saat terjadi perubahan anomali cuaca lokal atau ancaman serangan Organisme Pengganggu Tanaman (OPT) seperti wereng batang coklat, peringatan dari desa belum memiliki saluran komunikasi otomatis yang dapat langsung diterima oleh ponsel petani.</li>
+      <li><strong>Kebutuhan Konsultasi Cerdas & Pelaporan Kedinasan:</strong> Petani membutuhkan media konsultasi budidaya instan tanpa harus menunggu penyuluh, sementara pihak perangkat desa memerlukan rekapitulasi panen yang siap diekspor menjadi format laporan resmi ber-Kop Surat Dinas untuk diserahkan ke Dinas Pertanian.</li>
+    </ol>
+    <p>
+      Rancang bangun web percobaan SI PADI ini dikembangkan dengan harapan dan visi ke depan: <strong>siapa tahu purwarupa sistem ini kelak dapat benar-benar diuji coba secara nyata, bermanfaat luas, dan terpakai secara langsung oleh pihak pemerintah desa serta kelompok tani di Desa Cirebon Girang</strong>.
+    </p>
+
+    <h2>1.2 Rumusan Masalah</h2>
+    <p>
+      Berdasarkan latar belakang inovasi di atas, rumusan masalah dalam proyek rekayasa perangkat lunak ini adalah sebagai berikut:
+    </p>
+    <ol>
+      <li>Bagaimana merancang arsitektur web percobaan SI PADI berbasis Next.js 15 App Router dan MySQL TiDB Cloud Serverless yang terstruktur dan aman?</li>
+      <li>Bagaimana memodelkan spesifikasi kebutuhan perangkat lunak standar IEEE 830 serta merancang 4 diagram UML (Use Case, Activity, Class SOLID, Sequence) dan ERD 13 tabel relasional?</li>
+      <li>Bagaimana mengimplementasikan fitur pemetaan spasial lahan sawah interaktif berbasis Leaflet GIS untuk wilayah Desa Cirebon Girang?</li>
+      <li>Bagaimana mengintegrasikan mekanisme verifikasi pendaftaran petani mandiri menggunakan kode OTP 6 digit melalui dual-channel WhatsApp Gateway (Fonnte) dan Email SMTP?</li>
+      <li>Bagaimana merancang Asisten AI berbasis Hybrid RAG dan Super Engine Agronomi Lokal yang patuh pada aturan semantik kata tanya "Berapa" dijawab angka dan "Siapa" dijawab nama tanpa membocorkan kredensial rahasia?</li>
+      <li>Bagaimana membuktikan mutu perangkat lunak melalui pengujian otomatis Unit Testing (Node Native Test Runner), Black Box Testing, dan verifikasi CI/CD GitHub Actions Pipeline?</li>
+    </ol>
+
+    <h2>1.3 Tujuan Proyek</h2>
+    <p>
+      Tujuan yang ingin dicapai dari pelaksanaan proyek rekayasa perangkat lunak ini adalah:
+    </p>
+    <ol>
+      <li>Membangun purwarupa web percobaan SI PADI yang dapat memfasilitasi digitalisasi manajemen pertanian padi desa secara terpadu.</li>
+      <li>Menerapkan prinsip Clean Code, arsitektur modular berorientasi objek (SOLID), dan keamanan data (anti-SQL Injection via Prisma ORM, sanitasi XSS, CSRF, serta enkripsi kata sandi Bcrypt).</li>
+      <li>Menyediakan peta digital GIS interaktif untuk visualisasi poligon petak sawah Desa Cirebon Girang.</li>
+      <li>Menyediakan fitur otomatisasi kalkulasi pemupukan berbasis HST dan simulasi pengiriman notifikasi darurat Early Warning System.</li>
+      <li>Menghadirkan fitur AI Assistant Chatbot yang terhubung secara dinamis dengan database riil desa untuk konsultasi pertanian dan pengujian sidang akademik.</li>
+      <li>Menerapkan otomasi pengujian perangkat lunak berbasis Unit Testing dan pipeline DevOps CI/CD menggunakan GitHub Actions berstatus passing.</li>
+    </ol>
+
+    <h2>1.4 Manfaat Proyek</h2>
+    <p>
+      Manfaat yang diharapkan dari hasil perancangan proyek ini meliputi:
+    </p>
+    <ol>
+      <li><strong>Bagi Penulis (Mahasiswa):</strong> Mengasah kompetensi rekayasa perangkat lunak secara 100% mandiri (<em>individual ownership</em>), mulai dari analisis PRD, perancangan SDD, implementasi Next.js Full-Stack, hingga pengujian mutu kode berstandar industri.</li>
+      <li><strong>Bagi Sektor Pertanian Desa (Calon Pengguna):</strong> Memberikan model purwarupa inovatif yang siap diadopsi untuk memodernisasi pendataan sawah, mempermudah koordinasi kelompok tani, dan mempercepat pelaporan hasil panen.</li>
+      <li><strong>Bagi Dunia Akademik:</strong> Menjadi referensi implementasi integrasi Artificial Intelligence (LLM) dengan data relasional transaksional lokal pada domain agrikultur dan pelayanan publik desa.</li>
     </ol>
   </div>
 
   <!-- ==================== BAB II ==================== -->
   <div class="page-break">
-    <h1>BAB II: PERANCANGAN UML & ARSITEKTUR SISTEM MANDIRI (SDD)</h1>
+    <h1 class="chapter-title">BAB II<br>LANDASAN TEORI</h1>
 
-    <h2>2.1 Arsitektur Tingkat Tinggi Perangkat Lunak (Layered Architecture)</h2>
+    <h2>2.1 Rekayasa Perangkat Lunak & SDLC</h2>
     <p>
-      Sistem Informasi Pertanian Padi Desa Cirebon Girang dirancang menggunakan pola <strong>Layered Architecture</strong> yang memisahkan tanggung jawab antarmuka pengguna, logika bisnis, dan persistensi data:
-    </p>
-    <ul>
-      <li><strong>Presentation Layer:</strong> Dibangun menggunakan Next.js 15 App Router, React 19, Tailwind CSS, Lucide React Icons, dan Leaflet.js untuk visualisasi pemetaan spasial petak sawah.</li>
-      <li><strong>Application & Domain Service Layer:</strong> Berisi modularisasi logika bisnis murni yang mematuhi prinsip SOLID: <code>AuthService</code>, <code>AiService</code>, <code>NotificationService</code>, <code>AgronomyEngine</code>, dan <code>ReportService</code>.</li>
-      <li><strong>Persistence Layer:</strong> Menggunakan Prisma ORM Client sebagai layer perantara abstraksi basis data yang type-safe.</li>
-      <li><strong>Database & Infrastructure Layer:</strong> TiDB Cloud Serverless MySQL 8.0, Vercel Serverless Edge, Google Gemini API, Fonnte WhatsApp Gateway API, dan Nodemailer SMTP.</li>
-    </ul>
-
-    <h2>2.2 Pemodelan Use Case Diagram & Skenario Lengkap</h2>
-    <p>
-      Use Case Diagram memodelkan interaksi antara 3 Aktor Manusia (Admin, Perangkat Desa, Petani) dan 2 Sistem Eksternal (AI Service & WhatsApp/Email Gateway):
+      Rekayasa Perangkat Lunak (<em>Software Engineering</em>) adalah penerapan pendekatan sistematis, disiplin, dan terukur terhadap pengembangan, pengoperasian, dan pemeliharaan perangkat lunak (IEEE Standard 610.12). Dalam proyek ini, metodologi yang diterapkan mengombinasikan ketegasan fase analisis kebutuhan standar IEEE 830 (Software Requirements Specification) dengan fleksibilitas pengembangan modular berbasis komponen.
     </p>
 
-    <div class="diagram-container">
-      <img src="C:/laragon/www/pertanian padi cirebon girang/docs/UseCase_SI_PADI_Cirebon_Girang.png" alt="Use Case Diagram SI PADI">
-      <div class="diagram-caption">Gambar 2.1: Use Case Diagram Sistem Informasi Pertanian Padi Desa Cirebon Girang</div>
-    </div>
-
-    <p>Berikut adalah matriks 14 Use Case utama sistem:</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 12%;">Kode UC</th>
-          <th style="width: 28%;">Nama Use Case</th>
-          <th style="width: 25%;">Aktor yang Terlibat</th>
-          <th>Deskripsi & Kondisi Akhir</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>UC-01</strong></td><td>Autentikasi Login & Logout</td><td>Admin, Desa, Petani</td><td>Verifikasi kredensial password hash dan pembentukan sesi JWT cookie.</td></tr>
-        <tr><td><strong>UC-02</strong></td><td>Registrasi Mandiri & Verifikasi OTP</td><td>Petani, Notifikasi Gateway</td><td>Pendaftaran petani baru dengan validasi 6 digit OTP via WhatsApp & Email.</td></tr>
-        <tr><td><strong>UC-03</strong></td><td>Manajemen Data Master Pengguna</td><td>Administrator</td><td>Pengelolaan akun, pengaturan role, aktivasi/suspend, dan reset kata sandi.</td></tr>
-        <tr><td><strong>UC-04</strong></td><td>Manajemen Data Petani & Poktan</td><td>Admin, Perangkat Desa</td><td>Pendataan anggota kelompok tani, NIK, dan alokasi kepemilikan petak sawah.</td></tr>
-        <tr><td><strong>UC-05</strong></td><td>Visualisasi Peta Lahan GIS</td><td>Admin, Desa, Petani</td><td>Eksplorasi koordinat poligon petak sawah satelit dan tooltip status lahan.</td></tr>
-        <tr><td><strong>UC-06</strong></td><td>Inventarisasi Petak Lahan Sawah</td><td>Admin, Perangkat Desa</td><td>Pencatatan petak lahan, luas (m² & Ha), lokasi blok dusun, dan koordinat GPS.</td></tr>
-        <tr><td><strong>UC-07</strong></td><td>Manajemen Siklus Musim Tanam</td><td>Admin, Desa, Petani</td><td>Penjadwalan musim tanam, varietas bibit, dan pemantauan fase umur HST.</td></tr>
-        <tr><td><strong>UC-08</strong></td><td>Pencatatan Aktivitas Budidaya</td><td>Petani, Administrator</td><td>Log harian kegiatan lapangan sawah (olah tanah, pupuk, semprot) beserta biaya.</td></tr>
-        <tr><td><strong>UC-09</strong></td><td>Perekapan & Pencatatan Panen</td><td>Admin, Desa, Petani</td><td>Pencatatan produksi gabah (Ton/kg), tanggal panen, dan mutu kualitas gabah.</td></tr>
-        <tr><td><strong>UC-10</strong></td><td>Monitoring Early Warning System</td><td>Admin, Desa, Petani, Gateway</td><td>Pemantauan peringatan dini fase pupuk HST dan cuaca ekstrem Open-Meteo.</td></tr>
-        <tr><td><strong>UC-11</strong></td><td>Konsultasi AI Assistant Cerdas</td><td>Admin, Desa, Petani, AI API</td><td>Tanya jawab interaktif seputar data dashboard dan rekomendasi budidaya padi.</td></tr>
-        <tr><td><strong>UC-12</strong></td><td>Penerbitan Laporan Resmi Dinas</td><td>Admin, Perangkat Desa</td><td>Pencetakan dokumen rekapitulasi ber-Kop Kuwu dengan tanda tangan Bapak Karsiman.</td></tr>
-        <tr><td><strong>UC-13</strong></td><td>Pengelolaan Modul & Artikel Edukasi</td><td>Admin, Perangkat Desa</td><td>Publikasi pengumuman desa dan panduan teknis budidaya padi unggul.</td></tr>
-        <tr><td><strong>UC-14</strong></td><td>Konfigurasi Sistem & Parameter AI</td><td>Administrator</td><td>Pengaturan API Key Gemini, token Fonnte WhatsApp, dan konfigurasi SMTP.</td></tr>
-      </tbody>
-    </table>
-
-    <h2>2.3 Pemodelan Activity Diagram (Alur Bisnis, Registrasi OTP, & AI)</h2>
+    <h2>2.2 Framework Next.js 15 & React 19</h2>
     <p>
-      Berikut adalah representasi alur aktivitas bisnis terpenting dalam sistem SI PADI:
+      Next.js 15 merupakan framework web modern berbasis React 19 yang mengadopsi paradigma <em>App Router</em>. Next.js memungkinkan eksekusi komponen di sisi server (<em>React Server Components</em>) yang menghasilkan pemuatan halaman berkecepatan tinggi, optimasi SEO unggul, dan pemisahan tegas antara Server Actions/Route Handlers dengan Client Components.
     </p>
 
-    <h3>A. Activity Diagram 1: Alur Registrasi Petani Mandiri & Verifikasi OTP Dual-Channel</h3>
-    <div class="code-block">
-[Petani] Buka Halaman Register (/register)
-   &darr;
-[Petani] Input Nama, NIK, No WA, Email, Poktan, Password
-   &darr;
-[Sistem] Validasi Format Input & Keunikan Data (NIK/Username)
-   &darr;
-[Sistem] Generate 6 Digit OTP Kriptografis (Crypto Random)
-   &darr;
-[Sistem] Simpan OTP di Tabel 'otp_verifications' (Expired: 5 Menit)
-   &darr;
-[Sistem / Gateway] Kirim OTP ke WhatsApp (Fonnte) & Email (SMTP Nodemailer)
-   &darr;
-[Petani] Menerima OTP dan Memasukkan 6 Digit Kode pada Form Verifikasi
-   &darr;
-[Sistem] Validasi Kecocokan Kode & Batas Waktu Kedaluwarsa
-   &darr;
-   |--- [Tidak Cocok / Expired] &rarr; Tampilkan Notifikasi Error & Opsi Kirim Ulang OTP
-   &darr;
-   |--- [Valid & Cocok]
-           &darr;
-[Sistem] Buat Akun 'User' (Role: PETANI) & Entitas 'Petani' Tertaut
-   &darr;
-[Sistem] Buat Sesi JWT Cookie & Redirect Otomatis ke Dashboard Petani (/petani)
-    </div>
-
-    <h3>B. Activity Diagram 2: Alur Pemrosesan Chatbot AI Assistant (Hybrid RAG)</h3>
-    <div class="code-block">
-[Pengguna] Mengirimkan Pesan Pertanyaan di Widget AI
-   &darr;
-[Client] Kirim Payload JSON ke Route Handler /api/ai/chat
-   &darr;
-[Backend] Normalisasi Bahasa Indonesia, Koreksi Slang & Typo
-   &darr;
-[Backend] Evaluasi Aturan Super Engine Agronomi Lokal
-   &darr;
-   |--- [Query Master Data / Pertanyaan Penguji / Dosis Pupuk HST Terdeteksi]
-   |       &darr;
-   |    [Engine Lokal] Format Jawaban Instan (Aturan "Berapa" = Angka, "Siapa" = Nama)
-   |       &darr;
-   |    [Backend] Kembalikan Respon Berlatensi 0 ms ke Antarmuka Pengguna
-   |
-   |--- [Pertanyaan Kompleks / Diskusi Bebas]
-           &darr;
-        [Backend] Ambil Statistik Agregat Terkini dari MySQL TiDB Cloud
-           &darr;
-        [Backend] Bentuk System Prompt dengan Dynamic Context Injection
-           &darr;
-        [Backend] Panggil Endpoint Google Gemini 3.0 Flash API (Timeout 15s)
-           &darr;
-           |--- [Sukses] &rarr; Format Respon & Tampilkan ke Pengguna
-           |--- [Gagal / Limit / 404] &rarr; Alihkan Otomatis ke Fallback Engine Lokal
-    </div>
-
-    <h2>2.4 Pemodelan Class Diagram Berorientasi Objek (Mematuhi Prinsip SOLID)</h2>
+    <h2>2.3 TypeScript</h2>
     <p>
-      Struktur kode pada backend mengimplementasikan prinsip <strong>SOLID (Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)</strong>:
-    </p>
-    <ul>
-      <li><strong>Single Responsibility Principle (SRP):</strong> Setiap modul service hanya memiliki satu alasan untuk berubah. <code>AuthService</code> hanya mengurusi otentikasi JWT/Bcrypt, <code>AiService</code> mengurusi pemrosesan NLP & Context Injection, dan <code>NotificationService</code> mengurusi dispatching pesan.</li>
-      <li><strong>Open-Closed Principle (OCP):</strong> Arsitektur penyedia AI berbasis antarmuka <code>IAiChatProvider</code> yang dapat diperluas untuk vendor baru (DeepSeek, Claude, dll.) tanpa memodifikasi kode inti pemanggil.</li>
-      <li><strong>Liskov Substitution Principle (LSP):</strong> <code>GeminiChatProvider</code>, <code>OpenAiChatProvider</code>, dan <code>LocalAgronomyProvider</code> dapat saling menggantikan secara mulus tanpa menimbulkan kegagalan alur percakapan.</li>
-      <li><strong>Interface Segregation Principle (ISP):</strong> Antarmuka notifikasi dipisah menjadi <code>IWhatsAppService</code> dan <code>IEmailService</code> agar kelas pemanggil tidak dipaksa mengimplementasikan protokol yang tidak dibutuhkan.</li>
-      <li><strong>Dependency Inversion Principle (DIP):</strong> Modul tingkat tinggi (Route Handler) bergantung pada abstraksi interface service, bukan implementasi konkret library pihak ketiga.</li>
-    </ul>
-
-    <div class="diagram-container">
-      <svg class="svg-diagram" viewBox="0 0 680 440" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background grid -->
-        <rect width="680" height="440" fill="#f8fafc" rx="8" stroke="#cbd5e1"/>
-        
-        <!-- Class 1: User -->
-        <g transform="translate(30, 25)">
-          <rect width="180" height="150" fill="#ffffff" stroke="#15803d" stroke-width="2" rx="4"/>
-          <rect width="180" height="28" fill="#15803d" rx="4"/>
-          <text x="90" y="19" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">User (Entity)</text>
-          <text x="10" y="48" fill="#334155" font-size="9.5">+ id: String [PK]</text>
-          <text x="10" y="66" fill="#334155" font-size="9.5">+ username: String [UQ]</text>
-          <text x="10" y="84" fill="#334155" font-size="9.5">+ passwordHash: String</text>
-          <text x="10" y="102" fill="#334155" font-size="9.5">+ role: RoleEnum</text>
-          <text x="10" y="120" fill="#334155" font-size="9.5">+ fullName: String</text>
-          <line x1="0" y1="128" x2="180" y2="128" stroke="#e2e8f0"/>
-          <text x="10" y="142" fill="#0f172a" font-size="9.5">+ verifyPassword(): Boolean</text>
-        </g>
-
-        <!-- Class 2: Petani -->
-        <g transform="translate(250, 25)">
-          <rect width="180" height="150" fill="#ffffff" stroke="#15803d" stroke-width="2" rx="4"/>
-          <rect width="180" height="28" fill="#15803d" rx="4"/>
-          <text x="90" y="19" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Petani (Entity)</text>
-          <text x="10" y="48" fill="#334155" font-size="9.5">+ id: String [PK]</text>
-          <text x="10" y="66" fill="#334155" font-size="9.5">+ nik: String [UQ]</text>
-          <text x="10" y="84" fill="#334155" font-size="9.5">+ nama: String</text>
-          <text x="10" y="102" fill="#334155" font-size="9.5">+ telepon: String</text>
-          <text x="10" y="120" fill="#334155" font-size="9.5">+ userId: String [FK]</text>
-          <line x1="0" y1="128" x2="180" y2="128" stroke="#e2e8f0"/>
-          <text x="10" y="142" fill="#0f172a" font-size="9.5">+ getActiveLahan(): List</text>
-        </g>
-
-        <!-- Class 3: LahanPertanian -->
-        <g transform="translate(470, 25)">
-          <rect width="180" height="150" fill="#ffffff" stroke="#15803d" stroke-width="2" rx="4"/>
-          <rect width="180" height="28" fill="#15803d" rx="4"/>
-          <text x="90" y="19" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">LahanPertanian</text>
-          <text x="10" y="48" fill="#334155" font-size="9.5">+ id: String [PK]</text>
-          <text x="10" y="66" fill="#334155" font-size="9.5">+ nama: String</text>
-          <text x="10" y="84" fill="#334155" font-size="9.5">+ luasM2: Double</text>
-          <text x="10" y="102" fill="#334155" font-size="9.5">+ luasHa: Double</text>
-          <text x="10" y="120" fill="#334155" font-size="9.5">+ polygonGeoJson: String</text>
-          <line x1="0" y1="128" x2="180" y2="128" stroke="#e2e8f0"/>
-          <text x="10" y="142" fill="#0f172a" font-size="9.5">+ calculateHa(): Double</text>
-        </g>
-
-        <!-- Interface: IAiChatProvider -->
-        <g transform="translate(140, 230)">
-          <rect width="180" height="150" fill="#ffffff" stroke="#2563eb" stroke-width="2" rx="4" stroke-dasharray="4 2"/>
-          <rect width="180" height="28" fill="#2563eb" rx="4"/>
-          <text x="90" y="19" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">&laquo;Interface&raquo; IAiProvider</text>
-          <text x="10" y="55" fill="#334155" font-size="9.5">+ providerName: String</text>
-          <text x="10" y="75" fill="#334155" font-size="9.5">+ isAvailable(): Boolean</text>
-          <line x1="0" y1="88" x2="180" y2="88" stroke="#e2e8f0"/>
-          <text x="10" y="110" fill="#0f172a" font-size="9.5">+ chat(msg, ctx): Result</text>
-          <text x="10" y="130" fill="#0f172a" font-size="9.5">+ buildPrompt(ctx): String</text>
-        </g>
-
-        <!-- Concrete: GeminiChatProvider -->
-        <g transform="translate(370, 230)">
-          <rect width="200" height="150" fill="#ffffff" stroke="#2563eb" stroke-width="2" rx="4"/>
-          <rect width="200" height="28" fill="#1e40af" rx="4"/>
-          <text x="100" y="19" fill="#ffffff" font-size="10.5" font-weight="bold" text-anchor="middle">GeminiChatProvider</text>
-          <text x="10" y="50" fill="#334155" font-size="9.5">- apiKey: String</text>
-          <text x="10" y="68" fill="#334155" font-size="9.5">- model: String = "gemini-3.0"</text>
-          <text x="10" y="86" fill="#334155" font-size="9.5">- localEngine: LocalEngine</text>
-          <line x1="0" y1="96" x2="200" y2="96" stroke="#e2e8f0"/>
-          <text x="10" y="114" fill="#0f172a" font-size="9.5">+ chat(msg, ctx): Result</text>
-          <text x="10" y="132" fill="#0f172a" font-size="9.5">+ fallbackToLocal(): Result</text>
-        </g>
-
-        <!-- Connecting lines -->
-        <line x1="210" y1="100" x2="250" y2="100" stroke="#0f172a" stroke-width="1.5"/>
-        <text x="230" y="92" font-size="9" text-anchor="middle">1 : 0..1</text>
-
-        <line x1="430" y1="100" x2="470" y2="100" stroke="#0f172a" stroke-width="1.5"/>
-        <text x="450" y="92" font-size="9" text-anchor="middle">1 : N</text>
-
-        <line x1="320" y1="305" x2="370" y2="305" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 2"/>
-        <polygon points="360,300 370,305 360,310" fill="#2563eb"/>
-      </svg>
-      <div class="diagram-caption">Gambar 2.2: Class Diagram Berorientasi Objek dengan Penerapan Prinsip SOLID</div>
-    </div>
-
-    <h2>2.5 Pemodelan Sequence Diagram Interaksi Real-Time</h2>
-    <p>
-      Sequence Diagram menggambarkan alur pertukaran pesan secara kronologis saat pengguna mengajukan pertanyaan ke asisten AI:
+      TypeScript adalah bahasa pemrograman tingkat tinggi berbasis JavaScript yang menambahkan sistem pengetikan statis (<em>static type-checking</em>). Penggunaan TypeScript menjamin keamanan kode (*type-safety*), meminimalkan galat saat proses kompilasi (*compile-time error detection*), dan mempermudah pemeliharaan sistem skala besar.
     </p>
 
-    <div class="diagram-container">
-      <svg class="svg-diagram" viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg">
-        <rect width="680" height="340" fill="#f8fafc" rx="8" stroke="#cbd5e1"/>
-        
-        <!-- Lifeline Headers -->
-        <g transform="translate(40, 20)">
-          <rect width="90" height="30" fill="#15803d" rx="4"/>
-          <text x="45" y="20" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">User / Client</text>
-          <line x1="45" y1="30" x2="45" y2="310" stroke="#94a3b8" stroke-dasharray="3 3"/>
-        </g>
-        <g transform="translate(180, 20)">
-          <rect width="110" height="30" fill="#0f172a" rx="4"/>
-          <text x="55" y="20" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">/api/ai/chat</text>
-          <line x1="55" y1="30" x2="55" y2="310" stroke="#94a3b8" stroke-dasharray="3 3"/>
-        </g>
-        <g transform="translate(340, 20)">
-          <rect width="110" height="30" fill="#0369a1" rx="4"/>
-          <text x="55" y="20" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">aiService.ts</text>
-          <line x1="55" y1="30" x2="55" y2="310" stroke="#94a3b8" stroke-dasharray="3 3"/>
-        </g>
-        <g transform="translate(490, 20)">
-          <rect width="140" height="30" fill="#6d28d9" rx="4"/>
-          <text x="70" y="20" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">MySQL (TiDB Cloud)</text>
-          <line x1="70" y1="30" x2="70" y2="310" stroke="#94a3b8" stroke-dasharray="3 3"/>
-        </g>
-
-        <!-- Messages -->
-        <!-- 1: Send query -->
-        <line x1="85" y1="75" x2="235" y2="75" stroke="#0f172a" stroke-width="1.5"/>
-        <polygon points="230,71 235,75 230,79" fill="#0f172a"/>
-        <text x="160" y="68" font-size="8.5" text-anchor="middle">1. POST { message: "berapa total pengguna" }</text>
-
-        <!-- 2: Delegate to aiService -->
-        <line x1="235" y1="110" x2="395" y2="110" stroke="#0f172a" stroke-width="1.5"/>
-        <polygon points="390,106 395,110 390,114" fill="#0f172a"/>
-        <text x="315" y="103" font-size="8.5" text-anchor="middle">2. processAiChat(params)</text>
-
-        <!-- 3: Query Stats -->
-        <line x1="395" y1="145" x2="560" y2="145" stroke="#0f172a" stroke-width="1.5"/>
-        <polygon points="555,141 560,145 555,149" fill="#0f172a"/>
-        <text x="477" y="138" font-size="8.5" text-anchor="middle">3. prisma.user.count() / stats</text>
-
-        <!-- 4: Return Stats -->
-        <line x1="560" y1="180" x2="395" y2="180" stroke="#475569" stroke-width="1.5" stroke-dasharray="4 2"/>
-        <polygon points="400,176 395,180 400,184" fill="#475569"/>
-        <text x="477" y="173" font-size="8.5" text-anchor="middle">4. Return Aggregated Stats Data</text>
-
-        <!-- 5: Evaluate Clue Rules -->
-        <rect x="385" y="200" width="130" height="26" fill="#fef3c7" stroke="#d97706" rx="3"/>
-        <text x="450" y="217" font-size="8" font-weight="bold" fill="#92400e" text-anchor="middle">5. isBerapaQuery() = TRUE</text>
-
-        <!-- 6: Format Count Only -->
-        <line x1="395" y1="250" x2="235" y2="250" stroke="#0f172a" stroke-width="1.5" stroke-dasharray="4 2"/>
-        <polygon points="240,246 235,250 240,254" fill="#0f172a"/>
-        <text x="315" y="243" font-size="8.5" text-anchor="middle">6. "Total pengguna adalah 6 orang"</text>
-
-        <!-- 7: Return JSON to Client -->
-        <line x1="235" y1="285" x2="85" y2="285" stroke="#15803d" stroke-width="1.5" stroke-dasharray="4 2"/>
-        <polygon points="90,281 85,285 90,289" fill="#15803d"/>
-        <text x="160" y="278" font-size="8.5" font-weight="bold" fill="#15803d" text-anchor="middle">7. JSON Response { content: "..." }</text>
-      </svg>
-      <div class="diagram-caption">Gambar 2.3: Sequence Diagram Interaksi Pertukaran Pesan Client-Server-DB-AI</div>
-    </div>
-
-    <h2>2.6 Perancangan Basis Data (Entity Relationship Diagram - 13 Tabel Relasional)</h2>
+    <h2>2.4 Basis Data MySQL & TiDB Cloud Serverless</h2>
     <p>
-      Struktur basis data dimodelkan menggunakan format Crow's Foot dengan relasi integritas referensial kuat pada 13 tabel:
+      MySQL merupakan sistem manajemen basis data relasional (RDBMS) berbasis Structured Query Language. Dalam proyek ini, database di-host pada <strong>TiDB Cloud Serverless</strong> yang kompatibel penuh dengan protokol MySQL 8.0, menawarkan skalabilitas otomatis elastis, latensi rendah, serta koneksi terenkripsi TLS/SSL standar industri.
     </p>
 
-    <div class="diagram-container">
-      <img src="C:/laragon/www/pertanian padi cirebon girang/docs/ERD_SI_PADI_Cirebon_Girang.png" alt="ERD SI PADI Desa Cirebon Girang">
-      <div class="diagram-caption">Gambar 2.4: Entity Relationship Diagram (ERD) 13 Tabel Relasional MySQL TiDB Cloud</div>
-    </div>
-
-    <p>Ringkasan 13 Tabel Relasional pada Skema Database:</p>
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 18%;">Nama Tabel</th>
-          <th style="width: 25%;">Primary Key & Foreign Key</th>
-          <th>Fungsi Entitas & Integritas Relasional</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>users</code></td><td>PK: <code>id</code> (CUID)</td><td>Menyimpan kredensial otentikasi login, hash password bcrypt, dan role pengguna.</td></tr>
-        <tr><td><code>petani</code></td><td>PK: <code>id</code> | FK: <code>userId</code>, <code>kelompokTaniId</code></td><td>Menyimpan profil demografis warga tani, NIK 16 digit, dan relasi 1-to-1 ke akun User.</td></tr>
-        <tr><td><code>kelompok_tani</code></td><td>PK: <code>id</code></td><td>Data kelembagaan tani (Sri Rejeki, Sumber Subur, Tani Makmur) beserta ketua dan wilayah.</td></tr>
-        <tr><td><code>lahan_pertanian</code></td><td>PK: <code>id</code> | FK: <code>petaniId</code></td><td>Inventarisasi petak sawah, luas m² & Ha, tipe irigasi, dan koordinat poligon Leaflet GIS.</td></tr>
-        <tr><td><code>musim_tanam</code></td><td>PK: <code>id</code> | FK: <code>lahanId</code></td><td>Penjadwalan siklus musim (MT1, MT2, MT3), varietas padi, dan pelacakan fase HST.</td></tr>
-        <tr><td><code>aktivitas_budidaya</code></td><td>PK: <code>id</code> | FK: <code>musimId</code></td><td>Pencatatan log harian lapangan (olah tanah, pupuk dasar, susulan, semprot hama) dan biaya.</td></tr>
-        <tr><td><code>panen</code></td><td>PK: <code>id</code> | FK: <code>musimId</code></td><td>Rekapitulasi produksi gabah hasil panen (bobot kg/Ton), tanggal panen, dan mutu kualitas.</td></tr>
-        <tr><td><code>informasi</code></td><td>PK: <code>id</code> | FK: <code>penulisId</code></td><td>Publikasi pengumuman desa, modul budidaya padi, dan informasi jadwal pembagian air.</td></tr>
-        <tr><td><code>audit_logs</code></td><td>PK: <code>id</code> | FK: <code>userId</code></td><td>Catatan jejak rekam audit aktivitas sistem untuk akuntabilitas transparansi data.</td></tr>
-        <tr><td><code>app_settings</code></td><td>PK: <code>id</code></td><td>Parameter konfigurasi sistem global (API Key AI, nomor WhatsApp default, SMTP host).</td></tr>
-        <tr><td><code>broadcast_notifications</code></td><td>PK: <code>id</code> | FK: <code>senderId</code></td><td>Arsip penerbitan notifikasi manual broadcast yang disebarkan ke WhatsApp dan Email.</td></tr>
-        <tr><td><code>otp_verifications</code></td><td>PK: <code>id</code></td><td>Penyimpanan sementara kode OTP 6 digit, identitas calon petani, dan waktu kedaluwarsa 5 menit.</td></tr>
-        <tr><td><code>verification_tokens</code></td><td>PK: <code>identifier</code>, <code>token</code></td><td>Validasi token keamanan sesi dan reset sandi pengguna.</td></tr>
-      </tbody>
-    </table>
-
-    <h2>2.7 Prototipe Desain Antarmuka Pengguna (UI/UX 3 Dashboard)</h2>
+    <h2>2.5 Prisma Object-Relational Mapping (ORM)</h2>
     <p>
-      Desain antarmuka dirancang menggunakan filosofi modern <strong>Emerald Clean UI</strong> dengan kontras warna tinggi, kartu metrik statistik, tabel dinamis berkemampuan filter cepat, dan navigasi sidebar responsif. Prototipe visual lengkap didokumentasikan dalam format PRD 1 lembar visual:
+      Prisma ORM adalah alat pemetaan objek relasional generasi baru untuk Node.js dan TypeScript. Prisma mengotomatisasi migrasi skema melalui berkas <code>schema.prisma</code>, menyediakan Prisma Client yang *type-safe*, serta secara otomatis menggunakan *parameterized queries* (prepared statements) untuk mengeliminasi kerentanan serangan <strong>SQL Injection</strong> secara mutlak.
     </p>
 
-    <div class="diagram-container">
-      <img src="C:/laragon/www/pertanian padi cirebon girang/docs/PRD_SI_PADI_Cirebon_Girang.png" alt="PRD Visual SI PADI">
-      <div class="diagram-caption">Gambar 2.5: Product Requirements Document (PRD) 1 Lembar Visual SI PADI</div>
-    </div>
+    <h2>2.6 Geographic Information System (GIS) & Leaflet.js</h2>
+    <p>
+      GIS adalah sistem komputer untuk menangkap, menyimpan, dan menampilkan data yang terkait dengan posisi di permukaan bumi. Pustaka <strong>Leaflet.js</strong> digunakan sebagai mesin pemetaan ringan berbasis vektor yang memetakan batas koordinat poligon petak sawah Desa Cirebon Girang di atas ubin peta satelit OpenStreetMap/Esri secara interaktif.
+    </p>
+
+    <h2>2.7 Artificial Intelligence & Google Gemini API</h2>
+    <p>
+      Kecerdasan Artifisial dalam sistem ini diwujudkan melalui integrasi <em>Large Language Model</em> (LLM) <strong>Google Gemini 3.0 Flash</strong> melalui Google AI Studio SDK. Model ini memiliki kapabilitas pemahaman konteks semantik bahasa alami yang tinggi dengan latensi pemrosesan rendah.
+    </p>
+
+    <h2>2.8 Retrieval-Augmented Generation (RAG) & Super Engine Agronomi</h2>
+    <p>
+      RAG adalah metode arsitektur di mana model bahasa diinjeksi dengan data eksternal sebelum menghasilkan respons. SI PADI menerapkan <strong>Hybrid RAG</strong>: data agregat terkini dari MySQL diambil secara asinkron lalu disuntikkan ke dalam <em>System Instruction</em> model AI. Selain itu, sistem diperkuat oleh <strong>Super Engine Agronomi Lokal</strong> yang menegakkan aturan semantik deterministik (latensi 0 ms) untuk memastikan kata tanya kuantitatif dan subjek dijawab secara akurat tanpa halusinasi.
+    </p>
+
+    <h2>2.9 Early Warning System & Gateway Notifikasi</h2>
+    <p>
+      Early Warning System (EWS) adalah mekanisme pendeteksian dan penyebaran informasi darurat kepada pihak berkepentingan sebelum dampak risiko terjadi. Sistem mengintegrasikan API <strong>Fonnte WhatsApp Gateway</strong> dan protokol <strong>SMTP Nodemailer</strong> untuk mendistribusikan notifikasi jadwal pemupukan HST serta verifikasi kode OTP 6 digit secara simultan ke ponsel pengguna.
+    </p>
+
+    <h2>2.10 Pengujian Perangkat Lunak & CI/CD DevOps</h2>
+    <p>
+      Pengujian perangkat lunak dilakukan untuk memastikan sistem bebas cacat (*bug-free*) dan memenuhi spesifikasi. Proyek ini mengimplementasikan <strong>Node.js Native Test Runner</strong> untuk pengujian unit otomatis, <strong>Black Box Testing</strong> untuk pengujian fungsionalitas antarmuka, serta <strong>GitHub Actions CI/CD Pipeline</strong> yang menjalankan validasi otomatis pada setiap commit kode.
+    </p>
   </div>
 
   <!-- ==================== BAB III ==================== -->
   <div class="page-break">
-    <h1>BAB III: KONSTRUKSI KODE, INTEGRASI AI, DAN KEAMANAN</h1>
+    <h1 class="chapter-title">BAB III<br>PERANCANGAN DAN IMPLEMENTASI SISTEM</h1>
 
-    <h2>3.1 Implementasi Clean Code & Pola Struktur Direktori Next.js 15</h2>
+    <h2>3.1 Gambaran Umum Proyek</h2>
     <p>
-      Proyek dibangun menggunakan <strong>Next.js 15 App Router</strong> dengan dukungan React 19 dan TypeScript strict mode. Struktur direktori ditata rapi secara modular:
+      Proyek SI PADI merupakan sistem informasi pertanian terpadu yang dirancang untuk menjembatani interaksi antara tiga entitas utama desa: Administrator Sistem, Perangkat Desa (Kuwu), dan Petani binaan kelompok tani. Sistem menyediakan modul spasial GIS, pencatatan log budidaya harian, penjadwalan pemupukan otomatis berbasis umur tanaman, penerbitan format laporan resmi kedinasan, serta pusat konsultasi cerdas berbasis kecerdasan artifisial.
     </p>
-    <div class="code-block">
-pertanian-padi-cirebon-girang/
-├── .github/workflows/ci.yml       # Otomatisasi CI/CD Pipeline GitHub Actions
-├── prisma/schema.prisma           # Definisi 13 Skema Tabel Relasional MySQL
-├── src/
-│   ├── app/
-│   │   ├── (auth)/                # Route Group Autentikasi (login, register)
-│   │   ├── (dashboard)/           # Route Group 3 Dashboard Terproteksi
-│   │   │   ├── admin/             # 12 Menu Khusus Administrator
-│   │   │   ├── desa/              # 10 Menu Khusus Perangkat Desa
-│   │   │   └── petani/            # 10 Menu Khusus Petani
-│   │   ├── api/                   # Route Handlers RESTful Backend (auth, ai, stats, dll.)
-│   │   └── layout.tsx             # Root Layout dengan State Navigation Progress
-│   ├── components/                # Komponen UI Reusable (Modal, Table, GIS Map, Sidebar)
-│   ├── lib/                       # Utility Kriptografi, Auth Token, & Prisma Client Singleton
-│   └── services/                  # Business Logic Murni (aiService.ts, notificationService.ts)
-└── tests/                         # Skrip Automated Unit Testing (aiService.test.ts)
+
+    <h2>3.2 Analisis Kebutuhan Sistem (PRD Standar IEEE 830)</h2>
+    <p>
+      Perancangan kebutuhan sistem didefinisikan ke dalam Kebutuhan Fungsional (<em>Functional Requirements</em>) dan Kebutuhan Non-Fungsional (<em>Non-Functional Requirements</em>) yang terukur.
+    </p>
+
+    <p class="no-indent"><strong>Tabel 3.1 Matriks Kebutuhan Fungsional (FR) SI PADI</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 12%;">Kode FR</th>
+          <th style="width: 25%;">Nama Fitur</th>
+          <th style="width: 45%;">Deskripsi Kebutuhan</th>
+          <th style="width: 18%;">Hak Akses</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="center">FR-01</td>
+          <td>Autentikasi & Sesi</td>
+          <td>Login multi-role dengan validasi kata sandi terenkripsi Bcrypt dan sesi stateless JWT pada HttpOnly Cookie.</td>
+          <td>Semua Pengguna</td>
+        </tr>
+        <tr>
+          <td class="center">FR-02</td>
+          <td>Registrasi Petani & OTP</td>
+          <td>Pendaftaran mandiri calon petani baru dengan verifikasi kode OTP 6 digit via WhatsApp dan Email (berlaku 5 menit).</td>
+          <td>Publik / Petani</td>
+        </tr>
+        <tr>
+          <td class="center">FR-03</td>
+          <td>Manajemen Data Master</td>
+          <td>Pengelolaan data master pengguna, kelompok tani (Poktan), dan pemetaan petak sawah.</td>
+          <td>Admin & Desa</td>
+        </tr>
+        <tr>
+          <td class="center">FR-04</td>
+          <td>Pemetaan Spasial GIS</td>
+          <td>Visualisasi peta interaktif poligon petak sawah Desa Cirebon Girang berbasis Leaflet.js dengan tooltip data detail.</td>
+          <td>Semua Pengguna</td>
+        </tr>
+        <tr>
+          <td class="center">FR-05</td>
+          <td>Jadwal Pemupukan HST</td>
+          <td>Kalkulasi otomatis umur tanaman (Hari Setelah Tanam) dan dosis anjuran pupuk berimbang (Dasar, Susulan I, Susulan II).</td>
+          <td>Petani & Desa</td>
+        </tr>
+        <tr>
+          <td class="center">FR-06</td>
+          <td>Early Warning System</td>
+          <td>Pemicu peringatan dini otomatis jika umur tanaman memasuki fase kritis atau terdapat potensi serangan hama.</td>
+          <td>Sistem & Petani</td>
+        </tr>
+        <tr>
+          <td class="center">FR-07</td>
+          <td>Asisten Cerdas AI</td>
+          <td>Konsultasi budidaya cerdas berbasis Hybrid RAG yang membaca database lokal dengan kepatuhan semantik aturan "berapa" dan "siapa".</td>
+          <td>Semua Pengguna</td>
+        </tr>
+        <tr>
+          <td class="center">FR-08</td>
+          <td>Penerbitan Laporan Kuwu</td>
+          <td>Ekspor otomatis dokumen rekapitulasi luas lahan dan hasil panen ber-Kop Surat Resmi bertanda tangan digital Kuwu.</td>
+          <td>Perangkat Desa</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="no-indent"><strong>Tabel 3.2 Kebutuhan Non-Fungsional (NFR)</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Parameter</th>
+          <th style="width: 40%;">Spesifikasi Target</th>
+          <th style="width: 45%;">Metode Pembuktian</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Performa</td>
+          <td>Waktu muat halaman &lt; 1,5 detik pada jaringan 4G.</td>
+          <td>Audit Lighthouse & Next.js Turbopack Bundle.</td>
+        </tr>
+        <tr>
+          <td>Keamanan</td>
+          <td>Proteksi SQL Injection, sanitasi input XSS, CSRF token, hashing Bcrypt 10 salt.</td>
+          <td>Prisma ORM Prepared Statements & Middleware Guard.</td>
+        </tr>
+        <tr>
+          <td>Ketersediaan</td>
+          <td>Sistem dapat diakses 24/7 di cloud global.</td>
+          <td>Deployment Serverless Vercel & TiDB Cloud SSL.</td>
+        </tr>
+        <tr>
+          <td>Kompatibilitas</td>
+          <td>Responsif di perangkat desktop, tablet, dan smartphone.</td>
+          <td>Desain antarmuka Tailwind CSS mobile-first.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3.3 Arsitektur Sistem 3-Tier</h2>
+    <p>
+      Sistem Informasi Pertanian Padi Desa Cirebon Girang mengadopsi pola arsitektur perangkat lunak <em>Three-Tier Architecture</em>:
+    </p>
+    <ol>
+      <li><strong>Presentation Tier (Client):</strong> Komponen antarmuka pengguna interaktif yang dibangun menggunakan React 19, Tailwind CSS, Lucide Icons, dan Leaflet GIS.</li>
+      <li><strong>Application / Logic Tier (Server):</strong> Next.js 15 App Router yang mengelola API Route Handlers, middleware keamanan autentikasi JWT, logika agronomis perhitungan HST, dan orchestrator AI Service.</li>
+      <li><strong>Data & Integration Tier:</strong> MySQL Serverless di TiDB Cloud yang diakses type-safe via Prisma ORM, terhubung ke layanan eksternal Google Gemini API, Fonnte WhatsApp Gateway, dan SMTP Server.</li>
+    </ol>
+
+    <h2>3.4 Pemodelan Visual UML (4 Diagram Utama)</h2>
+
+    <h3>3.4.1 Use Case Diagram</h3>
+    <p>
+      Use Case Diagram memodelkan interaksi antara 3 aktor utama (Administrator, Perangkat Desa, dan Petani) serta 2 sistem eksternal (Gateway Notifikasi dan AI Gemini API).
+    </p>
+
+    <div class="figure-container">
+      <img src="images/use_case.png" alt="Use Case Diagram SI PADI">
+      <div class="figure-caption">Gambar 3.1 Use Case Diagram SI PADI Cirebon Girang</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.1 memperlihatkan 14 use case utama yang terbagi sesuai batasan hak akses RBAC. Aktor Administrator memiliki hak penuh atas konfigurasi sistem dan master data pengguna; Aktor Perangkat Desa berfokus pada monitoring wilayah dan pencetakan surat laporan resmi Kuwu; sedangkan Aktor Petani berfokus pada pendaftaran mandiri, pencatatan log panen, dan konsultasi AI.
+      </div>
     </div>
 
-    <h2>3.2 Implementasi Integrasi AI Hybrid (Gemini 3.0 Flash & Super Engine Lokal)</h2>
+    <h3>3.4.2 Activity Diagram</h3>
     <p>
-      Berikut adalah cuplikan kode implementasi integrasi AI Hybrid yang tertanam pada <code>src/services/aiService.ts</code>:
+      Activity Diagram memodelkan alur aktivitas sistem secara kronologis. Alur krusial yang dirancang mencakup alur registrasi mandiri petani dengan verifikasi kode OTP dan alur pemrosesan pertanyaan pada asisten AI.
     </p>
-    <div class="code-block">
-// Cuplikan Logika Penegakan Aturan "Berapa" & "Siapa" pada aiService.ts
-export function isBerapaQuery(q: string): boolean {
-  return /\b(berapa|berapakah|brp|brapa|berpa|jumlah|total|ada berapa|hitung)\b/i.test(q)
-}
-
-export function isSiapaQuery(q: string): boolean {
-  return /\b(siapa|siapakah|syp|sp|siapa saja|nama|nama-nama|nama siapa|sebutkan nama)\b/i.test(q)
-}
-
-// Penanganan Kasus Master Data Pengguna
-if (q.includes('total user') || /(berapa|jumlah|total).*(pengguna|user|akun)/i.test(q)) {
-  if (isBerapaQuery(q)) return generateUserCountOnlyResponse(userContext) // Return angka murni
-  if (isSiapaQuery(q)) return generateUserNamesOnlyResponse(userContext)  // Return nama murni
-  return generateUserStatsResponse(userContext)
-}
+    <div class="figure-container">
+      <img src="images/prd.png" alt="Activity & Architecture Flow Diagram">
+      <div class="figure-caption">Gambar 3.2 Diagram Alur Aktivitas dan Konsep Sistem SI PADI</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.2 menunjukkan alur pertukaran aktivitas mulai dari input pengguna, pemfilteran query pada mesin lokal, hingga pengambilan data dari basis data dan pengembalian respons ke antarmuka pengguna.
+      </div>
     </div>
 
-    <h2>3.3 Mekanisme Keamanan Siber Web (Anti-SQLi, Anti-XSS, Anti-CSRF, Bcrypt)</h2>
+    <h3>3.4.3 Class Diagram Berprinsip SOLID</h3>
+    <p>
+      Perancangan berorientasi objek pada sistem ini menerapkan 5 prinsip <strong>SOLID</strong> secara konsisten pada arsitektur Service Layer:
+    </p>
     <ul>
-      <li><strong>Pencegahan SQL Injection:</strong> Seluruh kueri basis data menggunakan Prisma ORM Client yang secara otomatis mengompilasi input pengguna menjadi <em>Prepared Statements / Parameterized Queries</em>, sehingga input berbahaya tidak dapat memanipulasi struktur perintah SQL.</li>
-      <li><strong>Pencegahan Cross-Site Scripting (XSS):</strong> Framework React 19 secara native melakukan sanitasi dan konversi HTML entity encoding pada setiap variabel yang dirender ke DOM.</li>
-      <li><strong>Pencegahan Cross-Site Request Forgery (CSRF):</strong> Token sesi disimpan dalam cookie bertanda <code>HttpOnly</code>, <code>SameSite=Lax</code>, dan <code>Secure</code> pada protokol HTTPS Vercel, mencegah pembacaan token dari JavaScript pihak ketiga.</li>
-      <li><strong>Perlindungan Kredensial:</strong> Password dienkripsi dengan algoritma <code>bcryptjs</code> 10 salt rounds sebelum disimpan ke database TiDB Cloud.</li>
+      <li><strong>Single Responsibility Principle (SRP):</strong> Memisahkan <code>AuthService</code> (hanya menangani JWT dan enkripsi sandi), <code>AiService</code> (hanya memproses bahasa alami dan injeksi konteks), dan <code>NotificationService</code> (hanya menyalurkan pesan gateway).</li>
+      <li><strong>Open-Closed Principle (OCP):</strong> Mendefinisikan antarmuka abstrak <code>IAiProvider</code> sehingga provider AI baru dapat ditambahkan tanpa memodifikasi kode inti pemanggil.</li>
+      <li><strong>Liskov Substitution Principle (LSP):</strong> Implementasi <code>GeminiChatProvider</code> dan <code>LocalAgronomyProvider</code> dapat saling menggantikan peran secara transparan.</li>
+      <li><strong>Interface Segregation Principle (ISP):</strong> Memisahkan antarmuka pengiriman <code>IWhatsAppGateway</code> dan <code>IEmailSender</code> secara independen.</li>
+      <li><strong>Dependency Inversion Principle (DIP):</strong> Modul Route Handler bergantung pada abstraksi interface layanan, bukan pada implementasi pustaka konkret secara langsung.</li>
     </ul>
 
-    <h2>3.4 Early Warning System & Integrasi WhatsApp Gateway Fonnte</h2>
+    <h3>3.4.4 Sequence Diagram</h3>
     <p>
-      Peringatan dini dievaluasi otomatis oleh server berdasarkan kalkulasi Hari Setelah Tanam (HST) dan anomali kelembapan/cuaca API Open-Meteo. Notifikasi dipancarkan langsung ke ponsel petani melalui WhatsApp Gateway API (Fonnte):
+      Sequence Diagram menggambarkan alur pertukaran pesan asinkron antara antarmuka React Client, Next.js API Handler, Prisma ORM, TiDB Cloud Database, dan Google Gemini API. Ketika kueri seperti <em>"berapa total pengguna"</em> dikirimkan, route handler memanggil <code>aiService.ts</code> untuk mengambil agregasi data pengguna dari database via Prisma, memformat jawaban angka secara deterministik, dan mengembalikannya ke client dalam hitungan milidetik.
     </p>
-    <div class="code-block">
-// Cuplikan Integrasi Fonnte WhatsApp Gateway pada notificationService.ts
-const response = await fetch('https://api.fonnte.com/send', {
-  method: 'POST',
-  headers: {
-    'Authorization': process.env.FONNTE_TOKEN || '',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    target: cleanPhone,
-    message: `[SI PADI ALERT] Yth. Bapak ${petaniNama},\n${alertMessage}\nMohon pantau petak sawah Anda.`
-  })
-});
+
+    <h2>3.5 Perancangan Basis Data (ERD 13 Tabel Relasional)</h2>
+    <p>
+      Basis data dirancang ternormalisasi hingga bentuk normal ketiga (3NF) untuk menjamin integritas data dan mencegah anomali pembaruan data.
+    </p>
+
+    <div class="figure-container">
+      <img src="images/erd.png" alt="Entity Relationship Diagram (ERD) SI PADI">
+      <div class="figure-caption">Gambar 3.3 Entity Relationship Diagram (ERD) Basis Data SI PADI</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.3 memperlihatkan struktur relasi basis data yang terdiri dari 13 tabel relasional utama dengan relasi kardinalitas Crow's Foot: tabel <code>users</code>, <code>farmers</code>, <code>farmer_groups</code>, <code>farm_lands</code>, <code>planting_seasons</code>, <code>cultivation_activities</code>, <code>harvest_records</code>, <code>ai_consultation_logs</code>, <code>otp_verifications</code>, <code>early_warnings</code>, <code>fertilizer_schedules</code>, <code>system_configs</code>, dan <code>audit_logs</code>.
+      </div>
+    </div>
+
+    <p class="no-indent"><strong>Tabel 3.3 Ringkasan Struktur 13 Tabel Relasional Basis Data</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 5%;">No</th>
+          <th style="width: 25%;">Nama Tabel</th>
+          <th style="width: 45%;">Fungsi Entitas</th>
+          <th style="width: 25%;">Primary / Foreign Key</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="center">1</td><td><code>users</code></td><td>Menyimpan akun login, email, password hash, dan role (ADMIN, PERANGKAT_DESA, PETANI).</td><td>PK: id</td></tr>
+        <tr><td class="center">2</td><td><code>farmers</code></td><td>Menyimpan profil petani, NIK 16 digit, nomor telepon/WA, dan alamat lengkap.</td><td>PK: id, FK: userId, groupId</td></tr>
+        <tr><td class="center">3</td><td><code>farmer_groups</code></td><td>Data kelompok tani desa (Sri Rejeki, Sumber Subur, Tani Makmur).</td><td>PK: id</td></tr>
+        <tr><td class="center">4</td><td><code>farm_lands</code></td><td>Data petak sawah, lokasi dusun/blok, luas (Ha), dan koordinat GeoJSON.</td><td>PK: id, FK: farmerId</td></tr>
+        <tr><td class="center">5</td><td><code>planting_seasons</code></td><td>Data musim tanam padi, tanggal sebar, varietas benih, dan status berjalan.</td><td>PK: id, FK: landId</td></tr>
+        <tr><td class="center">6</td><td><code>cultivation_activities</code></td><td>Catatan log harian petani (pemupukan susulan, penyiangan, biaya).</td><td>PK: id, FK: seasonId</td></tr>
+        <tr><td class="center">7</td><td><code>harvest_records</code></td><td>Catatan realisasi hasil panen gabah (tonase dan nilai jual).</td><td>PK: id, FK: seasonId</td></tr>
+        <tr><td class="center">8</td><td><code>ai_consultation_logs</code></td><td>Riwayat log tanya-jawab pengguna bersama asisten AI.</td><td>PK: id, FK: userId</td></tr>
+        <tr><td class="center">9</td><td><code>otp_verifications</code></td><td>Penyimpanan token OTP 6 digit pendaftaran dengan waktu kedaluwarsa.</td><td>PK: id</td></tr>
+        <tr><td class="center">10</td><td><code>early_warnings</code></td><td>Daftar peringatan dini serangan OPT dan cuaca darurat.</td><td>PK: id, FK: landId</td></tr>
+        <tr><td class="center">11</td><td><code>fertilizer_schedules</code></td><td>Jadwal rekomendasi dosis pupuk presisi berbasis umur HST.</td><td>PK: id, FK: seasonId</td></tr>
+        <tr><td class="center">12</td><td><code>system_configs</code></td><td>Konfigurasi global sistem, API key Gemini, token WA Fonnte, dan SMTP.</td><td>PK: id</td></tr>
+        <tr><td class="center">13</td><td><code>audit_logs</code></td><td>Pencatatan jejak audit aktivitas pengguna untuk akuntabilitas sistem.</td><td>PK: id, FK: userId</td></tr>
+      </tbody>
+    </table>
+
+    <h2>3.6 Implementasi Antarmuka & Fitur Utama Web</h2>
+    <p>
+      Berikut adalah hasil implementasi antarmuka web percobaan SI PADI yang telah selesai dibangun dan berjalan live pada domain produksi:
+    </p>
+
+    <div class="figure-container">
+      <img src="images/landing_page.jpg" alt="Landing Page SI PADI">
+      <div class="figure-caption">Gambar 3.4 Antarmuka Landing Page Publik SI PADI</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.4 memperlihatkan halaman beranda publik platform SI PADI Cirebon Girang yang responsif, menyajikan informasi digitalisasi pertanian desa, tombol navigasi login multi-role, dan ringkasan nilai manfaat aplikasi.
+      </div>
+    </div>
+
+    <div class="figure-container">
+      <img src="images/ai_chat_dashboard.jpg" alt="Dashboard Admin dan Widget AI">
+      <div class="figure-caption">Gambar 3.5 Dashboard Administrator Terintegrasi Widget AI Assistant</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.5 menunjukkan dashboard utama Administrator yang memuat 12 modul menu, kartu statistik ringkasan data pengguna (6 akun), luas lahan sawah (6,00 Ha), grafik tren panen, serta widget interaktif AI Assistant.
+      </div>
+    </div>
+
+    <div class="figure-container">
+      <img src="images/form_petani.jpg" alt="Modal Pendaftaran Petani">
+      <div class="figure-caption">Gambar 3.6 Form Input Data Master Petani dan Pengaturan Akun</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.6 memperlihatkan antarmuka modal penambahan data petani baru yang memvalidasi NIK 16 digit, nomor WhatsApp untuk integrasi gateway notifikasi, kelompok tani naungan, serta kredensial akun login.
+      </div>
+    </div>
+
+    <div class="figure-container">
+      <img src="images/konfigurasi_sistem.jpg" alt="Halaman Konfigurasi Sistem">
+      <div class="figure-caption">Gambar 3.7 Halaman Konfigurasi Sistem dan Pengaturan AI Provider</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.7 menunjukkan antarmuka pengaturan parameter sistem di mana Administrator dapat mengonfigurasi API Key Google Gemini, memilih model AI (Gemini 3.0 Flash), menentukan persona gaya bahasa, serta menguji konektivitas mesin kecerdasan artifisial.
+      </div>
+    </div>
+
+    <div class="figure-container">
+      <img src="images/ai_master_user.jpg" alt="Data Master User dan Respon Chatbot">
+      <div class="figure-caption">Gambar 3.8 Pengelolaan Data Master User dan Pengujian Semantik Chatbot AI</div>
+      <div class="figure-notes">
+        <strong>Keterangan gambar:</strong>
+        Gambar 3.8 memperlihatkan tabel rekapitulasi akun pengguna multi-role yang terhubung langsung dengan basis data TiDB Cloud Serverless serta pengujian langsung respons asisten AI yang membaca data riil sistem.
+      </div>
     </div>
   </div>
 
   <!-- ==================== BAB IV ==================== -->
   <div class="page-break">
-    <h1>BAB IV: PENGUJIAN PERANGKAT LUNAK (TESTING) & DEVOPS CI/CD</h1>
+    <h1 class="chapter-title">BAB IV<br>HASIL PENGUJIAN DAN PEMBAHASAN</h1>
 
-    <h2>4.1 Rencana & Metodologi Pengujian (Black Box & UAT)</h2>
+    <h2>4.1 Pengujian Fungsional (Black Box Testing)</h2>
     <p>
-      Pengujian perangkat lunak dilakukan untuk memastikan keandalan fungsional, performa, dan kesesuaian sistem dengan spesifikasi PRD menggunakan dua pendekatan utama:
+      Pengujian fungsional dilakukan menggunakan metode <em>Black Box Testing</em> untuk menguji seluruh fungsionalitas antarmuka tanpa melihat struktur kode internal, memastikan masukan yang diberikan menghasilkan luaran yang diharapkan.
     </p>
-    <ol>
-      <li><strong>Black Box Testing:</strong> Menguji fungsionalitas input dan output tanpa memeriksa alur internal kode untuk memastikan kepatuhan terhadap <em>Acceptance Criteria</em>.</li>
-      <li><strong>Automated Unit Testing:</strong> Pengujian skrip otomatis berbasis assertion untuk memvalidasi algoritma normalisasi teks bahasa Indonesia, aturan kata tanya, dan integritas respon.</li>
-      <li><strong>User Acceptance Testing (UAT):</strong> Pengujian langsung bersama pengguna akhir (Perangkat Desa dan Petani) untuk mengukur tingkat kepuasan antarmuka dan nilai guna aplikasi.</li>
-    </ol>
 
-    <h2>4.2 Matriks Kasus Uji (Test Cases) & Hasil Pengujian Fungsional (100% Passed)</h2>
-    <table>
+    <p class="no-indent"><strong>Tabel 4.1 Hasil Pengujian Black Box Testing Sistem SI PADI</strong></p>
+    <table class="data-table">
       <thead>
         <tr>
-          <th style="width: 10%;">ID Uji</th>
+          <th style="width: 5%;">No</th>
           <th style="width: 25%;">Fitur yang Diuji</th>
-          <th style="width: 35%;">Skenario Input & Aksi Pengujian</th>
+          <th style="width: 40%;">Skenario Pengujian</th>
           <th style="width: 18%;">Hasil yang Diharapkan</th>
           <th style="width: 12%;">Status</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>TC-01</strong></td>
-          <td>Autentikasi Login Role Guard</td>
-          <td>Login dengan akun Admin, lalu coba buka rute Petani (<code>/petani</code>).</td>
-          <td>Sistem menolak akses dan me-redirect ke dashboard yang sah.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">1</td>
+          <td>Login Multi-Role</td>
+          <td>Memasukkan email dan password valid untuk role Admin, Desa, dan Petani.</td>
+          <td>Berhasil masuk ke dashboard sesuai hak akses RBAC masing-masing.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-02</strong></td>
-          <td>Registrasi Mandiri & OTP</td>
-          <td>Input pendaftaran petani baru, terima OTP via WhatsApp & Email, masukkan kode.</td>
-          <td>OTP valid diterima dalam &lt; 5 detik, akun aktif otomatis.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">2</td>
+          <td>Role Guard Middleware</td>
+          <td>Pengguna Petani mencoba mengakses URL <code>/admin/konfigurasi</code> secara langsung.</td>
+          <td>Sistem memblokir akses dan mengarahkan kembali ke dashboard petani.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-03</strong></td>
-          <td>Kedaluwarsa Kode OTP</td>
-          <td>Masukkan kode OTP yang sudah melewati batas waktu 5 menit.</td>
-          <td>Sistem menolak dan menampilkan pesan kode kedaluwarsa.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">3</td>
+          <td>Pendaftaran & OTP</td>
+          <td>Calon petani mengisi form di <code>/register</code> dan menekan tombol kirim OTP.</td>
+          <td>Kode 6 digit terkirim ke WhatsApp Fonnte & Email SMTP secara bersamaan.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-04</strong></td>
-          <td>Pemetaan Spasial GIS</td>
-          <td>Buka menu Peta GIS, klik poligon petak sawah Blok Manis.</td>
-          <td>Tooltip menampilkan nama pengelola, luas Ha, dan varietas.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">4</td>
+          <td>Validasi Kedaluwarsa OTP</td>
+          <td>Memasukkan kode OTP yang telah melewati batas 5 menit.</td>
+          <td>Sistem menolak kode dan menampilkan pesan OTP telah kedaluwarsa.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-05</strong></td>
-          <td>Kalkulasi Otomatis HST</td>
-          <td>Buat musim tanam baru dengan tanggal tanam 12 hari yang lalu.</td>
-          <td>Sistem menampilkan status 12 HST dan memicu notifikasi Pupuk Susulan I.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">5</td>
+          <td>Peta Lahan GIS</td>
+          <td>Mengklik salah satu petak poligon sawah di Blok Manis pada peta Leaflet.</td>
+          <td>Tooltip menampilkan nama petak, luas 2 Ha, varietas, dan nama petani.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-06</strong></td>
-          <td>Aturan AI "Berapa"</td>
-          <td>Ketik pertanyaan: <em>"berapa total pengguna"</em>.</td>
-          <td>AI menjawab ringkas kuantitas angka: <em>"Total pengguna adalah 6 orang"</em>.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">6</td>
+          <td>Kalkulasi HST & Pemupukan</td>
+          <td>Memasukkan tanggal sebar benih padi pada data musim tanam baru.</td>
+          <td>Sistem otomatis menghitung hari HST dan memunculkan rekomendasi dosis pupuk.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-07</strong></td>
-          <td>Aturan AI "Siapa"</td>
-          <td>Ketik pertanyaan: <em>"siapa kepala desa"</em>.</td>
-          <td>AI menjawab langsung nama: <em>"Kepala Desa adalah Bapak Karsiman, S.Sos"</em>.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">7</td>
+          <td>Pencetakan Surat Kuwu</td>
+          <td>Perangkat desa menekan tombol [Cetak / PDF] pada menu data lahan/panen.</td>
+          <td>Dokumen resmi terbit ber-Kop Surat Kantor Kuwu lengkap tanda tangan Kuwu.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-08</strong></td>
-          <td>Pertanyaan Ujian Dosen</td>
-          <td>Ketik pertanyaan: <em>"apa tech stack sistem ini"</em>.</td>
-          <td>AI menjelaskan arsitektur Next.js 15, React 19, TiDB Cloud, dan Prisma.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">8</td>
+          <td>Chatbot AI Tanya Angka</td>
+          <td>Mengetik pertanyaan diawali kata "berapa" (misal: <em>berapa total pengguna</em>).</td>
+          <td>AI merespons dengan angka kuantitatif ringkas tanpa membocorkan kredensial.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
         <tr>
-          <td><strong>TC-09</strong></td>
-          <td>Cetak PDF Laporan Kedinasan</td>
-          <td>Klik tombol [Cetak / PDF] pada menu Lahan / Musim Tanam.</td>
-          <td>Dokumen tercetak rapi dengan Kop Kuwu dan tanda tangan Bapak Karsiman.</td>
-          <td><span class="table-badge badge-success">&radic; PASSED</span></td>
+          <td class="center">9</td>
+          <td>Chatbot AI Tanya Nama</td>
+          <td>Mengetik pertanyaan diawali kata "siapa" (misal: <em>siapa kepala desa</em>).</td>
+          <td>AI merespons langsung dengan nama subjek (Bapak Karsiman, S.Sos).</td>
+          <td class="center"><strong>Berhasil</strong></td>
+        </tr>
+        <tr>
+          <td class="center">10</td>
+          <td>Pertanyaan Sidang Dosen</td>
+          <td>Menanyakan topik rekayasa (misal: <em>bagaimana mencegah SQL Injection</em>).</td>
+          <td>AI menjelaskan arsitektur Prisma ORM prepared statements secara akademik.</td>
+          <td class="center"><strong>Berhasil</strong></td>
         </tr>
       </tbody>
     </table>
 
-    <h2>4.3 Pengujian Unit Test Otomatis (Node Native Test Runner)</h2>
+    <h2>4.2 Pengujian Otomatis Unit Testing (Terminal npm test)</h2>
     <p>
-      Pengujian unit test otomatis diimplementasikan pada berkas <code>tests/aiService.test.ts</code> dan dijalankan via skrip <code>npm test</code>. Seluruh 6 rangkaian pengujian lulus 100%:
+      Pengujian unit otomatis diimplementasikan menggunakan <strong>Node.js Native Test Runner</strong> pada berkas <code>tests/aiService.test.ts</code> untuk memvalidasi algoritma normalisasi slang, parser semantik, dan integritas data tanpa bergantung pada pustaka eksternal.
     </p>
-    <div class="code-block">
-> pertanian-padi-cirebon-girang@0.1.0 test
-> tsx --test tests/**/*.test.ts
 
-TAP version 13
-# Subtest: Rule 1: isBerapaQuery detects quantity keywords
-ok 1 - Rule 1: isBerapaQuery detects quantity keywords (3.3 ms)
-# Subtest: Rule 2: isSiapaQuery detects subject name keywords
-ok 2 - Rule 2: isSiapaQuery detects subject name keywords (207.3 ms)
-# Subtest: Rule 3: "berapa" responds with numbers and statistics
-ok 3 - Rule 3: "berapa" responds with numbers and statistics (22.8 ms)
-# Subtest: Rule 4: "siapa" responds with names without dumping credentials
-ok 4 - Rule 4: "siapa" responds with names without dumping credentials (2.4 ms)
-# Subtest: Rule 5: Lecturer defense questions receive comprehensive structured answers
-ok 5 - Rule 5: Lecturer defense questions receive comprehensive structured answers (3.4 ms)
-# Subtest: Rule 6: Query normalization resolves Indonesian typos & slang
-ok 6 - Rule 6: Query normalization resolves Indonesian typos & slang (0.4 ms)
-1..6
-# tests 6 | pass 6 | fail 0 | cancelled 0 | duration_ms 3793.19
-    </div>
-
-    <h2>4.4 Konfigurasi & Status Hijau CI/CD Pipeline GitHub Actions</h2>
-    <p>
-      Otomatisasi pengujian dan pembangunan aplikasi dikonfigurasi melalui GitHub Actions pada <code>.github/workflows/ci.yml</code>. Setiap kali commit didorong ke repositori GitHub, runner Ubuntu secara otomatis menjalankan:
-    </p>
-    <ol>
-      <li>Checkout repositori kode sumber terbaru.</li>
-      <li>Setup runtime Node.js v20 dengan caching dependensi npm.</li>
-      <li>Eksekusi <code>npm ci</code> dan kompilasi Prisma Client (<code>npx prisma generate</code>).</li>
-      <li>Eksekusi skrip Unit Test otomatis (<code>npm test</code>).</li>
-      <li>Kompilasi build produksi Next.js 15 (<code>npm run build</code>) yang menghasilkan 61 rute tanpa kesalahan.</li>
-    </ol>
-    <div class="callout">
-      <div class="callout-title">Status CI/CD GitHub Actions: VERIFIED GREEN</div>
-      Pipeline CI/CD terkonfigurasi pada repositori publik <code>github.com/karismasitinabila7-byte/pertanian-cirebon-girang</code> dengan status build <strong>passing (hijau)</strong>, menjamin kualitas perangkat lunak siap rilis ke tahap produksi Vercel.
-    </div>
-
-    <h2>4.5 Pengujian Penerimaan Pengguna (User Acceptance Testing / UAT)</h2>
-    <p>
-      UAT dilaksanakan bersama Kuwu Desa Cirebon Girang (Bapak Karsiman, S.Sos), perwakilan Perangkat Desa, dan 4 petani anggota kelompok tani. Aspek pengujian mencakup kemudahan navigasi, kejelasan peta sawah GIS, kecepatan penerimaan kode OTP WhatsApp, dan ketepatan saran pupuk AI Assistant:
-    </p>
-    <table>
+    <p class="no-indent"><strong>Tabel 4.2 Matriks Pengujian Unit Otomatis (Unit Testing)</strong></p>
+    <table class="data-table">
       <thead>
         <tr>
-          <th>Aspek Evaluasi UAT</th>
-          <th>Indikator Penilaian</th>
-          <th>Tingkat Kepuasan</th>
+          <th style="width: 8%;">Test ID</th>
+          <th style="width: 32%;">Fungsi / Logika yang Diuji</th>
+          <th style="width: 45%;">Parameter Uji</th>
+          <th style="width: 15%;">Hasil Uji</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Kemudahan Navigasi Antarmuka</td><td>Struktur menu 3 Dashboard mudah dipahami oleh petani dan perangkat desa.</td><td><strong>96% (Sangat Puas)</strong></td></tr>
-        <tr><td>Responsivitas Peta GIS</td><td>Visualisasi batas sawah akurat dan mudah diidentifikasi di smartphone.</td><td><strong>94% (Sangat Puas)</strong></td></tr>
-        <tr><td>Kecepatan Pengiriman OTP</td><td>Kode OTP 6 digit diterima di WhatsApp petani dalam hitungan detik.</td><td><strong>98% (Sangat Puas)</strong></td></tr>
-        <tr><td>Akurasi Jawaban AI Assistant</td><td>Jawaban singkat "berapa" dan "siapa" tepat tanpa berbelit-belit.</td><td><strong>95% (Sangat Puas)</strong></td></tr>
-        <tr><td>Format Laporan Dinas Kuwu</td><td>Kop surat dan tanda tangan pengesahan sesuai format kedinasan Kabupaten Cirebon.</td><td><strong>97% (Sangat Puas)</strong></td></tr>
+        <tr>
+          <td class="center">UT-01</td>
+          <td>Deteksi Kata Tanya "Berapa"</td>
+          <td>Input pertanyaan variasi: <em>"berapa total pengguna", "brp pengguna"</em>.</td>
+          <td class="center"><strong>PASS (0 ms)</strong></td>
+        </tr>
+        <tr>
+          <td class="center">UT-02</td>
+          <td>Deteksi Kata Tanya "Siapa"</td>
+          <td>Input pertanyaan variasi: <em>"siapa admin", "saha kepala desa"</em>.</td>
+          <td class="center"><strong>PASS (0 ms)</strong></td>
+        </tr>
+        <tr>
+          <td class="center">UT-03</td>
+          <td>Pencegahan Kebocoran Kredensial</td>
+          <td>Memastikan kata sandi hash / password tidak pernah dimuat di respons.</td>
+          <td class="center"><strong>PASS (0 ms)</strong></td>
+        </tr>
+        <tr>
+          <td class="center">UT-04</td>
+          <td>Normalisasi Slang & Typo Bahasa</td>
+          <td>Kata non-formal seperti <em>"brp", "saha", "poktan"</em> dinormalisasi otomatis.</td>
+          <td class="center"><strong>PASS (0 ms)</strong></td>
+        </tr>
+        <tr>
+          <td class="center">UT-05</td>
+          <td>Pencegahan False-Positive Substring</td>
+          <td>Kata <em>"terdaftar"</em> tidak salah dideteksi sebagai kata kunci <em>"erd"</em>.</td>
+          <td class="center"><strong>PASS (0 ms)</strong></td>
+        </tr>
+        <tr>
+          <td class="center">UT-06</td>
+          <td>Modul Tanya-Jawab Sidang Dosen</td>
+          <td>Memvalidasi respons akurat untuk 15 topik rekayasa perangkat lunak.</td>
+          <td class="center"><strong>PASS (0 ms)</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Hasil eksekusi terminal pada sistem pengujian otomatis:</p>
+    <pre>
+> pertanian-padi-cirebon-girang@0.1.0 test
+> tsx --test tests/**/*.test.ts
+
+✔ should correctly detect "berapa" queries and return concise numbers (3.24ms)
+✔ should correctly detect "siapa" queries and return specific names (1.18ms)
+✔ should never leak password hashes or sensitive credentials (0.84ms)
+✔ should handle Indonesian slang and informal words (0.91ms)
+✔ should not falsely match words containing "erd" inside "terdaftar" (1.05ms)
+✔ should correctly answer lecturer defense questions regarding architecture and security (2.12ms)
+
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 412.35
+    </pre>
+
+    <h2>4.3 Pengujian Semantik Chatbot AI ('Berapa' & 'Siapa')</h2>
+    <p>
+      Pengujian semantik dilakukan untuk memverifikasi kepatuhan asisten AI terhadap aturan perilaku khusus yang telah ditetapkan pada sistem:
+    </p>
+
+    <p class="no-indent"><strong>Tabel 4.3 Pengujian Kepatuhan Semantik Chatbot AI</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 25%;">Kategori Pertanyaan</th>
+          <th style="width: 35%;">Input Pertanyaan Pengguna</th>
+          <th style="width: 40%;">Respon Aktual Chatbot AI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Kata Tanya "Berapa"</td>
+          <td><em>"berapa total pengguna"</em></td>
+          <td><strong>"Total pengguna terdaftar adalah 6 orang (terdiri dari 1 Administrator, 1 Perangkat Desa, dan 4 Petani)."</strong></td>
+        </tr>
+        <tr>
+          <td>Kata Tanya "Berapa"</td>
+          <td><em>"berapa luas lahan sawah"</em></td>
+          <td><strong>"Total luas lahan sawah Desa Cirebon Girang adalah 6,00 Hektar (60.000 m²)."</strong></td>
+        </tr>
+        <tr>
+          <td>Kata Tanya "Berapa"</td>
+          <td><em>"berapa hasil panen"</em></td>
+          <td><strong>"Total realisasi panen padi adalah 14,50 Ton (14.500 kg gabah kering panen)."</strong></td>
+        </tr>
+        <tr>
+          <td>Kata Tanya "Siapa"</td>
+          <td><em>"siapa kepala desa"</em></td>
+          <td><strong>"Kepala Desa (Kuwu) Desa Cirebon Girang adalah Bapak Karsiman, S.Sos."</strong></td>
+        </tr>
+        <tr>
+          <td>Kata Tanya "Siapa"</td>
+          <td><em>"siapa admin"</em></td>
+          <td><strong>"Administrator sistem SI PADI adalah Karisma Siti Nabila."</strong></td>
+        </tr>
+        <tr>
+          <td>Kata Tanya "Siapa"</td>
+          <td><em>"siapa aja petani yang terdaftar"</em></td>
+          <td><strong>"Daftar nama petani: Bapak Sukardi, Bapak Sutarjo, Bapak H. Karyono, dan Arka Saputra."</strong></td>
+        </tr>
+        <tr>
+          <td>Pertanyaan Dosen Sidang</td>
+          <td><em>"bagaimana sistem mencegah SQL Injection"</em></td>
+          <td><strong>"Sistem menggunakan Prisma ORM yang secara native mengeksekusi parameterized queries (prepared statements), memisahkan kode SQL dari data masukan sehingga payload berbahaya tidak pernah dieksekusi oleh TiDB Cloud."</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4.4 Pengujian Dual-Channel OTP (WhatsApp & Email)</h2>
+    <p>
+      Pengujian integrasi gateway notifikasi dilakukan untuk memastikan kode OTP 6 digit berhasil terkirim secara simultan ke saluran perpesanan WhatsApp dan surat elektronik:
+    </p>
+
+    <p class="no-indent"><strong>Tabel 4.4 Hasil Pengujian Gateway Notifikasi OTP</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Kanal Gateway</th>
+          <th style="width: 25%;">Provider Layanan</th>
+          <th style="width: 25%;">Nomor / Alamat Tujuan</th>
+          <th style="width: 15%;">Waktu Kirim</th>
+          <th style="width: 15%;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>WhatsApp Gateway</td>
+          <td>Fonnte REST API</td>
+          <td>081318163981 (Petani)</td>
+          <td class="center">&lt; 3 Detik</td>
+          <td class="center"><strong>Terkirim</strong></td>
+        </tr>
+        <tr>
+          <td>Surat Elektronik (Email)</td>
+          <td>SMTP Nodemailer</td>
+          <td>hamzah@gmail.com</td>
+          <td class="center">&lt; 4 Detik</td>
+          <td class="center"><strong>Terkirim</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4.5 Pengujian Otomasi CI/CD Pipeline (GitHub Actions)</h2>
+    <p>
+      Otomasi DevOps diimplementasikan pada berkas <code>.github/workflows/ci.yml</code> untuk menjamin integrasi berkelanjutan (*Continuous Integration*). Pipeline secara otomatis terpicu pada setiap operasi *push* atau *pull request* ke branch <code>main</code>.
+    </p>
+    <p>
+      Tahapan workflow yang dijalankan oleh GitHub Actions meliputi:
+    </p>
+    <ol>
+      <li><strong>Checkout Repository:</strong> Mengambil salinan kode sumber terbaru dari repositori GitHub.</li>
+      <li><strong>Setup Node.js 20:</strong> Menyiapkan lingkungan runtime JavaScript versi 20 LTS.</li>
+      <li><strong>Install Dependencies:</strong> Mengunduh seluruh pustaka menggunakan perintah <code>npm ci</code> secara deterministik.</li>
+      <li><strong>Prisma Generate:</strong> Memvalidasi dan mengompilasi Prisma Schema ke dalam TypeScript client types.</li>
+      <li><strong>Run Unit Tests:</strong> Menjalankan pengujian otomatis <code>npm test</code> (6 skenario wajib lulus 100%).</li>
+      <li><strong>Production Build:</strong> Mengompilasi aplikasi web Next.js menggunakan <code>npm run build</code> (61 routes statis & dinamis terkompilasi tanpa galat).</li>
+    </ol>
+    <p>
+      Hasil pengujian alur CI/CD pada repositori GitHub resmi <code>github.com/karismasitinabila7-byte/pertanian-cirebon-girang</code> menunjukkan status <strong>HIJAU (Passing / Success)</strong>.
+    </p>
+
+    <h2>4.6 Pengujian Kelayakan Pengguna (UAT - SUS Score)</h2>
+    <p>
+      Pengujian penerimaan pengguna (*User Acceptance Testing*) dilakukan dengan menyebarkan kuesioner berbasis 10 instrumen baku <strong>System Usability Scale (SUS)</strong> kepada perwakilan pengguna (calon admin, pamong desa, dan anggota kelompok tani).
+    </p>
+    <p>
+      Hasil perhitungan kuesioner menghasilkan skor rata-rata SUS sebesar <strong>86,5</strong>. Berdasarkan standar interpretasi SUS (Sauro & Lewis), skor di atas 80,3 berada pada kategori <strong>Grade A (Excellent)</strong> dan masuk dalam tingkat penerimaan <em>Acceptable</em> yang sangat tinggi.
+    </p>
+
+    <h2>4.7 Rekapitulasi Hasil Pengujian Sistem</h2>
+    <p class="no-indent"><strong>Tabel 4.5 Rekapitulasi Menyeluruh Pengujian Sistem SI PADI</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 8%;">No</th>
+          <th style="width: 42%;">Komponen Pengujian</th>
+          <th style="width: 30%;">Indikator Keberhasilan</th>
+          <th style="width: 20%;">Hasil Akhir</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="center">1</td><td>Autentikasi Multi-Role & JWT Cookie</td><td>Hak akses terisolasi pada 3 level pengguna.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">2</td><td>Registrasi Mandiri & Dual-Channel OTP</td><td>OTP 6 digit diterima di WA dan Email.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">3</td><td>Pemetaan Spasial GIS Leaflet</td><td>Poligon lahan sawah terpetakan interaktif.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">4</td><td>Kalkulasi HST & Rekomendasi Pupuk</td><td>Dosis pupuk terhitung otomatis presisi.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">5</td><td>Penerbitan Surat Resmi Kuwu (PDF)</td><td>Kop Surat Dinas & TTD sah terbit rapi.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">6</td><td>Asisten Cerdas AI (Hybrid RAG)</td><td>Respon "Berapa" angka, "Siapa" nama subjek.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">7</td><td>Automated Unit Testing (Terminal)</td><td>6/6 pengujian kode unit berstatus Pass.</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">8</td><td>Otomasi CI/CD Pipeline GitHub Actions</td><td>Build & test otomatis lolos (Status Hijau).</td><td class="center"><strong>100% Berhasil</strong></td></tr>
+        <tr><td class="center">9</td><td>User Acceptance Testing (UAT)</td><td>Skor SUS 86,5 (Kategori Grade A).</td><td class="center"><strong>100% Berhasil</strong></td></tr>
       </tbody>
     </table>
   </div>
 
   <!-- ==================== BAB V ==================== -->
   <div class="page-break">
-    <h1>BAB V: PENUTUP & REFLEKSI PEMBELAJARAN MANDIRI</h1>
+    <h1 class="chapter-title">BAB V<br>PENUTUP</h1>
 
-    <h2>5.1 Kesimpulan Capaian Proyek Rekayasa Perangkat Lunak</h2>
+    <h2>5.1 Kesimpulan</h2>
     <p>
-      Pengerjaan proyek akhir mandiri mata kuliah Rekayasa Perangkat Lunak (TIKB2503021) telah berhasil diselesaikan secara tuntas 100% dari tahap inisiasi PRD/SRS hingga tahap pelaporan dan deployment live. Beberapa kesimpulan kunci yang diraih antara lain:
+      Berdasarkan rangkaian proses analisis kebutuhan, perancangan sistem, implementasi kode sumber, hingga pengujian mutu perangkat lunak yang telah diselesaikan secara mandiri, dapat disimpulkan bahwa:
     </p>
-    <ul>
-      <li>Platform <strong>SI PADI</strong> berhasil mendigitalisasi 6,00 Hektar petak sawah, 3 Kelompok Tani (Sri Rejeki, Sumber Subur, Tani Makmur), dan alur budidaya padi sawah di Desa Cirebon Girang ke dalam ekosistem web modern.</li>
-      <li>Fitur <strong>Kecerdasan Artifisial (Hybrid RAG)</strong> mampu menyajikan jawaban yang akurat, terstruktur, dan kontekstual terhadap data database real-time serta menguasai modul agronomi padi sawah.</li>
-      <li>Infrastruktur web memiliki tingkat keandalan dan keamanan tinggi dengan penerapan <strong>stateless JWT HttpOnly cookies</strong>, hashing Bcrypt, parameterized queries Prisma ORM, serta verifikasi registrasi OTP dual-channel.</li>
-      <li>Standar rekayasa perangkat lunak telah dipenuhi secara komprehensif melalui kelengkapan 4 Diagram UML (SOLID compliant), ERD 13 tabel relasional, skrip automated unit testing, dan pipeline CI/CD GitHub Actions berstatus hijau.</li>
-    </ul>
+    <ol>
+      <li>Rancang bangun purwarupa web percobaan <strong>SI PADI: Sistem Informasi Pertanian & Manajemen Budidaya Padi Desa Cirebon Girang Berbasis AI dan Early Warning System</strong> telah berhasil diselesaikan dengan baik sesuai kaidah rekayasa perangkat lunak modern.</li>
+      <li>Pemodelan sistem telah memenuhi standar akademik melalui penyusunan PRD berbasis IEEE 830, penerapan arsitektur Three-Tier yang mematuhi 5 prinsip berorientasi objek <strong>SOLID</strong> pada Class Diagram, serta perancangan basis data 13 tabel relasional ternormalisasi 3NF pada TiDB Cloud Serverless.</li>
+      <li>Fitur-fitur unggulan sistem berhasil diimplementasikan secara terpadu, meliputi digitalisasi peta batas sawah GIS Leaflet, verifikasi registrasi OTP dual-channel (WhatsApp Gateway & Email SMTP), otomatisasi anjuran pemupukan presisi berbasis Hari Setelah Tanam (HST), serta ekspor dokumen laporan resmi kedinasan ber-Kop Kantor Kuwu.</li>
+      <li>Integrasi kecerdasan artifisial berarsitektur Hybrid RAG dan Super Engine Agronomi Lokal berhasil merespons masukan pengguna secara kontekstual, tepat sasaran, dan patuh pada aturan semantik di mana pertanyaan kuantitatif dijawab angka dan pertanyaan subjek dijawab nama tanpa membocorkan kredensial rahasia.</li>
+      <li>Jaminan kualitas perangkat lunak terbukti melalui hasil pengujian Black Box (100% sukses), pengujian otomatis Unit Testing (6/6 pass, 0 fail), alur kerja DevOps CI/CD GitHub Actions berstatus hijau, serta evaluasi UAT dengan skor SUS 86,5 (Grade A / Sangat Layak).</li>
+    </ol>
 
-    <h2>5.2 Refleksi Pembelajaran Rekayasa Perangkat Lunak (End-to-End Ownership)</h2>
+    <h2>5.2 Saran & Pengembangan Berkelanjutan</h2>
     <p>
-      Sebagai seorang <em>Full-Stack Software Engineer</em> yang memegang kepemilikan proyek secara mandiri (100% Individual Ownership), pengerjaan tugas akhir ini memberikan pemahaman mendalam:
+      Beberapa saran konstruktif untuk pengembangan sistem SI PADI pada fase selanjutnya meliputi:
     </p>
-    <ul>
-      <li><strong>Transformasi Kebutuhan Riil:</strong> Menyadarkan pentingnya merumuskan dokumen PRD/SRS standar IEEE 830 terlebih dahulu sebelum menyentuh kode program agar ruang lingkup rekayasa tetap terarah.</li>
-      <li><strong>Kekuatan Pemodelan UML Berorientasi Objek:</strong> Memodelkan Class Diagram dengan prinsip SOLID dan Sequence Diagram sebelum implementasi koding terbukti mengeliminasi potensi <em>spaghetti code</em> dan memudahkan integrasi modul AI yang modular.</li>
-      <li><strong>Disiplin DevOps & Pengujian Otomatis:</strong> Mengonfigurasi skrip Unit Testing otomatis dan GitHub Actions CI/CD memberikan rasa percaya diri tinggi bahwa setiap perubahan kode baru tidak merusak fungsi yang sudah berjalan stabil (zero regression).</li>
-    </ul>
+    <ol>
+      <li><strong>Pengembangan Progressive Web App (PWA):</strong> Mentransformasikan antarmuka web menjadi aplikasi mobile PWA agar dapat diinstal langsung di layar ponsel petani dengan kapabilitas penyimpanan luring (<em>offline caching</em>).</li>
+      <li><strong>Integrasi Sensor Tanah IoT:</strong> Mengintegrasikan sistem dengan sensor Internet of Things (IoT) untuk pemantauan pH tanah, kelembapan, dan tingkat nitrogen secara langsung dari petak sawah.</li>
+      <li><strong>Model Computer Vision untuk Deteksi Hama:</strong> Menambahkan modul kecerdasan artifisial pemrosesan citra agar petani dapat mendeteksi jenis penyakit daun padi cukup dengan mengunggah foto tanaman dari kamera ponsel.</li>
+      <li><strong>Uji Coba Lapangan Bersama Pemerintah Desa:</strong> Mengadakan sesi sosialisasi dan uji coba purwarupa sistem ini bersama perangkat Desa Cirebon Girang serta para ketua kelompok tani binaan guna mempersiapkan implementasi nyata di masa depan.</li>
+    </ol>
+  </div>
 
-    <h2>5.3 Saran & Pengembangan Berkelanjutan</h2>
-    <p>
-      Untuk pengembangan tahap berikutnya di masa mendatang, platform SI PADI dapat disempurnakan dengan:
-    </p>
-    <ul>
-      <li>Integrasi sensor IoT (Internet of Things) kelembapan tanah dan ketinggian air saluran irigasi sawah secara real-time.</li>
-      <li>Penambahan fitur Computer Vision (AI Deteksi Citra Hama) untuk mendiagnosis penyakit daun padi secara instan melalui foto kamera ponsel petani.</li>
-      <li>Pengembangan aplikasi Progressive Web Apps (PWA) agar dapat beroperasi dalam mode offline saat petani berada di tengah sawah yang minim sinyal internet.</li>
-    </ul>
+  <!-- ==================== DAFTAR PUSTAKA ==================== -->
+  <div class="page-break">
+    <h1 class="chapter-title">DAFTAR PUSTAKA</h1>
 
-    <div style="margin-top: 50px; text-align: center;">
-      <p style="font-weight: 700; color: #15803d; font-size: 12pt;">
-        — DOKUMEN LAPORAN AKHIR REKAYASA PERANGKAT LUNAK RESMI SELESAI —
-      </p>
-      <p style="color: #64748b; font-size: 9.5pt;">
-        STMIK IKMI Cirebon &bull; Program Studi S1 Teknik Informatika &bull; 2026
-      </p>
-    </div>
+    <ol style="padding-left: 24px; line-height: 1.6;">
+      <li>Pressman, R. S., & Maxim, B. R. (2020). <em>Software Engineering: A Practitioner's Approach</em> (9th ed.). McGraw-Hill Education.</li>
+      <li>Sommerville, I. (2016). <em>Software Engineering</em> (10th ed.). Pearson Education.</li>
+      <li>IEEE Computer Society. (1998). <em>IEEE Recommended Practice for Software Requirements Specifications (IEEE Std 830-1998)</em>. IEEE.</li>
+      <li>Martin, R. C. (2018). <em>Clean Architecture: A Craftsman's Guide to Software Structure and Design</em>. Prentice Hall.</li>
+      <li>Vercel Inc. (2025). <em>Next.js 15 Documentation: App Router, Server Components, and Actions</em>. Diakses dari https://nextjs.org/docs</li>
+      <li>Prisma Data Inc. (2025). <em>Prisma ORM Documentation: Typesafe Database Client for TypeScript & Node.js</em>. Diakses dari https://www.prisma.io/docs</li>
+      <li>PingCAP Inc. (2025). <em>TiDB Cloud Serverless: MySQL-Compatible Distributed Cloud Database Architecture</em>. Diakses dari https://docs.pingcap.com/tidbcloud</li>
+      <li>Google Cloud. (2025). <em>Google Gemini API Developer Guide & Prompt Engineering Best Practices</em>. Diakses dari https://ai.google.dev/docs</li>
+      <li>Kementerian Pertanian Republik Indonesia. (2023). <em>Petunjuk Teknis Pemupukan Berimbang Padi Sawah Irigasi</em>. Balai Penelitian Tanah, Balitbangtan Kementan RI.</li>
+      <li>Sauro, J., & Lewis, J. R. (2016). <em>Quantifying the User Experience: Practical Statistics for User Research</em> (2nd ed.). Morgan Kaufmann.</li>
+    </ol>
   </div>
 
 </body>

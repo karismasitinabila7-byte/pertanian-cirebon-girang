@@ -1,0 +1,37 @@
+name: CI/CD Pipeline SI PADI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build, Lint & Automated Unit Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Automated Unit Tests
+        run: npm test
+
+      - name: Build Next.js Application
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'mysql://root:password@localhost:3306/db_si_padi' }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci_cd_test_secret_key_32_characters_long' }}

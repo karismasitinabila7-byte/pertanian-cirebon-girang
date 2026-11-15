@@ -1,155 +1,143 @@
-# Platform Pertanian Padi Desa Cirebon Girang
+# SI PADI: Sistem Informasi Pertanian & Manajemen Budidaya Padi Desa Cirebon Girang
 
-Platform web terpadu digitalisasi pertanian padi Desa Cirebon Girang, menghubungkan **Admin**, **Perangkat Desa**, dan **Petani Anggota Kelompok Tani** dalam satu sistem terintegrasi.
+[![CI/CD Pipeline SI PADI](https://github.com/karismasitinabila7-byte/pertanian-cirebon-girang/actions/workflows/ci.yml/badge.svg)](https://github.com/karismasitinabila7-byte/pertanian-cirebon-girang/actions/workflows/ci.yml)
+[![Vercel Deployment](https://img.shields.io/badge/Deployment-Vercel%20Live-15803d?logo=vercel)](https://pertanian-cirebon-girang.vercel.app)
+[![Node.js](https://img.shields.io/badge/Node.js-v20%20LTS-339933?logo=node.js)](https://nodejs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15%20App%20Router-000000?logo=next.js)](https://nextjs.org/)
+[![Database](https://img.shields.io/badge/Database-TiDB%20Cloud%20MySQL-00758F?logo=mysql)](https://tidbcloud.com)
 
----
-
-## 🌾 Latar Belakang & Tujuan
-1. **Digitalisasi Data Petani & Kelompok Tani**: Pencatatan data kelompok tani, struktur kepengurusan, dan data anggota petani beserta NIK dan lokasi domisili di Desa Cirebon Girang.
-2. **Pendataan Lahan Pertanian**: Inventarisasi petak sawah, luas lahan ($m^2$ dan Hektar), status kepemilikan (milik sendiri, sewa, bagi hasil), tipe irigasi, dan titik koordinat GPS.
-3. **Pencatatan Musim Tanam & Aktivitas Budidaya**: Pengelolaan jadwal musim tanam (Musim Rendeng MT1 & Musim Gadu MT2/MT3), varietas padi unggul (Inpari 32, Ciherang, dll.), serta log harian budidaya (pengolahan tanah, semai, tanam jajar legowo, pemupukan berimbang, pengendalian OPT, panen).
-4. **Monitoring Pertanian oleh Perangkat Desa**: Pemantauan agregat statistik luas tanam, estimasi hasil panen, status pengairan saluran irigasi, serta publikasi pengumuman desa.
-5. **Kesiapan AI Assistant untuk Petani**: Arsitektur percakapan cerdas yang siap mendampingi petani terkait deteksi dini hama/penyakit, rekomendasi dosis pupuk, dan cuaca.
-
----
-
-## 👥 Matriks 3 Role Pengguna
-
-| Role | Fungsi Utama | Modul Utama |
-|---|---|---|
-| **Admin** | Manajemen pengguna, konfigurasi sistem desa, master data varietas padi & audit keamanan | Manajemen Akun, Master Wilayah/Blok, Audit Trail |
-| **Perangkat Desa** | Monitoring pertanian tingkat desa, verifikasi poktan & lahan, pengumuman jadwal air | Dashboard Statistik Desa, Rekapitulasi Lahan, Broadcast Pengumuman |
-| **Petani Anggota** | Pendataan lahan garapan, pencatatan log harian budidaya, estimasi panen & konsultasi AI | Buku Catatan Tani, Jadwal Tanam, Konsultasi AI Assistant |
+> **Tugas Proyek Akhir Mandiri (OBE Rubric Compliant)**  
+> **Mata Kuliah:** Rekayasa Perangkat Lunak (TIKB2503021) — 4 SKS (Semester 3)  
+> **Dosen Pengampu:** Yudhistira Arie Wijaya, M.Kom., CDS.  
+> **Program Studi:** S1 Teknik Informatika — STMIK IKMI Cirebon  
+> **Sifat Pengerjaan:** Mandiri / Perorangan (100% Individual Ownership & Full-Stack Build)
 
 ---
 
-## 🏗️ Stack Teknologi
-
-- **Framework**: [Next.js](https://nextjs.org/) (App Router, Server Components & Route Handlers)
-- **Bahasa Pemrograman**: [TypeScript](https://www.typescriptlang.org/) (Strict typing end-to-end)
-- **Database & ORM**: [Prisma ORM](https://www.prisma.io/) dengan SQLite (Zero-config development & portabel) serta siap beralih ke MySQL di Laragon / production.
-- **Styling**: Vanilla CSS modern dengan Design Tokens bertema pertanian nusantara, CSS Modules, dan responsive mobile-first.
+## 👤 Identitas Mahasiswa & Tim Proyek
+* **Nama Mahasiswa:** Karisma Siti Nabila
+* **NIM:** 4122001
+* **Program Studi:** S1 Teknik Informatika (Semester 3)
+* **Kelompok:** Mandiri (Group Topic Theme with Individual Full-App Build)
+* **Tema Topik Kelompok:** Public Service & Smart Agriculture AI (Pemberdayaan Pertanian Pedesaan Cerdas)
+* **Tautan Repositori GitHub:** [github.com/karismasitinabila7-byte/pertanian-cirebon-girang](https://github.com/karismasitinabila7-byte/pertanian-cirebon-girang)
+* **Tautan Aplikasi Live (Production):** [pertanian-cirebon-girang.vercel.app](https://pertanian-cirebon-girang.vercel.app)
 
 ---
 
-## 📁 Struktur Direktori Scalable
+## 📺 Tautan Presentasi Video Proyek (YouTube / Google Drive)
+Sesuai dengan ketentuan standar kualitas presentasi (Bab III Panduan Dosen: Screen recording 1080p + Webcam wajah aktif di pojok layar):
 
-```text
-pertanian-padi-cirebon-girang/
-├── .env                         # Konfigurasi environment lokal
-├── .env.example                 # Template konfigurasi environment
-├── .gitignore                   # File ignore git
-├── next.config.ts               # Konfigurasi Next.js
-├── package.json                 # Manifest dependensi & script project
-├── tsconfig.json                # Konfigurasi TypeScript compiler
-├── prisma/
-│   ├── schema.prisma            # Schema relasional database (10 model)
-│   └── seed.ts                  # Seeding data realistis Desa Cirebon Girang
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── health/route.ts  # Endpoint health check sistem & database
-│   │   │   └── stats/route.ts   # Endpoint API ringkasan statistik
-│   │   ├── globals.css          # Design token, typography & styling dasar
-│   │   ├── layout.tsx           # Layout root (SEO & meta tags)
-│   │   └── page.tsx             # Halaman utama overview sistem & 3 role
-│   ├── components/
-│   │   ├── features/            # Komponen fitur bisnis (Role cards, status card)
-│   │   ├── layout/              # Header & Footer aplikasi
-│   │   └── ui/                  # Atomik UI (Button, Card, Badge)
-│   ├── lib/
-│   │   ├── prisma.ts            # Client singleton Prisma
-│   │   └── utils.ts             # Utility formatting angka, hektar, tanggal
-│   ├── services/
-│   │   └── statsService.ts      # Layanan query database statistik desa
-│   └── types/
-│       └── index.ts             # Definisi domain types & interfaces
+1. **Video Progres 1: PRD & Konsep Aplikasi (Durasi 3–5 Menit | Bobot 20%):**  
+   🔗 `[Tautan Video Progres 1 YouTube / Google Drive Anda]`  
+   *Membahas: Identifikasi masalah riil Desa Cirebon Girang, Value Proposition, Spesifikasi Kebutuhan Fungsional (FR-01 s/d FR-08) & Non-Fungsional (NFR), serta peran strategis AI Hybrid RAG.*
+2. **Video Progres 2: Pemodelan UML & UI/UX Figma (Durasi 5–7 Menit | Bobot 30%):**  
+   🔗 `[Tautan Video Progres 2 YouTube / Google Drive Anda]`  
+   *Membahas: Bedah 4 Diagram UML Utama (Use Case 14 fungsi, Activity Diagram alur OTP & AI, Class Diagram SOLID-compliant, Sequence Diagram pertukaran pesan), ERD 13 tabel relasional, dan walkthrough desain UI/UX.*
+3. **Video Final: Live Demo Aplikasi Web & Sistem Utuh (Durasi 8–12 Menit | Bobot 50%):**  
+   🔗 `[Tautan Video Final Live Demo YouTube / Google Drive Anda]`  
+   *Membahas: Elevator Pitch, arsitektur sistem, Live Demo 3 Dashboard (Admin, Perangkat Desa, Petani), uji semantik AI chatbot real-time (aturan "Berapa" & "Siapa"), eksekusi Automated Unit Testing terminal (`npm test`), verifikasi status hijau CI/CD Actions, dan refleksi pembelajaran mandiri.*
+
+---
+
+## 🌾 Deskripsi Aplikasi & Peran Fitur AI Utama
+**SI PADI** adalah platform komprehensif terpadu untuk digitalisasi pendataan lahan sawah (6,00 Ha), jadwal musim tanam, rekapitulasi panen kelompok tani, dan konsultasi cerdas agrikultur di Desa Cirebon Girang, Kecamatan Talun, Kabupaten Cirebon.
+
+### Fitur Utama Sistem:
+1. **Role-Based Access Control (RBAC 3 Role):**
+   * **Administrator (12 Menu):** Dashboard Admin, Peta GIS, Kelompok Tani, Data Petani, Data Master User, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Data Panen, Edukasi & Panduan, Profil Saya, dan Konfigurasi Sistem.
+   * **Perangkat Desa (10 Menu):** Dashboard Desa, Peta GIS, Kelompok Tani, Data Petani, Lahan Pertanian, Musim Tanam, Aktivitas Budidaya, Rekap Panen, Edukasi & Panduan, Profil Saya.
+   * **Petani Binaan (10 Menu):** Beranda Petani, Peta GIS, Kelompok Saya, Lahan Saya, Musim Tanam Saya, Aktivitas Budidaya, Hasil Panen Saya, Edukasi & Panduan, Profil Saya, dan AI Assistant.
+2. **Peta Spasial GIS (Leaflet.js):** Pemetaan interaktif koordinat poligon petak sawah satelit (OpenStreetMap & Esri) dengan tooltip dinamis luas lahan, pengelola, dan varietas padi.
+3. **Early Warning System (EWS) Multi-Saluran:** Pemantauan otomatis umur Hari Setelah Tanam (HST) untuk jadwal pemupukan berimbang dan peringatan cuaca Open-Meteo via **WhatsApp Gateway (Fonnte)** dan **Email SMTP (Nodemailer)**.
+4. **Registrasi Mandiri Petani & Dual-Channel OTP:** Pendaftaran petani dengan kode OTP 6 digit yang dikirim simultan ke WhatsApp dan Email dengan masa berlaku 5 menit.
+5. **Certified Official Village Reporting:** Penerbitan dokumen laporan resmi ber-Kop Kantor Kuwu dengan tanda tangan pengesahan asli Kuwu Bapak Karsiman, S.Sos.
+
+### Arsitektur Kecerdasan Artifisial (Hybrid RAG):
+* **Dynamic Real-Time Context Injection:** Backend menginjeksi data agregat termutakhir dari basis data MySQL TiDB Cloud (jumlah akun, petani, kelompok tani, petak sawah, musim tanam, panen) ke dalam prompt model **Google Gemini 3.0 Flash** / **OpenAI GPT-4o-mini**, mencegah halusinasi.
+* **Deterministic Local Agronomy Engine (0 ms Latency):** Beroperasi sebagai fallback instan jika kuota API habis, menegakkan aturan semantik ketat:
+  * Pertanyaan **"Berapa"** $\rightarrow$ dijawab langsung angka kuantitatif ringkas tanpa membocorkan data pribadi.
+  * Pertanyaan **"Siapa"** $\rightarrow$ dijawab langsung nama subjek spesifik.
+  * Menjawab **15 topik pertanyaan penguji sidang / dosen** seputar arsitektur web, SDLC, keamanan, dan testing.
+
+---
+
+## 🛠️ Stack Teknologi & Arsitektur
+* **Framework:** Next.js 15 (App Router, Server Components & Server Actions)
+* **User Interface:** React 19, Tailwind CSS, Lucide React, Leaflet.js
+* **Bahasa:** TypeScript 5 (Strict Mode)
+* **ORM & Database:** Prisma ORM 6 dengan MySQL di **TiDB Cloud Serverless**
+* **Keamanan:** Stateless JWT via `jose` (HttpOnly Secure Cookies), `bcryptjs` salt 10, Parameterized Queries (Anti-SQLi)
+* **Kecerdasan Buatan:** Google Gemini API (gemini-3.0-flash) + Local Rule-Based Engine
+* **Testing & DevOps:** Node.js Native Test Runner (`node:test`), GitHub Actions CI/CD Pipeline
+
+---
+
+## 📁 Berkas Dokumen Laporan Resmi (Tersimpan di `docs/`)
+1. **Laporan Akhir Terintegrasi (PDF Tunggal):** `docs/Laporan_Akhir_RPL_SI_PADI_STMIK_IKMI.pdf` (Gabungan PRD IEEE 830, SDD 4 Diagram UML & ERD, Konstruksi Kode, Testing, dan CI/CD).
+2. **Naskah Script Presentasi Video (PDF & Markdown):** `docs/Naskah_Script_Presentasi_Video_SI_PADI.pdf` dan `docs/Naskah_Script_Presentasi_Video_SI_PADI.md`.
+3. **Diagram Visual Asli:**
+   * `docs/UseCase_SI_PADI_Cirebon_Girang.png`
+   * `docs/ERD_SI_PADI_Cirebon_Girang.png`
+   * `docs/PRD_SI_PADI_Cirebon_Girang.png`
+
+---
+
+## 🚀 Petunjuk Instalasi & Menjalankan Proyek (Setup Instruction)
+
+### 1. Prasyarat Sistem
+* Node.js v20 LTS atau lebih baru
+* npm v10 atau lebih baru
+* Git
+
+### 2. Kloning Repositori
+```bash
+git clone https://github.com/karismasitinabila7-byte/pertanian-cirebon-girang.git
+cd pertanian-cirebon-girang
 ```
 
----
-
-## 🗄️ Database Schema Awal (Prisma)
-Skema database mencakup 10 model:
-1. `User`: Akun pengguna dan wewenang (Role: `ADMIN`, `VILLAGE_OFFICER`, `FARMER`).
-2. `FarmerGroup`: Data kelompok tani Desa Cirebon Girang (Blok, ketua, kontak, SK).
-3. `FarmerProfile`: Profil detail petani anggota kelompok tani (NIK, alamat, RT/RW).
-4. `Farmland`: Pendataan petak sawah (luas $m^2$, irigasi teknis/tadah hujan, status kepemilikan, GPS).
-5. `PlantingSeason`: Master musim tanam padi (Rendeng / Gadu).
-6. `CropCycle`: Siklus tanam per petak lahan (varietas padi, tanggal tanam, estimasi & realisasi panen).
-7. `CultivationActivity`: Jurnal harian budidaya (pengolahan tanah, semai, tanam, pemupukan, hama, panen).
-8. `VillageAnnouncement`: Publikasi himbauan dan jadwal gilir air irigasi oleh perangkat desa.
-9. `AiChatSession`: Sesi percakapan konsultasi budidaya antara petani dan AI Assistant.
-10. `AiChatMessage`: Riwayat interaksi pesan tanya jawab AI.
-11. `AuditLog`: Log pencatatan aktivitas sistem.
-
----
-
-## 🚀 Cara Menjalankan Aplikasi
-
-### 1. Sinkronisasi Database Schema
+### 3. Instalasi Dependensi
 ```bash
+npm install
+```
+
+### 4. Konfigurasi Environment Variables (`.env`)
+Salin atau buat berkas `.env` pada direktori root:
+```env
+DATABASE_URL="mysql://<user>:<password>@<host>:4000/db_si_padi?sslaccept=strict"
+JWT_SECRET="kunci_rahasia_jwt_minimal_32_karakter_acak"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Integrasi AI (Opsional - Sistem memiliki Super Engine Lokal otomatis)
+GEMINI_API_KEY="AIzaSy..."
+AI_PROVIDER="gemini"
+AI_GEMINI_MODEL="gemini-3.0-flash"
+
+# Integrasi Notifikasi (Opsional)
+FONNTE_TOKEN="token_api_fonnte_anda"
+SMTP_USER="email_pengirim@gmail.com"
+SMTP_PASS="app_password_gmail"
+```
+
+### 5. Sinkronisasi Skema Basis Data
+```bash
+npx prisma generate
 npx prisma db push
 ```
 
-### 2. Isi Data Awal (Seeding)
+### 6. Menjalankan Skrip Unit Testing Otomatis
 ```bash
-npm run db:seed
+npm test
 ```
+*Hasil yang diharapkan: 6 Unit Tests berjalan sukses (Pass: 6, Fail: 0).*
 
-### 3. Jalankan Server Development
+### 7. Menjalankan Server Pengembangan Lokal
 ```bash
 npm run dev
-# Atau jalankan versi produksi yang telah dioptimasi:
-npm run build
-npm run start
 ```
-Buka browser di: [http://localhost:3000](http://localhost:3000)
+Buka peramban pada `http://localhost:3000`.
 
----
-
-## 🔑 Kredensial Akun Login (Untuk Pengujian & Penilaian Dosen)
-
-Login menggunakan **Email** dan **Kata Sandi**:
-
-| No | Peran / Role | Alamat Email | Kata Sandi | Dashboard Tujuan | Keterangan |
-|---|---|---|---|---|---|
-| 1 | **Petani** | `petani@cirebongirang.desa.id` | `password123` | `/petani` | Bapak Sukardi (Poktan Sri Rejeki) |
-| 2 | **Perangkat Desa** | `perangkat@cirebongirang.desa.id` | `password123` | `/desa` | Bapak Karsiman, S.Sos (Kaur Ekbang) |
-| 3 | **Administrator** | `admin@cirebongirang.desa.id` | `password123` | `/admin` | Administrator Sistem Desa |
-
-> **Catatan Penguji:** Pada halaman login (`/login`), tersedia tombol **1-Klik Demo ("Isi" & "Masuk")** untuk masing-masing role agar mempermudah pengujian instan tanpa perlu mengetik manual.
-
----
-
-## 🛠️ Ringkasan Fitur Setiap Dashboard
-
-### 1. 🌾 Dashboard Petani (`/petani`)
-- **Beranda Petani**: Ringkasan luas lahan (m² & Ha), status petak aktif, musim berjalan, hitung mundur panen, dan tips budidaya AI.
-- **Lahan Saya (`/petani/lahan`)**: Inventarisasi dan penambahan petak sawah milik petani mandiri.
-- **Musim Tanam Saya (`/petani/musim-tanam`)**: Pelacakan varietas padi (Inpari 32, Ciherang), tanggal tanam, dan fase pertumbuhan.
-- **Aktivitas Budidaya (`/petani/aktivitas`)**: Pencatatan log harian (pengolahan tanah, pemupukan urea/phonska, pengairan, semprot hama).
-- **Hasil Panen Saya (`/petani/panen`)**: Input hasil gabah kering panen (kg/ton) dan mutu gabah.
-- **Kelompok Saya (`/petani/kelompok-tani`)**: Informasi Poktan, wilayah blok, nama ketua, dan nomor kontak pengurus.
-- **Profil Petani (`/petani/profil`)**: Informasi identitas, NIK, nomor telepon, dan ganti kata sandi.
-
-### 2. 🏛️ Dashboard Perangkat Desa (`/desa`)
-- **Executive Dashboard Desa**: Monitoring agregat produktivitas padi desa, filter per Poktan dan per tahun.
-- **Grafik Distribusi**: Sebaran luas lahan per Poktan, status musim tanam desa, dan rekapitulasi panen gabah.
-- **Peringatan Panen (Harvest Alert)**: Notifikasi otomatis musim tanam yang diprediksi panen dalam 30 hari ke depan.
-- **Data Petani Desa (`/desa/petani`)**: Direktori seluruh petani desa, nomor kontak, dan detail kepemilikan lahan.
-- **Data Poktan (`/desa/kelompok-tani`)**: Data legalitas kelompok tani, wilayah dusun, dan kontak ketua.
-- **Monitoring Lahan & Musim Desa**: Rekapitulasi petak sawah dan status musim tanam di seluruh dusun.
-
-### 3. 🛡️ Dashboard Administrator (`/admin`)
-- **Admin System Overview**: Statistik total pengguna, petani, poktan, total luas lahan desa (Ha), musim aktif, dan audit log.
-- **Kelola Master Petani (`/admin/petani`)**: CRUD lengkap data petani, pembuatan akun baru, pengaitan poktan, reset password, dan status aktif.
-- **Kelola Kelompok Tani (`/admin/kelompok-tani`)**: Tambah, edit, dan hapus kelompok tani Desa Cirebon Girang.
-- **Kelola Lahan Pertanian (`/admin/lahan`)**: Manajemen seluruh petak sawah desa beserta status keaktifan.
-- **Kelola Musim Tanam (`/admin/musim-tanam`)**: Kontrol penuh siklus tanam, varietas, dan status musim.
-- **Kelola Aktivitas & Panen**: Supervisi seluruh jurnal budidaya dan hasil panen gabah desa.
-
-### 4. 🤖 AI Assistant Pertanian Padi (`/ai`)
-- Asisten cerdas khusus budidaya padi berbasis pengetahuan lokal Desa Cirebon Girang.
-- Rekomendasi penanganan hama (wereng batang coklat, sundep/beluk, keong mas, kresek).
-- Panduan pemupukan berimbang per HST dan irigasi efisien (*macak-macak*).
-
+### 8. Akun Default Pengujian
+* **Administrator:** `karismasitinabila7@gmail.com` | Sandi: `Karisma123`
+* **Perangkat Desa (Kuwu):** `karsiman@gmail.com` | Sandi: `Karisman123`
+* **Petani (Poktan Sri Rejeki):** `sukardi@gmail.com` | Sandi: `Sukardi123`

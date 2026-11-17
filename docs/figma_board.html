@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>UI/UX Design Board - SI PADI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 40px 60px;
+      min-width: 3200px;
+    }
+    .header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .project-tag {
+      display: inline-block;
+      background: #064e3b;
+      color: #34d399;
+      border: 1px solid #059669;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 38px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 20px;
+      color: #94a3b8;
+    }
+    .author-badge {
+      background: #1e293b;
+      border: 1px solid #475569;
+      padding: 14px 24px;
+      border-radius: 12px;
+      text-align: right;
+    }
+    .author-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .author-meta {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-top: 4px;
+    }
+    
+    .boards-grid {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+    .mockup-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      width: 580px;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .browser-bar {
+      background: #0f172a;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #334155;
+    }
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .url-bar {
+      background: #1e293b;
+      color: #94a3b8;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 6px;
+      flex-grow: 1;
+      font-family: monospace;
+      border: 1px solid #334155;
+    }
+    .screen-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .mockup-desc {
+      padding: 18px 22px;
+      background: #1e293b;
+    }
+    .mockup-desc h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 6px;
+    }
+    .mockup-desc p {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .tag {
+      background: #334155;
+      color: #cbd5e1;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <span class="project-tag">PROTOTIPE INTERAKTIF UI / UX - FIGMA SHOWCASE</span>
+      <h1>SI PADI: Sistem Informasi Pertanian Padi Desa Cirebon Girang</h1>
+      <div class="subtitle">Platform Agrikultur Digital & Early Warning System Berbasis Next.js 15, Tailwind CSS, & AI</div>
+    </div>
+    <div class="author-badge">
+      <div class="author-name">Karisma Siti Nabila</div>
+      <div class="author-meta">NIM: 41257113 | Kelas: TI-KIP-1B-2025</div>
+      <div class="author-meta">STMIK IKMI Cirebon &bull; Dosen: Yudhistira Arie Wijaya, M.Kom., CDS.</div>
+    </div>
+  </div>
+
+  <div class="boards-grid">
+
+    <!-- Screen 1 -->
+    <div class="mockup-card">
+      <div class="browser-bar">
+        <div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="url-bar">https://pertanian-cirebon-girang.vercel.app/</div>
+      </div>
+      <img src="images/landing_page.jpg" class="screen-img" alt="Landing Page">
+      <div class="mockup-desc">
+        <h3>01. Beranda Publik & Portal Masuk</h3>
+        <p>Halaman pembuka responsif dengan pengenalan platform desa, tombol navigasi login multi-role, dan ringkasan fitur.</p>
+        <div class="tags"><span class="tag">Landing Page</span><span class="tag">Public Access</span><span class="tag">Tailwind</span></div>
+      </div>
+    </div>
+
+    <!-- Screen 2 -->
+    <div class="mockup-card">
+      <div class="browser-bar">
+        <div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="url-bar">https://pertanian-cirebon-girang.vercel.app/admin</div>
+      </div>
+      <img src="images/ai_chat_dashboard.jpg" class="screen-img" alt="Dashboard Admin">
+      <div class="mockup-desc">
+        <h3>02. Dashboard Administrator & Floating AI</h3>
+        <p>Ringkasan 12 menu tata kelola desa, kartu metrik luas lahan (6,0 Ha), grafik panen, dan floating chat widget AI Assistant.</p>
+        <div class="tags"><span class="tag">Dashboard</span><span class="tag">12 Menu</span><span class="tag">AI Chat Widget</span></div>
+      </div>
+    </div>
+
+    <!-- Screen 3 -->
+    <div class="mockup-card">
+      <div class="browser-bar">
+        <div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="url-bar">https://pertanian-cirebon-girang.vercel.app/admin/petani</div>
+      </div>
+      <img src="images/form_petani.jpg" class="screen-img" alt="Data Petani & Form Registrasi">
+      <div class="mockup-desc">
+        <h3>03. Manajemen Data Petani & Form Input</h3>
+        <p>Modal formulir pendaftaran anggota kelompok tani, validasi NIK 16 digit, integrasi nomor WhatsApp, dan akun login.</p>
+        <div class="tags"><span class="tag">Data Master</span><span class="tag">Modal Form</span><span class="tag">WhatsApp Gateway</span></div>
+      </div>
+    </div>
+
+    <!-- Screen 4 -->
+    <div class="mockup-card">
+      <div class="browser-bar">
+        <div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="url-bar">https://pertanian-cirebon-girang.vercel.app/admin/konfigurasi</div>
+      </div>
+      <img src="images/konfigurasi_sistem.jpg" class="screen-img" alt="Konfigurasi Sistem">
+      <div class="mockup-desc">
+        <h3>04. Konfigurasi Sistem & Super Engine AI</h3>
+        <p>Panel kontrol API Key Google Gemini, pemilihan model 3.0 Flash, persona gaya bahasa asisten, dan pengujian koneksi live.</p>
+        <div class="tags"><span class="tag">System Config</span><span class="tag">Google Gemini</span><span class="tag">Engine Lokal</span></div>
+      </div>
+    </div>
+
+    <!-- Screen 5 -->
+    <div class="mockup-card">
+      <div class="browser-bar">
+        <div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+        <div class="url-bar">https://pertanian-cirebon-girang.vercel.app/admin/users</div>
+      </div>
+      <img src="images/ai_master_user.jpg" class="screen-img" alt="Data Master User">
+      <div class="mockup-desc">
+        <h3>05. Master Pengguna & Konsultasi AI Terhubung DB</h3>
+        <p>Tabel kontrol hak akses pengguna multi-role dan asisten AI yang membaca data riil TiDB Cloud untuk menjawab pertanyaan dosen.</p>
+        <div class="tags"><span class="tag">User Management</span><span class="tag">Hybrid RAG</span><span class="tag">TiDB Cloud</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

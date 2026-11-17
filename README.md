@@ -16,12 +16,14 @@
 
 ## 👤 Identitas Mahasiswa & Tim Proyek
 * **Nama Mahasiswa:** Karisma Siti Nabila
-* **NIM:** 4122001
+* **NIM:** 41257113
+* **Kelas:** TI-KIP-1B-2025
 * **Program Studi:** S1 Teknik Informatika (Semester 3)
 * **Kelompok:** Mandiri (Group Topic Theme with Individual Full-App Build)
 * **Tema Topik Kelompok:** Public Service & Smart Agriculture AI (Pemberdayaan Pertanian Pedesaan Cerdas)
 * **Tautan Repositori GitHub:** [github.com/karismasitinabila7-byte/pertanian-cirebon-girang](https://github.com/karismasitinabila7-byte/pertanian-cirebon-girang)
 * **Tautan Aplikasi Live (Production):** [pertanian-cirebon-girang.vercel.app](https://pertanian-cirebon-girang.vercel.app)
+* **Tautan Prototipe Desain UI/UX Figma:** [Figma Design - UI/UX SI PADI Cirebon Girang](https://www.figma.com/design/8AF5m0pwNQzAPUyDyXRyns/UI-UX-SI-PADI---Karisma-Siti-Nabila--TI-KIP-1B-2025-?node-id=0-1)
 
 ---
 

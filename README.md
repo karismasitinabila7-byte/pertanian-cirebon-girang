@@ -27,18 +27,22 @@
 
 ---
 
-## 📺 Tautan Presentasi Video Proyek (YouTube / Google Drive)
-Sesuai dengan ketentuan standar kualitas presentasi (Bab III Panduan Dosen: Screen recording 1080p + Webcam wajah aktif di pojok layar):
+## 📺 Tautan Presentasi Video Proyek (YouTube Resmi)
+Sesuai dengan ketentuan standar kualitas presentasi (Bab III Panduan Dosen: *Screen recording* 1080p + *Webcam* wajah aktif di pojok layar secara penuh):
 
-1. **Video Progres 1: PRD & Konsep Aplikasi (Durasi 3–5 Menit | Bobot 20%):**  
-   🔗 `[Tautan Video Progres 1 YouTube / Google Drive Anda]`  
-   *Membahas: Identifikasi masalah riil Desa Cirebon Girang, Value Proposition, Spesifikasi Kebutuhan Fungsional (FR-01 s/d FR-08) & Non-Fungsional (NFR), serta peran strategis AI Hybrid RAG.*
-2. **Video Progres 2: Pemodelan UML & UI/UX Figma (Durasi 5–7 Menit | Bobot 30%):**  
-   🔗 `[Tautan Video Progres 2 YouTube / Google Drive Anda]`  
-   *Membahas: Bedah 4 Diagram UML Utama (Use Case 14 fungsi, Activity Diagram alur OTP & AI, Class Diagram SOLID-compliant, Sequence Diagram pertukaran pesan), ERD 13 tabel relasional, dan walkthrough desain UI/UX.*
-3. **Video Final: Live Demo Aplikasi Web & Sistem Utuh (Durasi 8–12 Menit | Bobot 50%):**  
-   🔗 `[Tautan Video Final Live Demo YouTube / Google Drive Anda]`  
-   *Membahas: Elevator Pitch, arsitektur sistem, Live Demo 3 Dashboard (Admin, Perangkat Desa, Petani), uji semantik AI chatbot real-time (aturan "Berapa" & "Siapa"), eksekusi Automated Unit Testing terminal (`npm test`), verifikasi status hijau CI/CD Actions, dan refleksi pembelajaran mandiri.*
+* 🎬 **Tautan Video Presentasi Lengkap (YouTube):**  
+  👉 **[https://youtu.be/oErlB_yAZME](https://youtu.be/oErlB_yAZME)** *(Durasi: 30 Menit 48 Detik | 1080p Full HD)*
+
+### Navigasi Bab & Segmen Evaluasi Video:
+1. **Video Progres 1: PRD & Konsep Aplikasi (Bobot 20%):**  
+   🔗 [Tonton Bab Progres 1 (00:00 - 05:20)](https://youtu.be/oErlB_yAZME?t=0)  
+   *Membahas: Identifikasi masalah riil Desa Cirebon Girang, Value Proposition, Spesifikasi Kebutuhan Fungsional (FR-01 s/d FR-08) & Non-Fungsional (NFR), serta peran strategis AI.*
+2. **Video Progres 2: Pemodelan UML, Arsitektur & ERD (Bobot 30%):**  
+   🔗 [Tonton Bab Progres 2 (05:20 - 16:06)](https://youtu.be/oErlB_yAZME?t=320)  
+   *Membahas: Bedah 4 Diagram UML Utama (Use Case 14 fungsi, Activity Diagram, Class Diagram SOLID-compliant, Sequence Diagram), ERD 13 tabel relasional, dan arsitektur Next.js Clean Architecture.*
+3. **Video Final: Live Demo Web, EWS, GIS & AI (Bobot 50%):**  
+   🔗 [Tonton Bab Live Demo & Evaluasi (16:06 - 30:48)](https://youtu.be/oErlB_yAZME?t=966)  
+   *Membahas: Elevator Pitch, Live Demo 3 Dashboard (Admin, Perangkat Desa, Petani), EWS Jadwal Tanam, Peta Lahan WebGIS Leaflet, Konsultasi Diagnosis Hama Gemini AI, refleksi pembelajaran RPL, dan penutup.*
 
 ---
 
